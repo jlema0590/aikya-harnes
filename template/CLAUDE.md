@@ -53,3 +53,9 @@ En un proyecto nuevo consulta `python3 scripts/harness/scaffold.py plan` y `docs
 ## Skills y coste de contexto
 
 Aplica `.claude/rules/02-context-budget.md`: Ponytail para cambios mínimos, Graphify (sin MCP) para navegación de dependencias con consultas puntuales y UI UX Pro Max sólo al trabajar con interfaces. Revisa disponibilidad al iniciar sesión; instalaciones de terceros únicamente con aprobación.
+
+## Aikya v5: inicio desde Claude Code
+- La entrevista inicial se realiza con `/aikya-init` **en Claude**, no con preguntas de `install.py` en terminal.
+- `/aikya-answers` utiliza el perfil JSON aprobado y `/aikya-doctor` verifica SDKs antes de scaffold.
+- Prefiere comandos `/aikya-feature`, `/aikya-bugfix`, `/aikya-verify`; aliases heredados disponibles.
+- Nunca actualices SDK, interpretes que el build pasó ni ejecutes generadores remotos sin autorización.

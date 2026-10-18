@@ -1,5 +1,13 @@
 # Changelog
 
+## v5 — 2026-10-18
+
+- Instalación conversacional en Claude Code con scopes global/proyecto y comandos /aikya-init, /aikya-answers, /aikya-doctor.
+- Prefijos Aikya para los ocho workflows existentes sin eliminar aliases antiguos.
+- Preflight no destructivo de Java JDK, .NET SDK, Node.js, gestores web y SDKs móviles; guía oficial de actualización y bloqueo de scaffold sin requisitos.
+- Reutilización de perfiles JSON, onboarding global sin modificar proyectos, y referencia de instalación desde URL GitHub.
+- Suite de pruebas de bootstrap y diagnóstico técnico.
+
 ## v4.1 — 2026-10-18
 
 - Bienvenida al iniciar Claude Code con panel de texto, nombre local configurable, repositorio detectado y URL de Aikya.

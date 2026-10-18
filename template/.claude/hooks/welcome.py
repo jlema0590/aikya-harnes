@@ -90,7 +90,7 @@ def build_message(root: Path) -> str:
         f'Desarrollador: {who}',
         f'Repositorio: {repo}',
         f'Proyecto Aikya: {DEFAULT_SOURCE}',
-        'Comandos: /feature · /bugfix · /verify · /project-bootstrap',
+        'Comandos: /aikya-init · /aikya-feature · /aikya-verify · /aikya-doctor',
         'Guía completa: README.md',
     ]
     width = min(max(len(line) for line in lines), 95)

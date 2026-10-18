@@ -2,11 +2,43 @@
 
 > One engineering workflow. Multiple AI agents. Consistent quality.
 
-**Aikya Harness v4.1** es un framework de ingeniería asistida por IA para Claude Code.
+**Aikya Harness v5** es un framework de ingeniería asistida por IA para Claude Code.
 
 
 
 Harness de desarrollo para Claude Code. Entrevista técnica, instalación reproducible, perfiles de backend/frontend/móvil, scaffolding asistido con generadores oficiales, infraestructura inicial y documentación viva por petición. **Sin MCP** y **Python 3.9+** para el instalador, hooks y verificadores. Las integraciones de terceros requieren Git, uv/pipx o Node/npm según la herramienta, red y aprobación explícita.
+
+## Novedades v5 — instalación conversacional global/proyecto desde Claude Code
+
+**El flujo oficial se inicia dentro de Claude Code, no ejecutando a mano un instalador en otra terminal.** Copia en Claude uno de los prompts listos para pegar en [INSTALL_FROM_CLAUDE.md](INSTALL_FROM_CLAUDE.md). Claude clona la rama `develop` (previa aprobación), revisa la fuente y ejecuta el bootstrap en el alcance elegido.
+
+- **Global:** registra `/aikya-init`, `/aikya-answers` y `/aikya-doctor` para cualquier repositorio (`~/.claude/skills`); el runtime vive en `~/.claude/aikya-harnes`. No cambia tus repositorios hasta que lo solicites.
+- **Proyecto:** instala los comandos iniciales en `.claude/skills` y runtime en `.aikya/runtime`. La entrevista se ejecuta más tarde en Claude, con `/aikya-init`.
+- **Entrevista técnica:** Claude conversa, confirma decisiones y produce `.aikya/answers.json`, sin interacción de terminal. `/aikya-answers` reutiliza JSON existente.
+- **Diagnóstico de requisitos:** `/aikya-doctor` compara versiones declaradas/solicitadas con Java/JDK, .NET SDK, Node, gestores, Flutter, Android y Xcode según el stack. Ninguna actualización de SDK es automática. Scaffold falla si hay requisitos pendientes.
+- **Branding:** skills prefijadas `/aikya-feature`, `/aikya-bugfix`, `/aikya-verify`, `/aikya-project-bootstrap`, `/aikya-architecture-review`, `/aikya-mobile-feature`, `/aikya-documentation-sync`, `/aikya-project-init`. Los comandos heredados permanecen por compatibilidad.
+
+### Comandos v5 (dentro de Claude Code)
+
+| Comando | Para qué sirve | Ejemplo sencillo |
+|---|---|---|
+| `/aikya-init` | Entrevista e instalación en un proyecto nuevo/existente | `/aikya-init` |
+| `/aikya-answers` | Instala usando decisiones guardadas | `/aikya-answers .aikya/answers.json` |
+| `/aikya-doctor` | Compara SDK y versiones sin modificarlas | `/aikya-doctor` |
+| `/aikya-project-init` | Inicia planificación técnica tras instalar | `/aikya-project-init Define estructura modular` |
+| `/aikya-project-bootstrap` | Scaffold con validación y consentimiento | `/aikya-project-bootstrap Genera el backend .NET` |
+| `/aikya-feature` | Implementa una feature documentada | `/aikya-feature Añade GET /health` |
+| `/aikya-bugfix` | Reproduce, corrige y registra bug | `/aikya-bugfix Corrige el login` |
+| `/aikya-architecture-review` | Revisión de módulos y ADR | `/aikya-architecture-review Revisa la API` |
+| `/aikya-mobile-feature` | Feature de Android/iOS | `/aikya-mobile-feature Añade login Kotlin` |
+| `/aikya-documentation-sync` | Sincroniza documentos afectados | `/aikya-documentation-sync Actualiza seguridad` |
+| `/aikya-verify` | Quality gates y evidencias | `/aikya-verify Valida cambios` |
+
+La instalación programática `python3 aikya_setup.py --scope global|project --target ...` sigue disponible **como mecanismo interno que ejecuta Claude**, y `python3 aikya_cli.py probe|requirements|init|answers|status` es el backend invocado por las skills, no el flujo principal del desarrollador. Después de instalar skills globales quizá necesites iniciar una sesión nueva para que Claude las descubra.
+
+**Requisitos y seguridad:** Python ≥ 3.9, Git y acceso a GitHub para el bootstrap; posteriormente, SDKs según el stack. Inspecciona código externo antes de ejecutarlo; Aikya no instala terceros de forma silenciosa. `--external install` es opt-in. La detección de SDK no garantiza compilación; `docs/harness/requirements.md` documenta el diagnóstico y los pendientes.
+
+---
 
 ## Novedades v4.1 — bienvenida a Aikya Harness
 

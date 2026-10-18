@@ -106,6 +106,25 @@ def apply(p:dict, root:Path, assume_yes:bool=False, runner=subprocess.run) -> in
         if not shutil.which(item['requires']):
             print(f'Falta herramienta {item["requires"]}; abortado sin ejecutar.',file=sys.stderr)
             return 2
+    # Diagnóstico obligatorio antes de ejecutar generadores; si falta el detector,
+    # no se ejecuta código remoto ni se presume que el entorno está preparado.
+    import importlib.util
+    detector_path=root/'scripts/harness/aikya_requirements.py'
+    if not detector_path.exists():
+        detector_path=root/'.aikya/runtime/aikya_requirements.py'
+    if not detector_path.exists():
+        print('Falta el detector de requisitos Aikya. Ejecuta /aikya-init.',file=sys.stderr)
+        return 4
+    spec=importlib.util.spec_from_file_location('aikya_requirements_local',detector_path)
+    mod=importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    report=mod.check(p,root)
+    if not report['ready']:
+        print('Requisitos sin resolver: ejecuta /aikya-doctor. No se ejecutan generadores.',file=sys.stderr)
+        for item in report['checks']:
+            if item['status']!='ok':
+                print(f" - {item['tool']}: {item['status']} (solicitada: {item['expected'] or 'sin especificar'})",file=sys.stderr)
+        return 4
     print(plan(p))
     if not assume_yes:
         if input('¿Ejecutar estos generadores (pueden usar Internet y crear archivos)? [s/N]: ').strip().lower() not in ('s','si','sí','y','yes'):

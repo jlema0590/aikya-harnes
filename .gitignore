@@ -24,3 +24,8 @@ build/
 .coverage
 coverage/
 .DS_Store
+
+# Aikya local setup artifacts
+.aikya/runtime/
+.aikya/answers.json
+.aikya/bootstrap.json

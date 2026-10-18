@@ -1,0 +1,134 @@
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+import aikya_setup
+import aikya_cli
+import aikya_requirements as requirements
+import install
+
+
+class AikyaV5(unittest.TestCase):
+    def test_global_scope_does_not_modify_projects(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp)
+            project=base/'my-api'
+            project.mkdir()
+            (project/'server.py').write_text('print("hi")\n')
+            logs=aikya_setup.setup(ROOT,project,'global',home=base/'home')
+            home=base/'home/.claude'
+            self.assertTrue((home/'aikya-harnes/aikya_cli.py').exists())
+            for name in aikya_setup.BOOTSTRAP_COMMANDS:
+                self.assertTrue((home/'skills'/name/'SKILL.md').exists())
+            self.assertEqual(['server.py'],[x.name for x in project.iterdir()])
+            self.assertTrue(any('SKILL disponible' in x for x in logs))
+
+    def test_project_scope_bootstraps_then_new_init(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo=Path(tmp)/'newproject'
+            aikya_setup.setup(ROOT,repo,'project')
+            self.assertFalse((repo/'docs').exists())
+            self.assertTrue((repo/'.aikya/runtime/install.py').exists())
+            self.assertTrue((repo/'.claude/skills/aikya-init/SKILL.md').is_file())
+            self.assertTrue(install.only_aikya_bootstrap(repo))
+            answers=json.loads((ROOT/'examples/new-next-react.json').read_text())
+            (repo/'.aikya/answers.json').write_text(json.dumps(answers))
+            # CLI prints SDK report and allows a safe installation even with pending Node.
+            result=subprocess.run([sys.executable,str(repo/'.aikya/runtime/aikya_cli.py'),'init',
+                                   '--target',str(repo),'--answers',str(repo/'.aikya/answers.json')],
+                                   capture_output=True,text=True)
+            self.assertEqual(0,result.returncode,result.stderr)
+            self.assertTrue((repo/'docs/harness/requirements.md').is_file())
+            self.assertTrue((repo/'.claude/skills/aikya-feature/SKILL.md').is_file())
+            self.assertTrue((repo/'.claude/skills/feature/SKILL.md').is_file())
+            self.assertTrue((repo/'scripts/harness/aikya_requirements.py').is_file())
+
+    def test_project_scope_preserves_customized_skill(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo=Path(tmp)
+            user_skill=repo/'.claude/skills/aikya-init/SKILL.md'
+            user_skill.parent.mkdir(parents=True)
+            user_skill.write_text('Mis reglas especiales\n')
+            aikya_setup.setup(ROOT,repo,'project')
+            self.assertEqual('Mis reglas especiales\n',user_skill.read_text())
+
+    def test_global_init_new_with_answers_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            answers=json.loads((ROOT/'examples/new-next-react.json').read_text())
+            (root/'.aikya').mkdir()
+            (root/'.aikya/answers.json').write_text(json.dumps(answers))
+            self.assertTrue(install.only_aikya_bootstrap(root))
+            cli=aikya_cli.main(['init','--target',str(root),'--external','skip'])
+            self.assertEqual(0,cli)
+            self.assertTrue((root/'docs/README.md').exists())
+
+    def test_project_bootstrap_rejects_real_user_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo=Path(tmp)
+            aikya_setup.setup(ROOT,repo,'project')
+            (repo/'README.md').write_text('user project')
+            self.assertFalse(install.only_aikya_bootstrap(repo))
+            result=install.main(['--target',str(repo),'--answers',str(ROOT/'examples/new-next-react.json'),
+                                 '--allow-bootstrap','--dry-run'])
+            # dry-run validates profile but is not itself destructive
+            self.assertEqual(2,result)
+            self.assertEqual('user project',(repo/'README.md').read_text())
+
+    def test_versions_from_answers_and_repo_manifests(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            (root/'.nvmrc').write_text('v22.4.0\n')
+            (root/'global.json').write_text('{"sdk":{"version":"9.0.101"}}')
+            expected=requirements.expected_versions({'runtime_versions':'java 21'},root)
+            self.assertEqual({'java':'21','node':'22.4.0','dotnet':'9.0.101'},expected)
+
+    def test_requirements_missing_no_auto_updates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(requirements.shutil,'which',return_value=None):
+                report=requirements.check({'backend':'dotnet','frontend':'react','mobile':'none','package_manager':'npm',
+                                           'runtime_versions':'.NET 9 Node 22'},Path(tmp))
+            self.assertFalse(report['ready'])
+            self.assertIn('dotnet', [x['tool'] for x in report['checks']])
+            self.assertIn('node',[x['tool'] for x in report['checks']])
+            self.assertTrue(all(x['status']=='missing' for x in report['checks'] if x['tool'] in ('dotnet','node')))
+
+    def test_mismatch_version(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            profile={'backend':'java','frontend':'none','mobile':'none','runtime_versions':'Java 21'}
+            with patch.object(requirements.shutil,'which',return_value='/fake/bin'), \
+                 patch.object(requirements,'command_version',side_effect=lambda name: ('17.0.12',None) if name!='python3' else ('3.13.0',None)):
+                report=requirements.check(profile,Path(tmp))
+            match=next(x for x in report['checks'] if x['tool']=='java')
+            self.assertEqual('version_mismatch',match['status'])
+
+    def test_scaffold_rejects_missing_requirements_before_runner(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project=Path(tmp)
+            (project/'scripts/harness').mkdir(parents=True)
+            (project/'scripts/harness/aikya_requirements.py').write_bytes((ROOT/'aikya_requirements.py').read_bytes())
+            spec=importlib.util.spec_from_file_location('aikya_scaffold_test',ROOT/'template/scripts/harness/scaffold.py')
+            module=importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            with patch.object(requirements.shutil,'which',return_value='/fake/dotnet'):
+                ret=module.apply({'mode':'new','backend':'dotnet','frontend':'none','mobile':'none'},project,True,
+                                 runner=lambda *a,**k:self.fail('generator must not run'))
+            self.assertEqual(4,ret)
+
+    def test_answers_command_use_profile_envelope(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp)
+            data=json.loads((ROOT/'examples/new-next-react.json').read_text())
+            (p/'.harness').mkdir()
+            (p/'.harness/project-profile.json').write_text(json.dumps({'decisions':data}))
+            # requirements is read-only and can use the installed decisions.
+            self.assertEqual(0,aikya_cli.main(['requirements','--target',str(p)]))
+
+if __name__=='__main__':unittest.main()
