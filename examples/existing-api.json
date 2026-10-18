@@ -1,0 +1,12 @@
+{
+  "mode": "existing",
+  "name": "api-corporativa",
+  "backend": "java",
+  "frontend": "none",
+  "mobile": "none",
+  "architecture": "existing",
+  "database": "postgresql",
+  "ci": "gitlab-ci",
+  "deployment": "kubernetes",
+  "package_manager": "none"
+}
