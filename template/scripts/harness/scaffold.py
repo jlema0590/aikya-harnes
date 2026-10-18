@@ -27,6 +27,8 @@ def load_profile(root: Path=ROOT) -> dict:
 
 
 def command_plans(p:dict) -> tuple[list[dict],list[str]]:
+    if p.get('project_type','development')!='development':
+        return [], ['Modo Infrastructure/DevOps: usa /aikya-infra-project plan/generate/validate.']
     commands=[]
     manual=[]
     pm=p.get('package_manager')
@@ -166,6 +168,9 @@ def _single_scaffold(p: dict, root: Path, item: dict, runner) -> int:
 def apply(p:dict, root:Path, assume_yes:bool=False, runner=subprocess.run) -> int:
     cmds,manual=command_plans(p)
     root=root.resolve()
+    if p.get('project_type','development')!='development':
+        print('No se permiten generadores de aplicación en Infrastructure/DevOps.',file=sys.stderr)
+        return 2
     if p.get('mode')!='new':
         print('No ejecutar scaffold sobre proyecto existente.',file=sys.stderr)
         return 2

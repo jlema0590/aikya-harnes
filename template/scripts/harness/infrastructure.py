@@ -46,6 +46,9 @@ def infrastructure(profile: dict) -> dict:
         'environments': info.get('environments',[]),
         'image_repository': info.get('image_repository',''),
         'container_port': info.get('container_port'),
+        'source_kind': info.get('source_kind','none'),
+        'helm_chart_mode': info.get('helm_chart_mode','create'),
+        'helm_chart_path': info.get('helm_chart_path',''),
     }
 
 
@@ -167,8 +170,9 @@ Nunca ejecutar init contra un backend remoto, plan o apply sin revisar su destin
         files['infra/ansible/README.md']='# Ansible\n\nInventarios sin hosts reales; completar acceso, gestión de secretos, roles idempotentes y playbooks aprobados antes de ejecutar contra servidores.\n'
         pending.append('Ansible: inventarios vacíos y roles sin cambios sobre hosts; revisión requerida')
     if infra['containers']['enabled']:
-        docker,more=dockerfiles(root,profile)
-        files.update(docker); pending.extend(more)
+        if profile.get('project_type','development')=='development' or infra.get('source_kind')=='source':
+            docker,more=dockerfiles(root,profile)
+            files.update(docker); pending.extend(more)
         files['infra/docker/README.md']='# Docker\n\nDockerfiles sólo para aplicaciones detectadas con manifiesto y runtime fijado. No ejecutar build/push automáticamente. Configurar puertos, healthchecks y escaneo de dependencias según el servicio real.\n'
         if infra['containers']['compose']:
             services=[]
@@ -183,10 +187,27 @@ Nunca ejecutar init contra un backend remoto, plan o apply sin revisar su destin
                     services.extend(service)
             if services:
                 files['compose.apps.yaml']=MARK+'services:\n'+'\n'.join(services)+'\n'
+            elif infra.get('source_kind')=='image' and infra.get('image_repository'):
+                image=infra['image_repository']
+                lines=['services:','  app:',f'    image: "{image}"']
+                if port:
+                    lines.extend(['    ports:',f'      - "127.0.0.1:${{APP_PORT:-{port}}}:{port}"'])
+                files['compose.apps.yaml']=MARK+'\n'.join(lines)+'\n'
             else:
                 pending.append('Docker Compose: sin Dockerfile validado; generar apps primero y repetir /aikya-infra-project generate')
     if infra['orchestration']=='kubernetes':
         method=infra['deployment_method']
+        if method=='helm' and infra.get('helm_chart_mode')=='existing':
+            chart=infra.get('helm_chart_path','')
+            if not chart or not (root/chart/'Chart.yaml').is_file():
+                pending.append('Helm: chart local no encontrado; confirma helm_chart_path.')
+            else:
+                pending.append('Helm: reutilizar chart existente '+chart+'; no se sobrescriben sus templates.')
+            files['infra/kubernetes/README.md']=(
+                '# Helm chart existente\n\n'
+                'La estrategia reutiliza el chart local del perfil sin instalarlo. '
+                'Revisa values, namespaces, permisos, secrets, probes y rollback.\n')
+            return files,pending
         files['infra/kubernetes/README.md']=f'# Kubernetes: {method}\n\nRevisar image digest, puertos, secrets, RBAC, recursos, probes, políticas de red y rollback; no conectar a clusters sin autorización.\n'
         image=infra['image_repository'];port=infra['container_port']
         if not (image and port and (':' in image or '@sha256:' in image)):
@@ -302,7 +323,16 @@ def validate(root: Path, profile: dict, executor=subprocess.run) -> tuple[int,li
     if infra['orchestration']=='kubernetes':
         method=infra['deployment_method']
         if method=='helm':
-            for chart in (root/'infra/helm/charts').glob('*/Chart.yaml') if (root/'infra/helm/charts').exists() else []:
+            existing=infra.get('helm_chart_mode')=='existing'
+            if existing:
+                relative=infra.get('helm_chart_path','')
+                chartdir=(root/relative).resolve()
+                if not chartdir.is_relative_to(root.resolve()) or not (chartdir/'Chart.yaml').is_file():
+                    return 2,['NOT_CONFIGURED: chart Helm no encontrado o fuera del proyecto.']
+                charts=[chartdir/'Chart.yaml']
+            else:
+                charts=list((root/'infra/helm/charts').glob('*/Chart.yaml')) if (root/'infra/helm/charts').exists() else []
+            for chart in charts:
                 checks.append(('Helm lint',['helm','lint',str(chart.parent.relative_to(root))]))
                 checks.append(('Helm template',['helm','template','aikya-check',str(chart.parent.relative_to(root))]))
         if method=='kustomize' and (root/'infra/kubernetes/base/kustomization.yaml').exists():

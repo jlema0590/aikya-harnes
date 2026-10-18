@@ -16,3 +16,10 @@ Argumentos: `$ARGUMENTS` (`plan`, `generate`, `validate`). Si faltan, pregunta e
 6. No ejecutar `terraform apply/destroy/init` contra recursos remotos, playbooks contra hosts reales, Docker push, kubectl apply/delete o Helm install/upgrade/uninstall sin una autorización específica adicional.
 7. Selecciona agentes y skills del catálogo `engineering/` según `infrastructure`: Terraform, Ansible, Docker/Compose, Kubernetes/Helm/Kustomize; no cargues todos.
 8. Documenta cambios en `aikya/docs/infrastructure/`, `aikya/docs/operations/deployment.md` y `aikya/docs/changes/REQ-*.md`, ejecuta `/aikya-quality` y reporta evidencias verificadas.
+
+## Inicialización por modo (v5.8)
+
+- `development`: infraestructura es opcional. El código de aplicación se genera mediante /aikya-scaffold antes de derivar Dockerfile.
+- `infrastructure`: Terraform/OpenTofu y/o Ansible sin aplicación. Nunca exijas Node, Java ni monorepo; no generes `apps/`.
+- `devops`: origen código/imagen/chart/manifests. Compose puede basarse en una imagen existente sin Dockerfile. Kubernetes puede emplear YAML, Helm (nuevo o existente) o Kustomize. Para Helm existente comprueba `helm_chart_path` local, renderiza/lint sólo con la herramienta disponible y no sobrescribas el chart.
+- `mode=new/existing` se elige después del modo y no es una cuarta categoría.

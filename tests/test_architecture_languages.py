@@ -80,7 +80,7 @@ class SpecialistIntegrationTests(unittest.TestCase):
 
     def test_all_examples_validate_and_describe_claude_workflow(self):
         examples=sorted((ROOT/'examples').glob('*/answers.json'))
-        self.assertEqual(9,len(examples))
+        self.assertEqual(14,len(examples))
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)
             for file in examples:

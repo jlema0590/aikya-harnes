@@ -1,5 +1,16 @@
 # Changelog
 
+## v5.8 — 2026-10-18
+
+- `/aikya-init`: primera selección `project_type` development, infrastructure o devops; luego nuevo/existente.
+- Modo infrastructure sin SDKs de aplicación; Terraform/OpenTofu/Ansible individuales o combinados.
+- Modo devops independiente: Docker/Compose desde código o imagen; Kubernetes con YAML, Helm (nuevo o reutilizado) y Kustomize.
+- Kubernetes con chart/imagen existente no exige Docker local; perfiles legacy sin project_type siguen en development.
+- Quality gates y documentación de infraestructura sin carpetas `apps/` ni tests ficticios; selección de agentes por especialidad.
+- Plan de solo lectura, generación con aprobación y validación local; sin desplegar automáticamente.
+- Nuevos ejemplos y regresiones de los tres modos.
+
+
 ## v5.7 — 2026-10-18
 
 - Solucionado el parser de Node: detecta correctamente `v25.9.0` y otras versiones con prefijo `v`.

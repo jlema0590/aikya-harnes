@@ -11,3 +11,13 @@ Cada carpeta contiene `answers.json` con `repository_layout` (`monorepo` o `sing
 - `java-react-ansible-kustomize`: monorepo Java/React con Ansible y Kustomize.
 
 En estos dos ejemplos, los archivos de despliegue se generan sólo tras la aprobación del plan y cuando los requisitos de imágenes/puertos y versiones están confirmados.
+
+## Modos autónomos v5.8
+
+- `infra-terraform-only`: Terraform AWS sin aplicación.
+- `infra-ansible-only`: Ansible on-prem sin aplicación.
+- `devops-docker-compose`: Compose sobre una imagen existente.
+- `devops-helm-existing`: reutilización de chart local; requiere Chart.yaml existente en el proyecto destino.
+- `devops-kustomize`: Kubernetes con overlays y una imagen existente.
+
+Elige el tipo de proyecto antes del resto de la entrevista. Los perfiles legacy siguen correspondiendo a development. Ningún ejemplo realiza despliegues.

@@ -1,0 +1,35 @@
+{
+  "mode": "new",
+  "repository_layout": "singlerepo",
+  "backend": "none",
+  "frontend": "none",
+  "mobile": "none",
+  "backend_framework": "none",
+  "mobile_framework": "none",
+  "package_manager": "none",
+  "deployment": "none",
+  "ci": "none",
+  "name": "network-iac",
+  "project_type": "infrastructure",
+  "infrastructure": {
+    "provider": "aws",
+    "iac": "terraform",
+    "configuration_management": "none",
+    "containers": {
+      "enabled": false,
+      "compose": false
+    },
+    "orchestration": "none",
+    "deployment_method": "none",
+    "environments": [
+      "dev",
+      "staging",
+      "prod"
+    ],
+    "image_repository": "",
+    "container_port": null,
+    "source_kind": "none",
+    "helm_chart_mode": "create",
+    "helm_chart_path": ""
+  }
+}

@@ -13,6 +13,29 @@ Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**.
 
 El nombre anterior `bootstrap_skills/` se migra de forma conservadora al actualizar Aikya: se limpian sólo archivos gestionados y verificados, manteniendo intactas las personalizaciones.
 
+## Aikya v5.8 — Tres tipos de proyecto desde /aikya-init
+
+**Primera decisión obligatoria:** `project_type` = `development`, `infrastructure` o `devops`. Después pregunta si el repositorio es nuevo o existente (`mode`). Un perfil antiguo sin `project_type` sigue siendo `development`.
+
+| Modo | Preguntas de inicialización | Artefactos |
+|---|---|---|
+| **Desarrollo** (`development`) | Stack, monorepo/singlerepo, arquitectura, calidad; infraestructura y DevOps opcionales | Aplicaciones donde corresponda, `aikya/`, infra opcional |
+| **Infraestructura** (`infrastructure`) | Terraform/OpenTofu y/o Ansible, cloud/on-prem, entornos y restricciones | `infra/terraform/` o `infra/ansible/`, sin `apps/`, `packages/` ni `contracts/` |
+| **DevOps** (`devops`) | Origen (código/imagen/chart/manifests), Docker y Compose opcionales, destino y Kubernetes | Dockerfile sólo si hay código verificable; Compose desde imagen; YAML, Helm **nuevo o existente** o Kustomize |
+
+### Flujo común y autorizaciones
+
+`/aikya-init` → escoger modo → nuevo/existente → entrevista específica → comprobar y guardar `.aikya/answers.json` → `/aikya-doctor` (sólo herramientas relevantes) → generar plan de sólo lectura → **autorizar creación** → `/aikya-infra-project generate` → `/aikya-infra-project validate` y `/aikya-quality`.
+
+- Los modos Infrastructure y DevOps **no requieren backend, frontend ni móvil**; no ejecutan `/aikya-scaffold` ni generan tests de aplicación ficticios. Se mantiene `aikya/docs/`, `aikya/test/` y `aikya/scripts/` para el harness.
+- **Terraform-only:** configuración modular y entornos sin ejecutar recursos cloud. **Ansible-only:** roles e inventarios sin contactos con servidores. Ambos son combinables dentro del modo Infrastructure.
+- **DevOps con Docker/Compose:** si ya hay una imagen versionada, puede generar Compose sin crear Dockerfile. Para un Dockerfile desde fuentes, exige proyecto y runtime/lockfile/comando de inicio reales.
+- **Kubernetes:** elegir exactamente un formato principal: YAML, Helm o Kustomize. Helm distingue `helm_chart_mode=create` y `helm_chart_mode=existing` con `helm_chart_path` relativo al proyecto. Un chart existente no se modifica automáticamente; se verifica con `helm lint`/`helm template` tras validar su ruta.
+- Kubernetes desde una imagen existente **no exige Docker local**; requiere el motor de validación elegido (Helm/Kustomize/kubectl según el perfil), y no requiere Node o Java.
+- No se realizan acciones remotas, instalaciones de dependencias, Terraform apply/destroy, playbooks sobre servidores, pushes ni despliegues Kubernetes sin autorización específica. Una validación estática nunca sustituye una prueba de despliegue.
+
+Los especialistas se activan según el modo: Terraform/Ansible, Docker, Kubernetes, Helm/Kustomize, o lenguajes y arquitecturas sólo para Desarrollo. Se respeta el catálogo de 27 agentes y 29 skills.
+
 ## Infrastructure & DevOps desde Claude Code
 
 La entrevista de `/aikya-init` incluye un bloque opcional **Infrastructure & DevOps** después de elegir stack, arquitectura y monorepo/singlerepo. Pregunta por proveedor (AWS, Azure, GCP, on-premise, híbrido), infraestructura como código (Terraform/OpenTofu), gestión de configuración con Ansible, Docker/Compose, Kubernetes y una sola estrategia de despliegue (**Helm, Kustomize o YAML nativo**). También confirma entornos, imagen y puerto cuando se conocen.
@@ -224,6 +247,11 @@ Cada subcarpeta de `examples/` contiene `answers.json` (decisiones que valida Ai
 | [API Java existente (sin scaffolding destructivo)](examples/existing-java-api/README.md) | [`answers.json`](examples/existing-java-api/answers.json) |
 | [Next.js + Terraform + Helm](examples/next-react-terraform-helm/README.md) | [`answers.json`](examples/next-react-terraform-helm/answers.json) |
 | [Java/React + Ansible + Kustomize](examples/java-react-ansible-kustomize/README.md) | [`answers.json`](examples/java-react-ansible-kustomize/answers.json) |
+| [infra-terraform-only](examples/infra-terraform-only/README.md) | [`answers.json`](examples/infra-terraform-only/answers.json) |
+| [infra-ansible-only](examples/infra-ansible-only/README.md) | [`answers.json`](examples/infra-ansible-only/answers.json) |
+| [devops-docker-compose](examples/devops-docker-compose/README.md) | [`answers.json`](examples/devops-docker-compose/answers.json) |
+| [devops-helm-existing](examples/devops-helm-existing/README.md) | [`answers.json`](examples/devops-helm-existing/answers.json) |
+| [devops-kustomize](examples/devops-kustomize/README.md) | [`answers.json`](examples/devops-kustomize/answers.json) |
 
 **Uso:** abre Claude Code con Aikya instalado y solicita `/aikya-answers Usa las decisiones del ejemplo examples/next-react/answers.json, enséñame primero el plan y valida requisitos antes de generar código.` Cambia la ruta por otro ejemplo si lo necesitas. El desarrollador no tiene que ejecutar instaladores o scripts en una terminal externa.
 

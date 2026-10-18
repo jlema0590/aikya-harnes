@@ -11,7 +11,9 @@ def flat(value:Any) -> str:
 
 def pages(profile:dict, modules:list[dict]) -> dict[str,str]:
     name=flat(profile['name'])
-    tech=f"Backend: {flat(profile['backend'])} ({flat(profile['backend_framework'])}); Frontend: {flat(profile['frontend'])}; Móvil: {flat(profile['mobile'])} ({flat(profile['mobile_framework'])})."
+    tech=(f"Backend: {flat(profile['backend'])} ({flat(profile['backend_framework'])}); Frontend: {flat(profile['frontend'])}; Móvil: {flat(profile['mobile'])} ({flat(profile['mobile_framework'])})."
+          if profile.get('project_type','development')=='development' else
+          "Proyecto "+flat(profile['project_type'])+" independiente; no requiere código de aplicación.")
     installed='\n'.join(f"- `{flat(m['path'])}`: {flat(m['role'])}/{flat(m['technology'])} (detección heurística; verificar)." for m in modules) or '- Aún no se han creado los módulos de aplicación.'
     is_existing=profile['mode']=='existing'
     pages={
@@ -326,10 +328,33 @@ Nunca versionar secretos, estados Terraform ni inventarios con credenciales.
             '- Entornos: '+', '.join(flat(x) for x in info.get('environments',[]))+'\n'
             '\nRevisar backend remoto, secretos, permisos, costes y despliegue antes de ejecutar cambios.\\n')
         pages['aikya/docs/README.md'] += '\\n- [Infraestructura y DevOps](infrastructure/README.md)\\n'
+    if profile.get('project_type','development')!='development':
+        kind=profile['project_type']
+        pages['aikya/docs/overview.md']=f'# Visión general — {name}\n\nProyecto **{kind}** independiente de backend, frontend o móvil.\n'
+        pages['aikya/docs/plan/roadmap.md']=(
+            '# Roadmap Infrastructure & DevOps\n\n'
+            '- P0: confirmar proveedor, entornos, acceso y seguridad.\n'
+            '- P1: presentar y aprobar /aikya-infra-project plan.\n'
+            '- P2: generar sólo artefactos autorizados y validar localmente.\n'
+            '- P3: desplegar únicamente tras autorización independiente.\n')
+        pages['aikya/docs/features/index.md']=(
+            '# Capacidades de infraestructura y despliegue\n\n'
+            'Inventariar módulos Terraform, roles Ansible, Dockerfiles y manifests reales, '
+            'no funcionalidades ficticias de aplicaciones.\n')
+        pages['aikya/docs/README.md'] += (
+            '\n**Modo '+kind+'**: sin apps/, contracts/ ni packages/; '
+            'usar /aikya-infra-project plan antes de generar infraestructura.\n')
     return {key:MARK+value for key,value in pages.items()}
 
 
 def infra_files(p:dict) -> dict[str,str]:
+    if p.get('project_type','development')!='development':
+        return {'.gitignore': (
+            '# Estado, credenciales e infraestructura local Aikya\n'
+            '.harness/state/\n.harness/welcome.json\n'
+            '.env\n.env.*\n!.env.example\n'
+            '**/.terraform/\n**/*.tfstate\n**/*.tfstate.*\n'
+            '**/*.tfvars\n**/*.tfvars.json\n**/.ansible/\n')}
     outputs={}
     if p.get('repository_layout', 'monorepo') == 'monorepo':
         outputs['apps/README.md']='''# Aplicaciones del monorepo\n\nLos generadores crean los proyectos bajo `apps/api`, `apps/web`, `apps/frontend`, `apps/mobile`, `apps/android` y/o `apps/ios` según el perfil. La existencia de esta carpeta **no** significa que los módulos estén generados o verificados.\n'''

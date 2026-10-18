@@ -26,6 +26,9 @@ def defaults(profile: dict) -> dict[str, Any]:
         'environments': [],
         'image_repository': '',
         'container_port': None,
+        'source_kind': 'none',
+        'helm_chart_mode': 'create',
+        'helm_chart_path': '',
     }
 
 
@@ -60,8 +63,7 @@ def validated(profile: dict) -> dict[str, Any]:
     if result['orchestration'] == 'kubernetes':
         if result['deployment_method'] == 'none':
             raise ValueError('Selecciona helm, kustomize o yaml para Kubernetes')
-        if not enabled:
-            raise ValueError('Kubernetes requiere containers.enabled=true')
+        # Kubernetes puede desplegar imágenes existentes sin Docker local.
     environments = result['environments']
     if not isinstance(environments, list) or any(not isinstance(e, str) or not _ENV_RE.fullmatch(e) for e in environments):
         raise ValueError('infrastructure.environments debe ser lista de nombres seguros')
@@ -73,6 +75,17 @@ def validated(profile: dict) -> dict[str, Any]:
     port = result['container_port']
     if port is not None and (type(port) is not int or not 1 <= port <= 65535):
         raise ValueError('infrastructure.container_port debe ser un puerto TCP 1-65535')
+    if result['source_kind'] not in ('none','source','image','chart','manifests'):
+        raise ValueError('infrastructure.source_kind no válido')
+    if result['helm_chart_mode'] not in ('create','existing'):
+        raise ValueError('infrastructure.helm_chart_mode no válido')
+    path=result['helm_chart_path']
+    if not isinstance(path,str) or len(path)>180:
+        raise ValueError('infrastructure.helm_chart_path inválida')
+    if path and (path.startswith('/') or chr(92) in path or any(part in ('','.', '..') for part in path.split('/'))):
+        raise ValueError('helm_chart_path debe ser relativa y sin saltos de directorio')
+    if result['helm_chart_mode']=='existing' and (result['deployment_method']!='helm' or not path):
+        raise ValueError('Un chart Helm existente requiere helm y helm_chart_path')
     return result
 
 

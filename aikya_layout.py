@@ -19,6 +19,8 @@ def layout_of(profile: dict) -> str:
     return value
 
 def validate_layout(profile: dict) -> None:
+    if profile.get('project_type','development') != 'development':
+        return
     if profile.get("mode") == "new" and layout_of(profile) == "singlerepo" and app_count(profile) != 1:
         raise ValueError("singlerepo requiere exactamente una aplicación. Selecciona monorepo para backend/frontend independientes o varias apps móviles.")
 

@@ -16,6 +16,7 @@ from doc_bootstrap import pages as doc_pages, infra_files
 from external_skills import enabled_names, planned_commands, install_all
 from aikya_layout import LAYOUTS, app_count, layout_of, validate_layout
 from infrastructure_profile import validated as validate_infrastructure, selected as selected_infrastructure
+PROJECT_TYPES = ('development', 'infrastructure', 'devops')
 
 HERE = Path(__file__).resolve().parent
 TEMPLATE = HERE / 'template'
@@ -149,13 +150,57 @@ def yesno(question: str, default: bool = True) -> bool:
         print('Responde s o n.')
 
 
+def specialized_interview(target: Path, detected: dict[str, Any], kind: str, mode: str) -> dict[str, Any]:
+    """Entrevista autónoma, sin preguntas ni generadores de aplicaciones."""
+    name=ask('Nombre del proyecto',target.name)
+    provider=choice('Cloud / on-prem / híbrido',['none','aws','azure','gcp','on-prem','hybrid'],'none')
+    infra={'provider':provider,'iac':'none','configuration_management':'none',
+           'containers':{'enabled':False,'compose':False},'orchestration':'none',
+           'deployment_method':'none','environments':[],'image_repository':'',
+           'container_port':None,'source_kind':'none',
+           'helm_chart_mode':'create','helm_chart_path':''}
+    if kind=='infrastructure':
+        infra['iac']=choice('Terraform / OpenTofu / existente / ninguno',['none','terraform','opentofu','existing'],'terraform')
+        infra['configuration_management']=choice('Ansible / existente / ninguno',['none','ansible','existing'],'none')
+    else:
+        infra['source_kind']=choice('Origen del despliegue',['source','image','chart','manifests'],'image')
+        docker=yesno('¿Generar Dockerfile desde el código fuente?',infra['source_kind']=='source')
+        compose=yesno('¿Generar Docker Compose para desarrollo local?',False)
+        infra['orchestration']=choice('Destino',['none','kubernetes','cloud-managed','vm'],'kubernetes')
+        infra['containers']={'enabled':docker or compose,'compose':compose}
+        if infra['orchestration']=='kubernetes':
+            infra['deployment_method']=choice('Kubernetes: método',['helm','kustomize','yaml'],'helm')
+            if infra['deployment_method']=='helm':
+                infra['helm_chart_mode']=choice('Helm: crear o reutilizar chart',['create','existing'],'create')
+                if infra['helm_chart_mode']=='existing':
+                    infra['helm_chart_path']=ask('Ruta relativa del chart existente','infra/helm/charts/app')
+        if infra['containers']['enabled'] or infra['orchestration']=='kubernetes':
+            infra['image_repository']=ask('Imagen versionada sin credenciales (vacío=pendiente)','')
+            port=ask('Puerto interno validado (vacío=pendiente)','')
+            infra['container_port']=int(port) if port.isdecimal() else (port or None)
+    environments=ask('Entornos separados por coma','dev')
+    infra['environments']=[v.strip() for v in environments.split(',') if v.strip()]
+    return {'project_type':kind,'mode':mode,'name':name,'repository_layout':'singlerepo',
+            'backend':'none','frontend':'none','mobile':'none','mobile_framework':'none',
+            'backend_framework':'none','architecture':'undecided','database':'undecided',
+            'api_style':'undecided','frontend_rendering':'undecided','auth':'undecided',
+            'observability':'undecided','android_language':'none','ios_ui':'none',
+            'architecture_patterns':[],'package_manager':'none','deployment':'none',
+            'quality':'unit+integration','ci':choice('CI/CD',CIS,'undecided'),
+            'runtime_versions':'','notes':ask('Restricciones adicionales (opcional)',''),
+            'infrastructure':infra}
+
+
 def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
     print('\n=== ENTREVISTA TÉCNICA — AIKYA HARNESS ===')
     print('Detección inicial (son indicios, no resultados de build ni pruebas):')
     for finding in detected['findings']:
         print(' -', finding)
+    kind=choice('Tipo de proyecto Aikya',list(PROJECT_TYPES),'development')
     nonempty = target.exists() and any(target.iterdir())
-    mode = choice('Tipo de instalación', ['existing', 'new'], 'existing' if nonempty else 'new')
+    mode = choice('Repositorio nuevo o existente', ['existing', 'new'], 'existing' if nonempty else 'new')
+    if kind!='development':
+        return specialized_interview(target,detected,kind,mode)
     technologies = {role: next((m['technology'] for m in detected['modules'] if m['role'] == role), 'none')
                     for role in ('backend', 'frontend', 'mobile')}
     mobile_detected = technologies['mobile']
@@ -220,7 +265,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
             port = ask('Puerto interno de la aplicación (vacío si se desconoce)', '')
             infrastructure['container_port'] = int(port) if port.isdecimal() else (port or None)
     versions = ask('Versiones/SDKs que necesitas fijar (vacío = por decidir)', '')
-    return {'mode': mode, 'repository_layout':layout, 'name': ask('Nombre del producto/proyecto', target.name),
+    return {'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Nombre del producto/proyecto', target.name),
             'backend': backend, 'frontend': frontend, 'mobile': mobile,
             'mobile_framework': framework, 'backend_framework':backend_framework, 'api_style':api_style,
             'frontend_rendering':frontend_rendering, 'auth':auth, 'observability':telemetry,
@@ -233,14 +278,14 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
 
 
 def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
-    choices = {'mode': ['existing','new'], 'repository_layout': list(LAYOUTS), 'backend': BACKENDS, 'frontend': FRONTENDS,
+    choices = {'project_type': list(PROJECT_TYPES), 'mode': ['existing','new'], 'repository_layout': list(LAYOUTS), 'backend': BACKENDS, 'frontend': FRONTENDS,
                'mobile': MOBILES, 'mobile_framework': ['none']+FRAMEWORKS,
                'android_language':['none','kotlin','java'], 'ios_ui':['none','swiftui','uikit'],
                'architecture': ARCHS, 'database':DATABASES, 'ci':CIS,
                'deployment':DEPLOYS, 'package_manager':['none']+PACKAGES,
                'api_style': API_STYLES, 'auth':AUTH, 'observability':OBSERVABILITY,
                'quality':TEST_STYLES, 'frontend_rendering':RENDERING}
-    defaults = {'mode':'new', 'repository_layout':'monorepo', 'backend':'none', 'frontend':'none', 'mobile':'none',
+    defaults = {'project_type':'development', 'mode':'new', 'repository_layout':'monorepo', 'backend':'none', 'frontend':'none', 'mobile':'none',
                 'mobile_framework':'none', 'android_language':'none', 'ios_ui':'none',
                 'architecture':'undecided', 'database':'undecided', 'ci':'undecided',
                 'deployment':'undecided', 'package_manager':'npm',
@@ -252,8 +297,15 @@ def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
     for field, values in choices.items():
         if result[field] not in values:
             raise ValueError(f'{field}={result[field]!r} no válido. Opciones: {values}')
-    if not any(result[k] != 'none' for k in ('backend','frontend','mobile')):
-        raise ValueError('Debes elegir algún backend, frontend o plataforma móvil.')
+    kind=result['project_type']
+    if kind=='development':
+        if not any(result[k]!='none' for k in ('backend','frontend','mobile')):
+            raise ValueError('Desarrollo requiere backend, frontend o móvil.')
+    else:
+        if any(result[k]!='none' for k in ('backend','frontend','mobile')):
+            raise ValueError('Infrastructure/DevOps autónomos no admiten stack de aplicación. Usa development para combinar.')
+        if result['mode']=='new' and result['repository_layout']!='singlerepo':
+            raise ValueError('Infrastructure/DevOps autónomos requieren raíz sin workspaces de aplicaciones.')
     if result['mobile'] == 'none':
         for k in ('mobile_framework','android_language','ios_ui'):
             result[k] = 'none'
@@ -278,6 +330,14 @@ def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
         raise ValueError('backend_framework no coincide con backend.')
     validate_layout(result)
     result['infrastructure'] = validate_infrastructure(result)
+    info=result['infrastructure']
+    if kind=='infrastructure':
+        if info['iac']=='none' and info['configuration_management'] not in ('ansible','existing'):
+            raise ValueError('Infrastructure requiere Terraform/OpenTofu o Ansible.')
+        if info['containers']['enabled'] or info['orchestration']!='none':
+            raise ValueError('Infrastructure-only no despliega contenedores; selecciona DevOps.')
+    if kind=='devops' and not (info['containers']['enabled'] or info['orchestration']!='none'):
+        raise ValueError('DevOps requiere contenedores o un destino de despliegue.')
     return result
 
 
@@ -304,6 +364,8 @@ def make_checks(root: Path, profile: dict[str, Any], modules: list[dict[str, Any
     def add(name: str, command: list[str] | None, cwd: str='.', required: bool=False) -> None:
         if not any(x['name'] == name for x in checks):
             checks.append({'name': name, 'command': command, 'cwd': cwd, 'required': required})
+    if profile.get('project_type','development')!='development':
+        return checks
     if profile['mode'] == 'new':
         roles=[('backend',profile['backend']), ('frontend', profile['frontend'])]
         if profile['mobile']=='both':
@@ -445,6 +507,7 @@ def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> 
 | Aspecto | Decisión |
 |---|---|
 | Modalidad | {md_text(profile['mode'])} |
+| Tipo de proyecto | {md_text(profile.get('project_type','development'))} |
 | Topología del repositorio | {md_text(layout_of(profile))} |
 | Infraestructura (proveedor/IaC/configuración) | {md_text(profile['infrastructure']['provider'])} / {md_text(profile['infrastructure']['iac'])} / {md_text(profile['infrastructure']['configuration_management'])} |
 | DevOps (contenedores/orquestación/despliegue) | {md_text(profile['infrastructure']['containers'])} / {md_text(profile['infrastructure']['orchestration'])} / {md_text(profile['infrastructure']['deployment_method'])} |
@@ -486,6 +549,11 @@ def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> 
 
 
 def project_bootstrap(profile: dict[str, Any]) -> str:
+    if profile.get('project_type','development')!='development':
+        return ('<!-- GENERATED BY AIKYA-HARNESS -->\n'
+                '# Bootstrap de '+profile['project_type']+'\n\n'
+                'No se genera aplicación ni se instalan SDKs. '
+                'Usa /aikya-infra-project plan y, tras autorización, generate.\n')
     lines = ['<!-- GENERATED BY AIKYA-HARNESS -->',
              '# Guía de inicialización del proyecto', '',
              'Esta guía **no ejecuta** comandos. Confirma versiones, directorios y nombres antes de crear los proyectos.',
@@ -617,7 +685,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     actions: list[str] = []
     validate_layout(profile)
     # También se admiten llamadas directas desde harnesses antiguos sin validated().
-    profile = {**profile, 'infrastructure': validate_infrastructure(profile)}
+    profile = {**profile, 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
     if dry_run:
         return [f'PLAN: instalar harness en {target}', 'PLAN: crear aikya/docs/, aikya/test/, aikya/scripts/ según '+layout_of(profile)+' y CI/infra', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
     target.mkdir(parents=True, exist_ok=True)

@@ -62,13 +62,17 @@ def discover(root: Path, profile: dict, modules: list[dict] | None = None) -> di
     mobile = profile.get('mobile', 'none')
     framework = profile.get('mobile_framework', 'none')
     stacks = {str(m.get('technology', '')).lower() for m in modules if isinstance(m, dict)}
+    if profile.get('project_type','development')!='development':
+        b=f=mobile=framework='none'
+        stacks=set()
+        modules=[]
     patterns = profile.get('architecture_patterns', [])
     if not isinstance(patterns, list):
         patterns = []
     agents, skills = set(BASE_AGENTS), set(BASE_SKILLS)
     # Architecture and programming language are independent dimensions.
     # Only activate architectural choices explicitly made during the interview.
-    architecture = profile.get('architecture', 'undecided')
+    architecture = ('undecided' if profile.get('project_type','development')!='development' else profile.get('architecture','undecided'))
     architectural = {
         'clean': ('clean-architecture-architect', 'clean-architecture'),
         'layered': ('layered-architecture-architect', 'layered-architecture'),

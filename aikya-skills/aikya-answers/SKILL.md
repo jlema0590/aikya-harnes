@@ -15,3 +15,7 @@ Entrada: `$ARGUMENTS` (ruta opcional a JSON). No hagas una entrevista completa s
 5. Ejecuta `python3 <cli> answers --target . --answers <archivo> --dry-run` para previsualizar y, tras consentimiento, `python3 <cli> answers --target . --answers <archivo> --external plan`.
 6. No uses `--external install` sin aprobación expresa de ejecutar instaladores de terceros. No generes aplicaciones hasta disponer de SDK compatibles y aprobación del usuario.
 7. Confirma resumen de instalación, documentación y requisitos pendientes. Para cambiar decisiones, invita a `/aikya-init`.
+
+## Perfil v5.8
+
+`project_type` acepta `development`, `infrastructure` y `devops`; si no existe, se trata como development por compatibilidad. Valida infra/DevOps sin backend, frontend ni móvil, y no inviertas el orden de selección de modo y estado del repositorio. Aikya nunca despliega infraestructura por cargar answers.json.
