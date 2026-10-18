@@ -37,3 +37,7 @@
 El bootstrap inicial exige Python ≥ 3.9, Git y acceso a GitHub (por parte del entorno de Claude). El código no instala Java, .NET, Node, Android Studio o Xcode automáticamente. Se reporta su disponibilidad antes de generar aplicaciones. iOS nativo necesita macOS y Xcode.
 
 Tras instalar, inicia una nueva sesión de Claude Code si las nuevas skills aún no aparecen en el menú `/`.
+
+## Inicio automático y límite de Claude Code
+
+El instalador registra un hook `SessionStart` que, al abrir un **proyecto nuevo o sin configurar**, muestra automáticamente un aviso para ejecutar `/aikya-init` (o `/aikya-answers` si tienes un JSON). **Claude Code interactivo no permite que un hook genere por sí mismo un nuevo turno del usuario ni abra una entrevista sin interacción**: debes escribir `/aikya-init` o pedirle a Claude que comience la entrevista en ese mismo chat. El hook no ejecuta instalaciones ni descargas.

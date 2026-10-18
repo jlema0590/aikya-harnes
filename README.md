@@ -34,6 +34,8 @@ Harness de desarrollo para Claude Code. Entrevista técnica, instalación reprod
 | `/aikya-documentation-sync` | Sincroniza documentos afectados | `/aikya-documentation-sync Actualiza seguridad` |
 | `/aikya-verify` | Quality gates y evidencias | `/aikya-verify Valida cambios` |
 
+**Inicio automático:** Aikya registra un hook `SessionStart` global o de proyecto que detecta repositorios sin perfil y muestra la invitación a `/aikya-init` o `/aikya-answers`. En Claude Code interactivo el hook no puede abrir por sí mismo una entrevista: el desarrollador inicia el turno escribiendo el comando o solicitándolo en el chat. No hay descargas automáticas durante el inicio.
+
 La instalación programática `python3 aikya_setup.py --scope global|project --target ...` sigue disponible **como mecanismo interno que ejecuta Claude**, y `python3 aikya_cli.py probe|requirements|init|answers|status` es el backend invocado por las skills, no el flujo principal del desarrollador. Después de instalar skills globales quizá necesites iniciar una sesión nueva para que Claude las descubra.
 
 **Requisitos y seguridad:** Python ≥ 3.9, Git y acceso a GitHub para el bootstrap; posteriormente, SDKs según el stack. Inspecciona código externo antes de ejecutarlo; Aikya no instala terceros de forma silenciosa. `--external install` es opt-in. La detección de SDK no garantiza compilación; `docs/harness/requirements.md` documenta el diagnóstico y los pendientes.

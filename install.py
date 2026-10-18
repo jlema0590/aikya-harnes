@@ -615,6 +615,15 @@ def only_aikya_bootstrap(target:Path) -> bool:
     claude=target/'.claude'
     if claude.is_dir():
         safe={'skills/aikya-init/SKILL.md','skills/aikya-answers/SKILL.md','skills/aikya-doctor/SKILL.md'}
+        settings=claude/'settings.json'
+        if settings.is_file() and not settings.is_symlink():
+            raw=read_json_safe(settings)
+            hooks=raw.get('hooks',{}).get('SessionStart',[]) if isinstance(raw.get('hooks',{}),dict) else []
+            registered=any('aikya_session.py' in str(h.get('command',''))
+                           for group in hooks if isinstance(group,dict)
+                           for h in group.get('hooks',[]) if isinstance(h,dict))
+            if registered:
+                safe.add('settings.json')
         if any(entry.relative_to(claude).as_posix() not in safe for entry in claude.rglob('*') if entry.is_file()):
             return False
     permitted={'runtime','bootstrap.json','answers.json'} if local_bootstrap else {'answers.json'}

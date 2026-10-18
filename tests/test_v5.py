@@ -132,3 +132,26 @@ class AikyaV5(unittest.TestCase):
             self.assertEqual(0,aikya_cli.main(['requirements','--target',str(p)]))
 
 if __name__=='__main__':unittest.main()
+
+class AikyaStartupTests(unittest.TestCase):
+    def test_session_hook_invites_only_uninitialized(self):
+        from aikya_session import is_new_project
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td)
+            self.assertTrue(is_new_project(root,home=Path(td)/'otherhome'))
+            (root/'.harness').mkdir()
+            (root/'.harness/project-profile.json').write_text('{}')
+            self.assertFalse(is_new_project(root,home=Path(td)/'otherhome'))
+
+    def test_bootstrap_registers_hook_once_and_keeps_existing(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo=Path(td)/'app'
+            (repo/'.claude').mkdir(parents=True)
+            config=repo/'.claude/settings.json'
+            config.write_text(json.dumps({'custom':{'x':1},'hooks':{'PreToolUse':[{'hooks':[{'type':'command','command':'echo hi'}]}]}}))
+            aikya_setup.setup(ROOT,repo,'project')
+            aikya_setup.setup(ROOT,repo,'project')
+            after=json.loads(config.read_text())
+            self.assertEqual(1,len(after['hooks']['SessionStart']))
+            self.assertEqual(1,len(after['hooks']['PreToolUse']))
+            self.assertTrue(install.only_aikya_bootstrap(repo))

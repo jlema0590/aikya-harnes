@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent
 BOOTSTRAP_COMMANDS=('aikya-init','aikya-answers','aikya-doctor')
-CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py')
+CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py')
 
 
 def files_to_copy(source:Path):
@@ -51,6 +51,33 @@ def managed_copy(src:Path,dst:Path,root:Path,logs:list[str]):
     dst.parent.mkdir(parents=True,exist_ok=True)
     shutil.copy2(src,dst)
     logs.append(f'INSTALADO {dst}')
+
+
+def register_startup_hook(settings:Path, command:str, logs:list[str]) -> None:
+    """Merge a lightweight project-discovery hook without clobbering user settings."""
+    if settings.is_symlink():
+        logs.append(f'AVISO configuración simbólica conservada: {settings}')
+        return
+    try:
+        user=json.loads(settings.read_text(encoding='utf8')) if settings.exists() else {}
+        if not isinstance(user,dict) or not isinstance(user.get('hooks',{}),dict):
+            raise ValueError('settings inválido')
+    except (ValueError,UnicodeError,OSError):
+        logs.append(f'AVISO settings inválido; instalar hook manualmente: {settings}')
+        return
+    hooks=user.setdefault('hooks',{})
+    session=hooks.setdefault('SessionStart',[])
+    if not isinstance(session,list):
+        logs.append(f'AVISO hooks.SessionStart inválido: {settings}')
+        return
+    # Avoid hook duplication when setup runs twice.
+    if not any('aikya_session.py' in str(h.get('command',''))
+               for group in session if isinstance(group,dict)
+               for h in group.get('hooks',[]) if isinstance(h,dict)):
+        session.append({'matcher':'startup','hooks':[{'type':'command','command':command,'timeout':5}]})
+        settings.parent.mkdir(parents=True,exist_ok=True)
+        settings.write_text(json.dumps(user,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
+        logs.append(f'HOOK SessionStart añadido: {settings}')
 
 
 def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=False)->list[str]:
@@ -94,8 +121,14 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
         dst.parent.mkdir(parents=True,exist_ok=True)
         shutil.copy2(src,dst)
         logs.append(f'SKILL disponible: /{name} ({scope})')
+    if scope=='global':
+        command='python3 "'+str(runtime/'aikya_session.py').replace('"','\\"')+'"'
+        register_startup_hook(home/'.claude/settings.json',command,logs)
+    else:
+        command='python3 "${CLAUDE_PROJECT_DIR}/.aikya/runtime/aikya_session.py"'
+        register_startup_hook(target/'.claude/settings.json',command,logs)
     if scope=='project':
-        marker=target/'.aikya/bootstrap.json'
+        marker=target/'.aikya/bootstrap.json' 
         marker.parent.mkdir(parents=True,exist_ok=True)
         if not marker.exists():
             marker.write_text(json.dumps({'_generated_by':'aikya-setup','scope':'project','runtime':'.aikya/runtime'},indent=2)+'\n',encoding='utf8')
