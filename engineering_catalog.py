@@ -107,7 +107,8 @@ def discover(root: Path, profile: dict, modules: list[dict] | None = None) -> di
     if framework == 'flutter' or 'flutter' in stacks:
         agents.add('flutter-developer'); skills.add('flutter-architecture')
     # Astro is not an interview choice but may exist in repositories already.
-    astro = any((root / x).is_file() for x in ('astro.config.mjs', 'astro.config.ts', 'astro.config.js')) or 'astro' in stacks
+    astro = (profile.get('project_type','development')=='development' and
+             (any((root / x).is_file() for x in ('astro.config.mjs', 'astro.config.ts', 'astro.config.js')) or 'astro' in stacks))
     if astro:
         agents.add('astro-tailwind-developer'); skills.add('astro-performance')
     ci = profile.get('ci', 'none')
