@@ -2,11 +2,116 @@
 
 > One engineering workflow. Multiple AI agents. Consistent quality.
 
-**Aikya Harness v4** es un framework de ingeniería asistida por IA para Claude Code.
+**Aikya Harness v4.1** es un framework de ingeniería asistida por IA para Claude Code.
 
 
 
 Harness de desarrollo para Claude Code. Entrevista técnica, instalación reproducible, perfiles de backend/frontend/móvil, scaffolding asistido con generadores oficiales, infraestructura inicial y documentación viva por petición. **Sin MCP** y **Python 3.9+** para el instalador, hooks y verificadores. Las integraciones de terceros requieren Git, uv/pipx o Node/npm según la herramienta, red y aprobación explícita.
+
+## Novedades v4.1 — bienvenida a Aikya Harness
+
+Al abrir `claude` en este repositorio o en cualquier proyecto donde hayas instalado Aikya, el hook de inicio presenta un mensaje con la identidad local, el repositorio actual, el enlace al proyecto original y los comandos más habituales:
+
+```text
++-------------------------------------------------------------+
+| Bienvenido a Aikya Harness                                  |
+| Desarrollador: Juan                                         |
+| Repositorio: jlema0590/aikya-harnes                         |
+| Proyecto Aikya: https://github.com/jlema0590/aikya-harnes   |
+| Comandos: /feature · /bugfix · /verify · /project-bootstrap |
+| Guía completa: README.md                                    |
++-------------------------------------------------------------+
+```
+
+Este es un **ejemplo ilustrativo**: el nombre y el repositorio se resuelven en tu entorno. Para automatizaciones, la respuesta `--answers` también admite `"welcome_name": "Juan"` sin incorporarlo al perfil técnico versionado. La bienvenida es texto presentado por Claude Code; no es una ventana gráfica independiente.
+
+## 📚 Referencia completa de comandos (con ejemplos)
+
+Todos los comandos de esta sección se ejecutan **desde la raíz del repositorio correspondiente**, salvo los ejemplos de instalación que se ejecutan desde el repositorio `aikya-harnes`. Los comandos que dependen de SDK, Internet o skills externas requieren esas herramientas previamente instaladas. Los ejemplos `/...` se escriben **dentro de la interfaz de Claude Code**, no en Bash.
+
+### 1. Instalar o actualizar Aikya Harness
+
+| Comando | Para qué sirve | Ejemplo sencillo |
+|---|---|---|
+| `git clone -b develop` | Clonar el harness desde su rama de desarrollo. | `git clone -b develop https://github.com/jlema0590/aikya-harnes.git` |
+| `python3 install.py --target` | Entrevista técnica e instalación en un proyecto nuevo o existente. | `python3 install.py --target ~/proyectos/mi-api` |
+| `python3 install.py --answers` | Instalar con decisiones reproducibles sin entrevista. | `python3 install.py --target /tmp/demo-next --answers examples/new-next-react.json --external plan` |
+| `python3 install.py --dry-run` | Revisar el plan sin modificar archivos. | `python3 install.py --target /tmp/demo-next --answers examples/new-next-react.json --dry-run` |
+| `python3 install.py --external plan` | Mostrar dependencias externas previstas sin descargarlas. | `python3 install.py --target /tmp/demo-next --answers examples/new-next-react.json --external plan` |
+| `python3 install.py --external skip` | Instalar el harness omitiendo las herramientas externas. | `python3 install.py --target /tmp/demo-next --answers examples/new-next-react.json --external skip` |
+| `python3 install.py --external install` | Instalar también skills externas con autorización explícita en el comando. | `python3 install.py --target /tmp/demo-next --answers examples/new-next-react.json --external install` |
+| `python3 install.py --display-name` | Personalizar el saludo para este usuario sin versionar su nombre. | `python3 install.py --target ~/proyectos/mi-api --display-name "Juan"` |
+
+> **Importante:** `--answers` con `mode: new` exige un directorio vacío. En instalaciones ya existentes, utiliza `mode: existing`. La instalación de terceros ejecuta software externo; revisa sus fuentes antes de aprobarla.
+
+### 2. Iniciar Claude Code y ver la bienvenida
+
+| Comando | Para qué sirve | Ejemplo sencillo |
+|---|---|---|
+| `claude` | Iniciar la interfaz de Claude Code y mostrar la bienvenida en sesiones nuevas. | `cd ~/proyectos/mi-api && claude` |
+| `python3 .claude/hooks/welcome.py --preview` | Previsualizar el saludo **sin** iniciar Claude Code. | `python3 .claude/hooks/welcome.py --preview` |
+| `AIKYA_DISPLAY_NAME=... claude` | Cambiar el nombre temporalmente sólo para esta sesión (shell compatible). | `AIKYA_DISPLAY_NAME="Juan" claude` |
+
+En el **repositorio fuente** de Aikya (no en un proyecto instalado), la previsualización está en `python3 template/.claude/hooks/welcome.py --preview` y `.claude/settings.json` registra su hook de inicio. Los proyectos instalados utilizan `.claude/hooks/welcome.py` y su propio `.claude/settings.json`.
+
+La bienvenida usa un `systemMessage` del hook `SessionStart` de Claude Code. Es un **panel de texto**, no una ventana gráfica emergente: Claude Code controla cómo lo presenta en cada terminal/versión. Incluye nombre del desarrollador, repositorio Git detectado desde `origin` (o nombre de carpeta si no existe), URL del proyecto Aikya y atajos. No carga el texto completo en el contexto del modelo, no se conecta a la red y no se repite al compactar el contexto o ejecutar `/clear`.
+
+Prioridad para el nombre mostrado: variable de entorno `AIKYA_DISPLAY_NAME`, archivo local `.harness/welcome.json`, `git config user.name` y finalmente `Desarrollador`. **No guardes nombres personales en el perfil de proyecto compartido**; `.harness/welcome.json` se excluye mediante `.gitignore`.
+
+### 3. Inicialización y scaffolding de aplicaciones
+
+| Comando | Para qué sirve | Ejemplo sencillo |
+|---|---|---|
+| `python3 scripts/harness/scaffold.py plan` | Mostrar generadores recomendados según la entrevista; no ejecuta descargas. | `python3 scripts/harness/scaffold.py plan` |
+| `python3 scripts/harness/scaffold.py apply` | Ejecutar los generadores después de confirmar cada acción. | `python3 scripts/harness/scaffold.py apply` |
+| `python3 scripts/harness/scaffold.py apply --yes` | Autorizar ejecución no interactiva, útil en entornos controlados. | `python3 scripts/harness/scaffold.py apply --yes` |
+
+Los generadores pueden requerir Java SDK, .NET SDK, Node.js, Android Studio, Xcode o Flutter y acceso a Internet. No despliegan aplicaciones de forma automática.
+
+### 4. Gestión de Agent Skills externas
+
+| Comando | Para qué sirve | Ejemplo sencillo |
+|---|---|---|
+| `python3 scripts/harness/external_skills.py plan` | Ver las integraciones previstas (Ponytail, Graphify y UI UX si corresponde). | `python3 scripts/harness/external_skills.py plan` |
+| `python3 scripts/harness/external_skills.py status` | Comprobar qué integraciones están instaladas o pendientes. | `python3 scripts/harness/external_skills.py status` |
+| `python3 scripts/harness/external_skills.py install --yes` | Aprobar e instalar herramientas externas en el proyecto. | `python3 scripts/harness/external_skills.py install --yes` |
+| `python3 scripts/harness/skills_lint.py` | Validar estructura y metadatos de las skills locales. | `python3 scripts/harness/skills_lint.py` |
+| `python3 scripts/harness/skills_lint.py --include-vendor` | Incluir las skills de terceros instaladas en la validación. | `python3 scripts/harness/skills_lint.py --include-vendor` |
+| `python3 scripts/harness/skills_lint.py --root` | Validar skills dentro de otro repositorio. | `python3 scripts/harness/skills_lint.py --root ~/proyectos/mi-api` |
+
+**Graphify, si está instalado:** `graphify . --no-viz` crea el primer índice; `graphify query "¿Qué depende del módulo auth?"` consulta relaciones acotadas. No se indexa al iniciar cada sesión ni se inyecta el grafo completo al modelo.
+
+### 5. Calidad, documentación viva y pruebas
+
+| Comando | Para qué sirve | Ejemplo sencillo |
+|---|---|---|
+| `python3 scripts/harness/docs_guard.py base` | Verificar que existe la estructura documental obligatoria. | `python3 scripts/harness/docs_guard.py base` |
+| `python3 scripts/harness/docs_guard.py status` | Revisar los documentos pendientes de la petición activa, cuando hay una sesión registrada. | `python3 scripts/harness/docs_guard.py status` |
+| `python3 scripts/harness/docs_guard.py status --session` | Consultar la validación de una sesión específica. | `python3 scripts/harness/docs_guard.py status --session ID_DE_SESION` |
+| `python3 scripts/harness/docs_guard.py ci --base` | Validar en CI los cambios documentales desde un commit base. | `python3 scripts/harness/docs_guard.py ci --base origin/main` |
+| `python3 scripts/harness/run_checks.py` | Ejecutar quality gates de `harness.json`. | `python3 scripts/harness/run_checks.py` |
+| `python3 -m unittest discover` | Ejecutar las pruebas automatizadas del propio repositorio Aikya. | `python3 -m unittest discover -s tests -p 'test_*.py' -v` |
+
+`run_checks.py` marca como pendientes/fallidos los checks obligatorios sin configurar. `docs_guard.py status` necesita un estado de sesión generado por Claude Code; puede fallar si aún no existe una petición.
+
+### 6. Skills invocables desde Claude Code (`/...`)
+
+Estas **ocho skills** existen en `.claude/skills/<nombre>/SKILL.md` de cada proyecto instalado. Abre Claude Code desde el proyecto antes de usarlas:
+
+| Comando en Claude Code | Uso | Ejemplo de petición |
+|---|---|---|
+| `/project-init` | Inicializar proyecto o módulos según decisiones del perfil. | `/project-init Prepara una API REST con el stack del perfil y tests iniciales` |
+| `/project-bootstrap` | Planificar scaffold, infraestructura y módulos con confirmación. | `/project-bootstrap Planifica apps/api y apps/web sin sobrescribir código` |
+| `/feature` | Implementar una funcionalidad, pruebas y docs afectadas. | `/feature Añade GET /health y un test de respuesta 200` |
+| `/bugfix` | Investigar un fallo, corregirlo y documentar regresión. | `/bugfix El login devuelve 500 cuando la contraseña está vacía` |
+| `/architecture-review` | Revisar arquitectura y registrar decisiones cuando proceda. | `/architecture-review Evalúa dependencias entre API y dominio` |
+| `/mobile-feature` | Implementar una funcionalidad Android/iOS si el proyecto es móvil. | `/mobile-feature Añade pantalla de perfil en Android Kotlin` |
+| `/documentation-sync` | Sincronizar overview, features, bugs, seguridad y bitácora. | `/documentation-sync Revisa documentación tras el cambio de autenticación` |
+| `/verify` | Ejecutar verificaciones reales y reportar evidencias. | `/verify Comprueba lint, tests, build y documentación` |
+
+Las skills externas se gestionan mediante `external_skills.py` y sólo aparecen cuando se instalan correctamente; sus comandos y opciones específicos dependen de la versión publicada por cada proveedor. Los comandos integrados de Claude Code (por ejemplo, `/help`) no los implementa Aikya.
+
+---
 
 ## Novedades v4: integración de skills oficiales, sin MCP
 
@@ -189,11 +294,11 @@ Desde la raíz del proyecto abre `claude` y utiliza:
 ## 7. Validaciones del paquete
 
 ```bash
-cd claude-dev-harness-v3
+cd aikya-harnes
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-Incluye pruebas de instalación nueva/existente, detección, preservación de archivos, doc gate, hooks, CI y scaffold sin sobrescritura. Las **32 pruebas locales** incluyen casos v3, skills propias, migración exacta v3→v4, rutas de diseño y consentimientos. Las pruebas externas de descargas se realizan mediante simulación, pues requieren acceso a GitHub/PyPI/npm desde la máquina de instalación. Las pruebas automatizadas **no** cubren builds de todos los SDKs ni sustituyen una ejecución end-to-end en una instalación real de Claude Code.
+Incluye pruebas de instalación nueva/existente, detección, preservación de archivos, doc gate, hooks, CI y scaffold sin sobrescritura. La suite de pruebas automatizadas incluyen casos v3, skills propias, migración exacta v3→v4, rutas de diseño y consentimientos. Las pruebas externas de descargas se realizan mediante simulación, pues requieren acceso a GitHub/PyPI/npm desde la máquina de instalación. Las pruebas automatizadas **no** cubren builds de todos los SDKs ni sustituyen una ejecución end-to-end en una instalación real de Claude Code.
 
 ## 8. Actualizar una instalación v3
 

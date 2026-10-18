@@ -562,7 +562,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                 safe_write(ignore,content,actions)
             else:
                 old=ignore.read_text(encoding='utf8')
-                extras=['.harness/state/', 'graphify-out/', '.env', '.env.*', '!.env.example']
+                extras=['.harness/state/', '.harness/welcome.json', 'graphify-out/', '.env', '.env.*', '!.env.example']
                 missing=[x for x in extras if x not in old.splitlines()]
                 if missing:
                     with ignore.open('a',encoding='utf8') as handle:
@@ -587,6 +587,7 @@ def main(argv: list[str]|None=None) -> int:
     parser.add_argument('--target',type=Path,default=Path.cwd(),help='Repositorio existente o nuevo directorio')
     parser.add_argument('--answers',type=Path,help='Respuestas JSON para instalación no interactiva')
     parser.add_argument('--dry-run',action='store_true',help='Mostrar plan sin escribir archivos')
+    parser.add_argument('--display-name',default=None,help='Nombre local que se muestra en el saludo de Claude Code (no se versiona)')
     parser.add_argument('--external',choices=['ask','install','plan','skip'],default=None,help='Skills de terceros: pedir consentimiento (terminal), instalar con consentimiento explícito, plan o saltar')
     args=parser.parse_args(argv)
     target=args.target.expanduser().resolve()
@@ -599,8 +600,11 @@ def main(argv: list[str]|None=None) -> int:
             if not answers:
                 raise ValueError('Archivo --answers vacío/inválido o sin permisos.')
             profile=validated(answers,target)
+            welcome_name = args.display_name if args.display_name is not None else answers.get('welcome_name', '')
         else:
             profile=validated(interview(target,detected),target)
+            welcome_name = args.display_name if args.display_name is not None else ask(
+                'Nombre para la bienvenida en Claude Code (vacío = git user.name)', '')
     except (ValueError,KeyboardInterrupt,EOFError) as exc:
         print(f'Entrevista cancelada o inválida: {exc}',file=sys.stderr)
         return 2
@@ -624,6 +628,19 @@ def main(argv: list[str]|None=None) -> int:
     except (OSError,UnicodeError,ValueError) as exc:
         print(f'ERROR durante la instalación: {exc}',file=sys.stderr)
         return 1
+    if not args.dry_run and welcome_name:
+        if not isinstance(welcome_name, str) or not welcome_name.strip():
+            print('AVISO: nombre de bienvenida inválido; no guardado.', file=sys.stderr)
+        else:
+            # La identidad es por usuario/equipo local, no forma parte del perfil compartido.
+            welcome_file = target / '.harness/welcome.json'
+            if welcome_file.is_symlink():
+                print('AVISO: welcome.json es enlace simbólico; no modificado.', file=sys.stderr)
+            else:
+                welcome_file.parent.mkdir(parents=True, exist_ok=True)
+                welcome_file.write_text(json.dumps({'display_name': welcome_name.strip()[:48]},
+                    ensure_ascii=False, indent=2) + '\n', encoding='utf8')
+                actions.append('IDENTIDAD LOCAL configurada en .harness/welcome.json (ignorado por Git)')
     print('\n=== RESULTADO ===')
     for a in actions:
         print('-',a)

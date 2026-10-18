@@ -383,6 +383,7 @@ MONGO_PASSWORD=REPLACE_LOCALLY
 '''
     outputs['.gitignore']='''# Harness y estado de trabajo
 .harness/state/
+.harness/welcome.json
 # Entornos y credenciales
 .env
 .env.*

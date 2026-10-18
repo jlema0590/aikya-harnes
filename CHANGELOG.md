@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.1 — 2026-10-18
+
+- Bienvenida al iniciar Claude Code con panel de texto, nombre local configurable, repositorio detectado y URL de Aikya.
+- Hook `SessionStart` no intrusivo: mensaje visible al usuario sin añadir contexto al modelo, sin red y sin avisos en compactación.
+- Soporte `--display-name` y `welcome_name` en `--answers`, identidad local ignorada por Git.
+- README: referencia completa de comandos CLI y las ocho skills propias, cada una con ejemplo; vista previa del saludo.
+- Hooks de bienvenida tanto para el propio repositorio Aikya como para proyectos instalados.
+
 ## v4 — 2026-10-18
 
 - Entrevista y bootstrap v3 conservados: Java, .NET, Node, Next, Vue, React, Android, iOS y multiplataforma.
