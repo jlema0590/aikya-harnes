@@ -10,5 +10,6 @@
   "ci": "github-actions",
   "deployment": "cloud-managed",
   "package_manager": "pnpm",
-  "notes": "Next.js App Router y React en una sola aplicación; revisar Server Components y Route Handlers."
+  "notes": "Next.js App Router y React en una sola aplicación; revisar Server Components y Route Handlers.",
+  "repository_layout": "singlerepo"
 }

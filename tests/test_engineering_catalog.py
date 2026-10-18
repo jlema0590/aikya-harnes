@@ -65,22 +65,22 @@ class EngineeringCatalogTests(unittest.TestCase):
             self.assertFalse((root/'.claude/agents/flutter-developer.md').exists())
             self.assertFalse((root/'.claude/skills/flutter-architecture/SKILL.md').exists())
             self.assertTrue((root/'.claude/agents/security-reviewer.md').exists())
-            for name in ('docs/agents.md','docs/skills.md','.harness/engineering-catalog.json'):
+            for name in ('aikya/docs/agents.md','aikya/docs/skills.md','.harness/engineering-catalog.json'):
                 self.assertTrue((root/name).is_file(),name)
-            doc=(root/'docs/skills.md').read_text()
+            doc=(root/'aikya/docs/skills.md').read_text()
             self.assertIn('Aikya Engineering',doc)
-            self.assertTrue((root/'scripts/harness/engineering_catalog.py').exists())
-            self.assertTrue((root/'scripts/harness/engineering/skills/terraform-iac/SKILL.md').exists())
-            check=subprocess.run([sys.executable,str(root/'scripts/harness/engineering_catalog.py'),'plan','--root',str(root), '--names','terraform-iac'],capture_output=True,text=True)
+            self.assertTrue((root/'aikya/scripts/harness/engineering_catalog.py').exists())
+            self.assertTrue((root/'aikya/scripts/harness/engineering/skills/terraform-iac/SKILL.md').exists())
+            check=subprocess.run([sys.executable,str(root/'aikya/scripts/harness/engineering_catalog.py'),'plan','--root',str(root), '--names','terraform-iac'],capture_output=True,text=True)
             self.assertEqual(0,check.returncode,check.stderr)
             self.assertIn('terraform-iac',check.stdout)
-            reject=subprocess.run([sys.executable,str(root/'scripts/harness/engineering_catalog.py'),'install','--root',str(root),'--names','terraform-iac'],capture_output=True,text=True)
+            reject=subprocess.run([sys.executable,str(root/'aikya/scripts/harness/engineering_catalog.py'),'install','--root',str(root),'--names','terraform-iac'],capture_output=True,text=True)
             self.assertNotEqual(0,reject.returncode)
             self.assertFalse((root/'.claude/skills/terraform-iac').exists())
-            enabled=subprocess.run([sys.executable,str(root/'scripts/harness/engineering_catalog.py'),'install','--root',str(root),'--names','terraform-iac', '--approved'],capture_output=True,text=True)
+            enabled=subprocess.run([sys.executable,str(root/'aikya/scripts/harness/engineering_catalog.py'),'install','--root',str(root),'--names','terraform-iac', '--approved'],capture_output=True,text=True)
             self.assertEqual(0,enabled.returncode,enabled.stderr)
             self.assertTrue((root/'.claude/skills/terraform-iac/SKILL.md').exists())
-            self.assertIn('terraform-iac',(root/'docs/skills.md').read_text())
+            self.assertIn('terraform-iac',(root/'aikya/docs/skills.md').read_text())
 
     def test_repeat_install_preserves_personalized_specialist_and_docs(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -90,7 +90,7 @@ class EngineeringCatalogTests(unittest.TestCase):
             catalog.install_selected(root,choices)
             path=root/'.claude/agents/node-backend-developer.md'
             path.write_text(path.read_text()+'\n# personalizado\n')
-            docs=root/'docs/agents.md';docs.write_text('custom team doc\n')
+            docs=root/'aikya/docs/agents.md';docs.write_text('custom team doc\n')
             logs=catalog.install_selected(root,choices)
             self.assertIn('# personalizado',path.read_text())
             self.assertEqual('custom team doc\n',docs.read_text())

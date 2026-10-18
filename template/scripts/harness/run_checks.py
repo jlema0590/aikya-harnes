@@ -8,7 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3] if Path(__file__).resolve().parents[2].name == 'aikya' else Path(__file__).resolve().parents[2]
 CONFIG = ROOT / 'harness.json'
 
 

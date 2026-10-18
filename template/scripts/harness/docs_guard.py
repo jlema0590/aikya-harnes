@@ -16,7 +16,7 @@ import sys
 from datetime import datetime, timezone
 from uuid import uuid4
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3] if Path(__file__).resolve().parents[2].name == 'aikya' else Path(__file__).resolve().parents[2]
 STATE = ROOT / '.harness' / 'state'
 IGNORED = {'.git', '.harness', 'node_modules', '.next', '.nuxt', '.venv',
            'venv', 'dist', 'build', 'target', 'obj', 'bin', 'coverage',
@@ -25,12 +25,12 @@ CONFIG_FILES = {'pom.xml','build.gradle','build.gradle.kts','package.json',
                 'tsconfig.json','Dockerfile','docker-compose.yml','compose.yaml',
                 'settings.gradle','settings.gradle.kts', 'pubspec.yaml',
                 'global.json', 'gradle.properties'}
-DOCS_REQUIRED = ('docs/skills.md','docs/overview.md','docs/plan/roadmap.md',
-                 'docs/features/index.md','docs/bugs/index.md',
-                 'docs/security/security.md','docs/architecture/overview.md',
-                 'docs/operations/deployment.md','docs/operations/observability.md',
-                 'docs/quality/testing.md','docs/decisions/README.md',
-                 'docs/changes/README.md')
+DOCS_REQUIRED = ('aikya/docs/skills.md','aikya/docs/overview.md','aikya/docs/plan/roadmap.md',
+                 'aikya/docs/features/index.md','aikya/docs/bugs/index.md',
+                 'aikya/docs/security/security.md','aikya/docs/architecture/overview.md',
+                 'aikya/docs/operations/deployment.md','aikya/docs/operations/observability.md',
+                 'aikya/docs/quality/testing.md','aikya/docs/decisions/README.md',
+                 'aikya/docs/changes/README.md')
 
 
 def normalized_session(session: str) -> str:
@@ -48,7 +48,7 @@ def file_map() -> dict[str,str]:
             rel = path.relative_to(ROOT).as_posix()
             if name.startswith('.env') or path.is_symlink() or not path.is_file():
                 continue
-            if rel.startswith('docs/') or is_source(rel):
+            if rel.startswith('aikya/docs/') or is_source(rel):
                 try:
                     if path.stat().st_size > 3_000_000:
                         mapping[rel] = f'large:{path.stat().st_size}:{path.stat().st_mtime_ns}'
@@ -119,10 +119,10 @@ def load_state(session: str) -> dict | None:
 
 def changes(baseline: dict[str,str], current: dict[str,str]) -> tuple[list[str],list[str]]:
     code = sorted(p for p in baseline.keys() | current.keys()
-                  if p != '__TRUNCATED__' and is_source(p) and not p.startswith('docs/')
+                  if p != '__TRUNCATED__' and is_source(p) and not p.startswith('aikya/docs/')
                   and baseline.get(p) != current.get(p))
     docs = sorted(p for p in baseline.keys() | current.keys()
-                  if p.startswith('docs/') and baseline.get(p) != current.get(p))
+                  if p.startswith('aikya/docs/') and baseline.get(p) != current.get(p))
     return code,docs
 
 
@@ -130,37 +130,37 @@ def affected_docs(kind: str, paths: list[str]) -> list[str]:
     required: set[str] = set()
     kinds=set(kind.split('+'))
     if 'feature' in kinds:
-        required.update(('docs/features/index.md','docs/plan/roadmap.md'))
+        required.update(('aikya/docs/features/index.md','aikya/docs/plan/roadmap.md'))
     if 'bug' in kinds:
-        required.add('docs/bugs/index.md')
+        required.add('aikya/docs/bugs/index.md')
     if 'security' in kinds:
-        required.add('docs/security/security.md')
+        required.add('aikya/docs/security/security.md')
     if 'architecture' in kinds:
-        required.add('docs/architecture/overview.md')
+        required.add('aikya/docs/architecture/overview.md')
     if 'operations' in kinds:
-        required.add('docs/operations/deployment.md')
+        required.add('aikya/docs/operations/deployment.md')
     for path in paths:
         if path.startswith('.claude/skills/'):
-            required.add('docs/skills.md')
+            required.add('aikya/docs/skills.md')
         p = path.lower()
         # El sistema de diseño sólo se exige si existe una interfaz y se toca una pantalla/componente.
         if (p.endswith(('.tsx','.jsx','.vue','.css','.scss','.svelte')) or
             any(part in p for part in ('/screens/','/components/','/pages/','/views/','/ui/'))) and (
             p.startswith(('apps/web/','apps/frontend/','frontend/','web/','client/','src/','apps/mobile/','apps/android/','apps/ios/','mobile/'))):
-            if (ROOT/'docs/design/design-system.md').is_file():
-                required.add('docs/design/design-system.md')
-        if p.startswith(('tests/','test/')) or '/test/' in p or '/tests/' in p or p.endswith(('.test.ts','.spec.ts')):
-            required.add('docs/quality/testing.md')
+            if (ROOT/'aikya/docs/design/design-system.md').is_file():
+                required.add('aikya/docs/design/design-system.md')
+        if p.startswith(('tests/','test/','aikya/test/')) or '/test/' in p or '/tests/' in p or p.endswith(('.test.ts','.spec.ts')):
+            required.add('aikya/docs/quality/testing.md')
         if p.startswith(('infra/','.github/','.gitlab/')) or any(w in p for w in ('docker','terraform','k8s','helm')):
-            required.add('docs/operations/deployment.md')
+            required.add('aikya/docs/operations/deployment.md')
         if any(w in p for w in ('security','auth','permission','credential')):
-            required.add('docs/security/security.md')
+            required.add('aikya/docs/security/security.md')
         if any(w in p for w in ('telemetry','observab','tracing','metrics')):
-            required.add('docs/operations/observability.md')
+            required.add('aikya/docs/operations/observability.md')
         if any(w in p for w in ('architecture','module','schema','migration')):
-            required.add('docs/architecture/overview.md')
+            required.add('aikya/docs/architecture/overview.md')
     if not required:
-        required.add('docs/overview.md')
+        required.add('aikya/docs/overview.md')
     return sorted(required)
 
 
@@ -178,7 +178,7 @@ def validate_request(state: dict, now: dict|None=None) -> tuple[bool,list[str]]:
     if not changed:
         return True,['Sin cambios en código/infraestructura durante esta petición: no se requieren modificaciones documentales.']
     req = state['request_id']
-    change_path = 'docs/changes/'+req+'.md'
+    change_path = 'aikya/docs/changes/'+req+'.md'
     required = affected_docs(state['kind'],changed)
     errors: list[str] = []
     if '__TRUNCATED__' in state['baseline'] or '__TRUNCATED__' in now:
@@ -219,21 +219,21 @@ def git_changed(base: str) -> list[str]:
 
 
 def validate_ci(paths: list[str]) -> tuple[bool,list[str]]:
-    changed = [p for p in paths if is_source(p) and not p.startswith('docs/')]
+    changed = [p for p in paths if is_source(p) and not p.startswith('aikya/docs/')]
     if not changed:
         return True,['Sin código modificado en el diff: documentación sin cambios permitida.']
-    docs = {p for p in paths if p.startswith('docs/')}
+    docs = {p for p in paths if p.startswith('aikya/docs/')}
     # El tipo exacto de la petición no se infiere en CI; se valida categoría por rutas +
     # al menos un doc funcional, con revisión humana para semántica.
-    required = [p for p in affected_docs('general',changed) if p != 'docs/overview.md']
-    if not any(x in docs for x in DOCS_REQUIRED if x not in ('docs/README.md',)):
-        required.append('una página temática de docs/ (además de la bitácora)')
+    required = [p for p in affected_docs('general',changed) if p != 'aikya/docs/overview.md']
+    if not any(x in docs for x in DOCS_REQUIRED if x not in ('aikya/docs/README.md',)):
+        required.append('una página temática de aikya/docs/ (además de la bitácora)')
     errors = [f'Falta documento afectado en diff: {p}' for p in required if p not in docs and not p.startswith('una página')]
-    if 'una página temática de docs/ (además de la bitácora)' in required:
-        errors.append('Falta actualizar al menos un documento temático de docs/.')
-    logs = [p for p in docs if re.fullmatch(r'docs/changes/REQ-\d{8}-[a-f0-9]{8}\.md',p)]
+    if 'una página temática de aikya/docs/ (además de la bitácora)' in required:
+        errors.append('Falta actualizar al menos un documento temático de aikya/docs/.')
+    logs = [p for p in docs if re.fullmatch(r'aikya/docs/changes/REQ-\d{8}-[a-f0-9]{8}\.md',p)]
     if not logs:
-        errors.append('Falta al menos un docs/changes/REQ-*.md en el diff.')
+        errors.append('Falta al menos un aikya/docs/changes/REQ-*.md en el diff.')
     return not errors,errors or ['Validación estructural de documentación del diff: OK.']
 
 

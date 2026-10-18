@@ -92,18 +92,18 @@ class ExternalIntegrationTests(unittest.TestCase):
                     'backend':'java','backend_framework':'spring-boot','frontend':front,
                     'package_manager':'npm'},root)
                 installer.install(root,profile,{'modules':[],'findings':[]})
-                design=(root/'docs/design/design-system.md').exists()
+                design=(root/'aikya/docs/design/design-system.md').exists()
                 self.assertEqual(design,front=='react')
                 self.assertTrue((root/'.claude/hooks/skills_ready.py').is_file())
-                self.assertTrue((root/'scripts/harness/external_skills.py').is_file())
-                self.assertEqual(subprocess.run([sys.executable,str(root/'scripts/harness/skills_lint.py')],
+                self.assertTrue((root/'aikya/scripts/harness/external_skills.py').is_file())
+                self.assertEqual(subprocess.run([sys.executable,str(root/'aikya/scripts/harness/skills_lint.py')],
                                                 cwd=root,capture_output=True).returncode,0)
 
     def test_upgrade_unmodified_v3_and_preserve_custom_code(self):
         previous=HERE/'tests/fixtures'
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)
-            old=root/'scripts/harness/docs_guard.py'
+            old=root/'aikya/scripts/harness/docs_guard.py'
             old.parent.mkdir(parents=True)
             old.write_bytes((previous/'v3_docs_guard.py').read_bytes())
             custom=root/'.claude/skills/feature/SKILL.md'
@@ -112,9 +112,10 @@ class ExternalIntegrationTests(unittest.TestCase):
             profile=installer.validated({'name':'upgrade','backend':'java',
                 'backend_framework':'spring-boot','frontend':'react','mode':'existing'},root)
             actions=installer.install(root,profile,{'modules':[],'findings':[]})
-            self.assertTrue(any('ACTUALIZADO DESDE v3' in x for x in actions))
-            self.assertEqual(old.read_bytes(),(HERE/'template/scripts/harness/docs_guard.py').read_bytes())
-            self.assertTrue((root/'.harness/backup-v3/scripts/harness/docs_guard.py').is_file())
+            self.assertFalse(any('ACTUALIZADO DESDE v3' in x for x in actions))
+            self.assertEqual(old.read_bytes(),(previous/'v3_docs_guard.py').read_bytes())
+            self.assertEqual((root/'aikya/scripts/harness/docs_guard.py').read_bytes(),(HERE/'template/scripts/harness/docs_guard.py').read_bytes())
+            self.assertTrue((root/'.harness/backup-v3/aikya/scripts/harness/docs_guard.py').is_file())
             self.assertEqual(custom.read_text(),'PERSONALIZADO; no sobrescribir')
             self.assertTrue((root/'.claude/rules/02-context-budget.md').is_file())
 
@@ -124,11 +125,11 @@ class ExternalIntegrationTests(unittest.TestCase):
             profile=installer.validated({'name':'design','backend':'none',
                 'frontend':'vue','mode':'new'},root)
             installer.install(root,profile,{'modules':[],'findings':[]})
-            guard=load_module(root/'scripts/harness/docs_guard.py','guard_ui_case')
+            guard=load_module(root/'aikya/scripts/harness/docs_guard.py','guard_ui_case')
             requested=guard.affected_docs('feature',['apps/web/src/components/Button.vue'])
-            self.assertIn('docs/design/design-system.md',requested)
+            self.assertIn('aikya/docs/design/design-system.md',requested)
             not_ui=guard.affected_docs('bug',['apps/api/server.ts'])
-            self.assertNotIn('docs/design/design-system.md',not_ui)
+            self.assertNotIn('aikya/docs/design/design-system.md',not_ui)
 
     def test_cli_with_answers_plan_does_not_download(self):
         with tempfile.TemporaryDirectory() as d:

@@ -12,11 +12,11 @@ Argumentos de la petición: `$ARGUMENTS`.
 - No descargues dependencias, modifiques el SDK, realices despliegues, commits ni pushes sin autorización explícita. Conserva archivos y configuraciones ajenas.
 - Lee sólo el perfil, los archivos directamente relacionados y las reglas estrictamente necesarias; evita grandes volcados de contexto.
 
-1. Comprueba el perfil e inventario actual. Ejecuta `python3 scripts/harness/external_skills.py status` desde el proyecto; se actualizará `docs/skills.md` si está generado por Aikya.
+1. Comprueba el perfil e inventario actual. Ejecuta `python3 aikya/scripts/harness/external_skills.py status` desde el proyecto; se actualizará `aikya/docs/skills.md` si está generado por Aikya.
 2. Describe skills habilitadas del proyecto, externas ausentes, fallidas y origen. Nunca confundas **disponible** con **ejecutada**.
 3. No descargues ni instales nada ni leas instrucciones completas de skills ajenas para esta consulta.
 
 ## Especialistas Aikya del proyecto
 
-- Incluye `docs/agents.md` y `docs/skills.md` en la comprobación de disponibilidad del catálogo técnico.
-- Si la consulta abarca componentes incluidos con Aikya, ejecuta `python3 scripts/harness/engineering_catalog.py list` y distingue **disponibles en el catálogo** de **instalados en el proyecto**.
+- Incluye `aikya/docs/agents.md` y `aikya/docs/skills.md` en la comprobación de disponibilidad del catálogo técnico.
+- Si la consulta abarca componentes incluidos con Aikya, ejecuta `python3 aikya/scripts/harness/engineering_catalog.py list` y distingue **disponibles en el catálogo** de **instalados en el proyecto**.

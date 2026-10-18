@@ -184,7 +184,7 @@ def install_selected(root: Path, selection: dict[str, list[str]], source: Path |
 
 
 def write_agents_doc(root: Path) -> None:
-    target = root / 'docs/agents.md'
+    target = root / 'aikya/docs/agents.md'
     if target.is_symlink() or target.parent.is_symlink():
         return
     if target.exists() and not target.read_text(encoding='utf8').startswith(MARKER):

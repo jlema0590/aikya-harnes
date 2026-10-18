@@ -105,16 +105,16 @@ Este inventario describe las **skills registradas en el proyecto** y su disponib
 
 
 def write_inventory(root: Path, profile: dict|None=None) -> tuple[bool,str]:
-    target=root/'docs/skills.md'
+    target=root/'aikya/docs/skills.md'
     if target.is_symlink() or target.parent.is_symlink():
-        return False, 'docs/skills.md o docs/ es simbólico: se conserva'
+        return False, 'aikya/docs/skills.md o docs/ es simbólico: se conserva'
     if target.exists():
         previous=target.read_text(encoding='utf8')
         if not previous.startswith(MARKER):
-            return False, 'docs/skills.md personalizado: requiere actualización manual'
+            return False, 'aikya/docs/skills.md personalizado: requiere actualización manual'
     target.parent.mkdir(parents=True,exist_ok=True)
     content=render(root,profile)
     if target.exists() and target.read_text(encoding='utf8')==content:
-        return True,'docs/skills.md sin cambios'
+        return True,'aikya/docs/skills.md sin cambios'
     target.write_text(content,encoding='utf8')
-    return True,'docs/skills.md actualizado'
+    return True,'aikya/docs/skills.md actualizado'

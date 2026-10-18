@@ -59,7 +59,7 @@ def validate(root: Path, include_vendor: bool = False) -> list[str]:
 
 def main() -> int:
     parser=argparse.ArgumentParser()
-    parser.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2])
+    parser.add_argument('--root',type=Path,default=(Path(__file__).resolve().parents[3] if Path(__file__).resolve().parents[2].name == 'aikya' else Path(__file__).resolve().parents[2]))
     parser.add_argument('--include-vendor',action='store_true')
     args=parser.parse_args()
     errors=validate(args.root.resolve(),args.include_vendor)

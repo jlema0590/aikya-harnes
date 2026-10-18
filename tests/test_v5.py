@@ -45,10 +45,10 @@ class AikyaV5(unittest.TestCase):
                                    '--target',str(repo),'--answers',str(repo/'.aikya/answers.json')],
                                    capture_output=True,text=True)
             self.assertEqual(0,result.returncode,result.stderr)
-            self.assertTrue((repo/'docs/harness/requirements.md').is_file())
+            self.assertTrue((repo/'aikya/docs/harness/requirements.md').is_file())
             self.assertTrue((repo/'.claude/skills/aikya-feature/SKILL.md').is_file())
             self.assertTrue((repo/'.claude/skills/feature/SKILL.md').is_file())
-            self.assertTrue((repo/'scripts/harness/aikya_requirements.py').is_file())
+            self.assertTrue((repo/'aikya/scripts/harness/aikya_requirements.py').is_file())
 
     def test_project_scope_preserves_customized_skill(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -68,7 +68,7 @@ class AikyaV5(unittest.TestCase):
             self.assertTrue(install.only_aikya_bootstrap(root))
             cli=aikya_cli.main(['init','--target',str(root),'--external','skip'])
             self.assertEqual(0,cli)
-            self.assertTrue((root/'docs/README.md').exists())
+            self.assertTrue((root/'aikya/docs/README.md').exists())
 
     def test_project_bootstrap_rejects_real_user_files(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -113,7 +113,7 @@ class AikyaV5(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             project=Path(tmp)
             (project/'scripts/harness').mkdir(parents=True)
-            (project/'scripts/harness/aikya_requirements.py').write_bytes((ROOT/'aikya_requirements.py').read_bytes())
+            (project/'aikya/scripts/harness/aikya_requirements.py').write_bytes((ROOT/'aikya_requirements.py').read_bytes())
             spec=importlib.util.spec_from_file_location('aikya_scaffold_test',ROOT/'template/scripts/harness/scaffold.py')
             module=importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)

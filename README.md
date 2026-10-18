@@ -13,6 +13,29 @@ Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**.
 
 El nombre anterior `bootstrap_skills/` se migra de forma conservadora al actualizar Aikya: se limpian sólo archivos gestionados y verificados, manteniendo intactas las personalizaciones.
 
+## Elegir monorepo o singlerepo
+
+Durante `/aikya-init` debes seleccionar la **topología del repositorio**; esta opción es independiente de la arquitectura Clean, monolítica, en capas, de microservicios o por eventos.
+
+- **Monorepo:** genera `apps/`, `packages/` y `contracts/`. Aloja backend, frontend y clientes móviles en módulos independientes.
+- **Singlerepo:** coloca la única aplicación **en la raíz**, sin crear `apps/`, `packages/`, `contracts/` ni un `package.json` artificial de workspaces. Es válido para Next.js + React integrado, backend-only, frontend-only y móvil único.
+- **Múltiples aplicaciones:** selecciona monorepo (p. ej. Java + React independientes o dos aplicaciones nativas Android/iOS).
+- **Proyectos existentes:** Aikya conserva el código y la organización encontrada; no mueve aplicaciones ni sobrescribe documentos propios.
+
+En ambos modos, la estructura de Aikya en el proyecto queda unificada:
+
+```text
+aikya/
+  docs/        # overview, roadmap, features, seguridad, ADR y bitácoras
+  test/        # pruebas del propio harness
+  scripts/     # validaciones, ingeniería y scaffolding
+.claude/       # hooks y skills visibles para Claude Code
+.aikya/        # runtime y respuestas locales del instalador
+.harness/      # perfil, estados y manifiestos internos
+```
+
+En monorepo la app va a `apps/api`, `apps/web`, etc.; en singlerepo el scaffolding compatible prepara la app en un directorio temporal y copia a raíz sólo después de comprobar conflictos. Las comprobaciones de SDK siguen siendo obligatorias.
+
 ## 1. Instalar Aikya desde Claude Code
 
 Abre una conversación de **Claude Code** en la carpeta en la que quieras trabajar y envía esta solicitud. Puedes elegir **global** para habilitar los comandos en todos los proyectos, o **proyecto** para habilitarlos sólo en el repositorio actual.
@@ -55,13 +78,13 @@ La integración de terceros es **optativa y supervisada**: [Ponytail](https://gi
 
 | Comando de Claude Code | Qué hace | Ejemplo en la conversación |
 |---|---|---|
-| `/aikya-skills-status` | Muestra skills disponibles y sincroniza `docs/skills.md`. | `/aikya-skills-status` |
+| `/aikya-skills-status` | Muestra skills disponibles y sincroniza `aikya/docs/skills.md`. | `/aikya-skills-status` |
 | `/aikya-skills-plan` | Prepara un plan de integración y comprueba necesidades del stack. | `/aikya-skills-plan` |
-| `/aikya-skills-install` | Instala skills autorizadas (incluidas **nuevas skills de GitHub** mediante URL HTTPS, nombre, carpeta y ref/commit), valida la procedencia y actualiza `docs/skills.md`. | `/aikya-skills-install Sólo Ponytail y Graphify` |
+| `/aikya-skills-install` | Instala skills autorizadas (incluidas **nuevas skills de GitHub** mediante URL HTTPS, nombre, carpeta y ref/commit), valida la procedencia y actualiza `aikya/docs/skills.md`. | `/aikya-skills-install Sólo Ponytail y Graphify` |
 
-Al inicializar un proyecto se genera `docs/skills.md`, que inventaría las skills registradas en `.claude/skills/`, su disponibilidad y origen. La instalación de nuevas skills lo sincroniza; **estar disponible no implica haber sido ejecutada**. **Ejemplo para una skill nueva en Claude Code:**
+Al inicializar un proyecto se genera `aikya/docs/skills.md`, que inventaría las skills registradas en `.claude/skills/`, su disponibilidad y origen. La instalación de nuevas skills lo sincroniza; **estar disponible no implica haber sido ejecutada**. **Ejemplo para una skill nueva en Claude Code:**
 
-> `/aikya-skills-install Quiero incorporar una skill desde https://github.com/ORGANIZACION/REPOSITORIO.git. Revisa primero su SKILL.md y licencia, identifica la carpeta skills/NOMBRE, verifica el commit exacto, explícame los permisos y solicita mi aprobación antes de instalarla. Registra el resultado en docs/skills.md.`
+> `/aikya-skills-install Quiero incorporar una skill desde https://github.com/ORGANIZACION/REPOSITORIO.git. Revisa primero su SKILL.md y licencia, identifica la carpeta skills/NOMBRE, verifica el commit exacto, explícame los permisos y solicita mi aprobación antes de instalarla. Registra el resultado en aikya/docs/skills.md.`
 
 **Ejemplo para consultar el inventario:** `/aikya-skills-status Revisa las skills del proyecto y su origen.`
 
@@ -77,7 +100,7 @@ La selección es contextual para no cargar instrucciones innecesarias. Graphify 
 | `/aikya-documentation-sync` | Comando histórico compatible para sincronización documental. | `/aikya-documentation-sync Revisa la documentación de seguridad` |
 | `/aikya-verify` | Comando histórico compatible de validación integral. | `/aikya-verify Comprueba la última feature` |
 
-Cada cambio técnico debe revisar y actualizar **los documentos realmente afectados** de `docs/`: overview, roadmap, features, bugs, security, architecture/ADRs, design, operations, testing y `docs/skills.md` cuando se incorporen o retiren skills. El cambio se registra en `docs/changes/REQ-*.md` con evidencias ejecutadas. Los hooks de Aikya ayudan a detectar documentación faltante antes del cierre de una tarea; el contenido técnico sigue necesitando revisión.
+Cada cambio técnico debe revisar y actualizar **los documentos realmente afectados** de `aikya/docs/`: overview, roadmap, features, bugs, security, architecture/ADRs, design, operations, testing y `aikya/docs/skills.md` cuando se incorporen o retiren skills. El cambio se registra en `aikya/docs/changes/REQ-*.md` con evidencias ejecutadas. Los hooks de Aikya ayudan a detectar documentación faltante antes del cierre de una tarea; el contenido técnico sigue necesitando revisión.
 
 Un check requerido que no está configurado, falla o no pudo ejecutarse se informa como **NO VERIFICADO** o **FALLÓ**; nunca se declara aprobado por omisión.
 
@@ -99,7 +122,7 @@ Tras la entrevista y la instalación aprobada, Aikya crea o completa la estructu
 - `.claude/`: agentes, skills, reglas y hooks de Claude Code.
 - `.aikya/`: decisiones de entrevista y runtime local cuando corresponda.
 - `.harness/` y `harness.json`: perfil técnico, estado de petición y controles de calidad.
-- `docs/`: documentación viva, inventario `docs/skills.md`, ADRs, guías de operación y registro de cambios.
+- `aikya/docs/`: documentación viva, inventario `aikya/docs/skills.md`, ADRs, guías de operación y registro de cambios.
 - `apps/`, `infra/` y configuración de CI: sólo cuando son adecuados para el stack y se autoriza el scaffold.
 
 **Para empezar:** instala Aikya mediante una petición a Claude Code, ejecuta `/aikya-init` y continúa usando exclusivamente los comandos `/aikya-*` descritos aquí.
@@ -143,9 +166,9 @@ Aikya incorpora **23 agentes técnicos** y **26 Agent Skills especializadas**, i
 | Arquitecturas | `clean-architecture-architect`, `layered-architecture-architect`, `monolith-architect`, `microservices-architect`, `event-driven-architect` | `clean-architecture`, `layered-architecture`, `modular-monolith-architecture`, `microservices-architecture`, `event-driven-architecture` |
 | Lenguajes | `java-developer`, `dotnet-developer`, `python-developer`, `react-developer`, `angular-developer`, `kotlin-developer` | `java-engineering`, `dotnet-engineering`, `python-engineering`, `react-engineering`, `angular-engineering`, `kotlin-engineering` |
 
-**Ejemplo dentro de Claude Code:** `/aikya-skills-plan Analiza el backend Java y el frontend React; recomiéndame los agentes de arquitectura y lenguaje, indicando cuáles ya están activos.` Luego `/aikya-skills-install Instala sólo los especialistas acordados. No sobrescribas los personalizados y sincroniza docs/agents.md y docs/skills.md.`
+**Ejemplo dentro de Claude Code:** `/aikya-skills-plan Analiza el backend Java y el frontend React; recomiéndame los agentes de arquitectura y lenguaje, indicando cuáles ya están activos.` Luego `/aikya-skills-install Instala sólo los especialistas acordados. No sobrescribas los personalizados y sincroniza aikya/docs/agents.md y aikya/docs/skills.md.`
 
-**Versiones y evidencias:** las skills no fijan por defecto versiones de los SDKs. Aikya debe contrastar los manifiestos reales, ejecutar `/aikya-doctor` y actualizar `docs/agents.md` y `docs/skills.md`. La disponibilidad no certifica invocación ni resultado de tests. Consulta [ENGINEERING_AUDIT.md](ENGINEERING_AUDIT.md) para las procedencias y limitaciones.
+**Versiones y evidencias:** las skills no fijan por defecto versiones de los SDKs. Aikya debe contrastar los manifiestos reales, ejecutar `/aikya-doctor` y actualizar `aikya/docs/agents.md` y `aikya/docs/skills.md`. La disponibilidad no certifica invocación ni resultado de tests. Consulta [ENGINEERING_AUDIT.md](ENGINEERING_AUDIT.md) para las procedencias y limitaciones.
 
 **Activación progresiva:** `/aikya-init` incorpora los componentes adecuados al stack. Los demás quedan en un catálogo local para activarse, con aprobación, mediante `/aikya-skills-install`. Esto reduce instrucciones irrelevantes y evita instalar una especialidad Cloud en un proyecto web sencillo. El catálogo local no requiere descargas; las Agent Skills externas conservan su flujo de consentimiento.
 
@@ -155,9 +178,9 @@ Ejemplos dentro de Claude Code:
 
 > `/aikya-skills-install Instala también terraform-iac y cloud-security desde el catálogo Aikya; presenta el plan antes de proceder.`
 
-> `/aikya-skills-status Comprueba los agentes y skills disponibles y actualiza docs/skills.md.`
+> `/aikya-skills-status Comprueba los agentes y skills disponibles y actualiza aikya/docs/skills.md.`
 
-La inicialización genera `docs/agents.md`, `docs/skills.md` y `.harness/engineering-catalog.json`, con procedencia y componentes instalados. Estar registrado no demuestra uso efectivo de un agente o skill. Los archivos personalizados existentes no se sobrescriben.
+La inicialización genera `aikya/docs/agents.md`, `aikya/docs/skills.md` y `.harness/engineering-catalog.json`, con procedencia y componentes instalados. Estar registrado no demuestra uso efectivo de un agente o skill. Los archivos personalizados existentes no se sobrescriben.
 
 ## 9. Ejemplos de entrevistas técnicas y perfiles por stack
 
@@ -174,3 +197,7 @@ Cada subcarpeta de `examples/` contiene `answers.json` (decisiones que valida Ai
 | [API Java existente (sin scaffolding destructivo)](examples/existing-java-api/README.md) | [`answers.json`](examples/existing-java-api/answers.json) |
 
 **Uso:** abre Claude Code con Aikya instalado y solicita `/aikya-answers Usa las decisiones del ejemplo examples/next-react/answers.json, enséñame primero el plan y valida requisitos antes de generar código.` Cambia la ruta por otro ejemplo si lo necesitas. El desarrollador no tiene que ejecutar instaladores o scripts en una terminal externa.
+
+### Pantalla de bienvenida
+
+El hook `SessionStart` muestra un panel de bienvenida en sesiones nuevas de Claude Code, con el nombre del desarrollador (configuración local o Git) y el repositorio. La instalación global también saluda en proyectos ya inicializados; cuando hay hook local se evita duplicar la salida. Una instalación ejecutada en una sesión abierta **no lanza** el hook retroactivamente: abre una sesión nueva. Si no se visualiza, solicita a Claude que previsualice `welcome.py --preview` en modo lectura y comprueba el evento `SessionStart`.

@@ -15,7 +15,7 @@ def pages(profile:dict, modules:list[dict]) -> dict[str,str]:
     installed='\n'.join(f"- `{flat(m['path'])}`: {flat(m['role'])}/{flat(m['technology'])} (detección heurística; verificar)." for m in modules) or '- Aún no se han creado los módulos de aplicación.'
     is_existing=profile['mode']=='existing'
     pages={
-    'docs/README.md': f'''# Documentación — {name}
+    'aikya/docs/README.md': f'''# Documentación — {name}
 
 La documentación de este repositorio es parte del entregable. Una modificación de código, tests, seguridad, infraestructura o arquitectura **debe** actualizar sus documentos relacionados en la misma petición y dejar trazabilidad.
 
@@ -37,11 +37,11 @@ La documentación de este repositorio es parte del entregable. Una modificación
 
 ## Política documental
 
-Cada tarea que cambia artefactos técnicos debe: (1) leer el contexto, (2) actualizar páginas impactadas con datos reales, (3) añadir `docs/changes/REQ-*.md` y (4) aportar evidencias de verificación. Una consulta sin cambios no requiere modificación documental.
+Cada tarea que cambia artefactos técnicos debe: (1) leer el contexto, (2) actualizar páginas impactadas con datos reales, (3) añadir `aikya/docs/changes/REQ-*.md` y (4) aportar evidencias de verificación. Una consulta sin cambios no requiere modificación documental.
 
 La validación de estructura y diffs **no garantiza** exactitud semántica; revisarla en PR.
 ''',
-    'docs/overview.md': f'''# Visión general — {name}
+    'aikya/docs/overview.md': f'''# Visión general — {name}
 
 ## Propósito
 
@@ -67,7 +67,7 @@ Producto **{name}**. Objetivos de negocio y usuarios finales por definir con el 
 
 [Roadmap](plan/roadmap.md) · [Features](features/index.md) · [Seguridad](security/security.md) · [Arquitectura](architecture/overview.md).
 ''',
-    'docs/plan/roadmap.md': '''# Plan y roadmap
+    'aikya/docs/plan/roadmap.md': '''# Plan y roadmap
 
 ## Objetivos
 
@@ -86,7 +86,7 @@ Producto **{name}**. Objetivos de negocio y usuarios finales por definir con el 
 
 Registra nuevas historias/fechas sólo después de confirmar su alcance; cada feature se relaciona con este roadmap.
 ''',
-    'docs/features/index.md': '''# Catálogo de funcionalidades
+    'aikya/docs/features/index.md': '''# Catálogo de funcionalidades
 
 ## Estado inicial
 
@@ -94,13 +94,13 @@ Aún no se ha documentado ninguna funcionalidad implementada por este harness. E
 
 ## Convención
 
-Para cada feature mantener identificador `FEAT-NNN`, propósito, historia de usuario, criterios de aceptación, endpoints/pantallas, impacto móvil, contratos, pruebas y estado. Enlazar una ficha `docs/features/FEAT-NNN.md` cuando sea compleja.
+Para cada feature mantener identificador `FEAT-NNN`, propósito, historia de usuario, criterios de aceptación, endpoints/pantallas, impacto móvil, contratos, pruebas y estado. Enlazar una ficha `aikya/docs/features/FEAT-NNN.md` cuando sea compleja.
 
 | ID | Feature | Estado | Documentación / pruebas |
 |---|---|---|---|
 | — | Sin features registradas | Por inventariar | — |
 ''',
-    'docs/bugs/index.md': '''# Registro de incidencias y bugs
+    'aikya/docs/bugs/index.md': '''# Registro de incidencias y bugs
 
 ## Estado inicial
 
@@ -114,7 +114,7 @@ Cada bug debe tener `BUG-NNN`, síntoma, impacto, pasos de reproducción, causa 
 |---|---|---|---|
 | — | — | Sin registros | — |
 ''',
-    'docs/security/security.md': f'''# Seguridad y privacidad
+    'aikya/docs/security/security.md': f'''# Seguridad y privacidad
 
 ## Postura inicial
 
@@ -137,7 +137,7 @@ Identidad prevista: **{flat(profile['auth'])}**. La entrevista no constituye aud
 
 Registrar hallazgos confirmados y mitigaciones sin exponer detalles explotables ni credenciales.
 ''',
-    'docs/architecture/overview.md': f'''# Arquitectura técnica
+    'aikya/docs/architecture/overview.md': f'''# Arquitectura técnica
 
 ## Estilo y módulos
 
@@ -158,7 +158,7 @@ Arquitectura elegida: **{flat(profile['architecture'])}**. La decisión debe con
 
 Ver [ADR](../decisions/README.md). La documentación de arquitectura se actualiza al modificar contratos, módulos, esquemas o estrategias de integración.
 ''',
-    'docs/operations/deployment.md': f'''# Despliegue y operación
+    'aikya/docs/operations/deployment.md': f'''# Despliegue y operación
 
 ## Estrategia elegida
 
@@ -176,7 +176,7 @@ Objetivo: **{flat(profile['deployment'])}**; pipeline: **{flat(profile['ci'])}**
 
 No se afirma disponibilidad, CI verde, ni despliegues activos hasta realizar verificaciones reproducibles.
 ''',
-    'docs/operations/observability.md': f'''# Observabilidad y operación SRE
+    'aikya/docs/operations/observability.md': f'''# Observabilidad y operación SRE
 
 ## Estrategia
 
@@ -192,7 +192,7 @@ Selección de entrevista: **{flat(profile['observability'])}**.
 
 La plantilla en `infra/observability/` no instrumenta automáticamente las aplicaciones: requiere dependencias e integración comprobadas.
 ''',
-    'docs/quality/testing.md': f'''# Estrategia de calidad y testing
+    'aikya/docs/quality/testing.md': f'''# Estrategia de calidad y testing
 
 Política elegida: **{flat(profile['quality'])}**.
 
@@ -203,17 +203,17 @@ Política elegida: **{flat(profile['quality'])}**.
 
 ## Quality gates
 
-`python3 scripts/harness/run_checks.py` lee `harness.json`: si un check obligatorio carece de comando se marca `NOT_CONFIGURED` y la ejecución falla. Registra evidencias de los resultados en cada bitácora documental.
+`python3 aikya/scripts/harness/run_checks.py` lee `harness.json`: si un check obligatorio carece de comando se marca `NOT_CONFIGURED` y la ejecución falla. Registra evidencias de los resultados en cada bitácora documental.
 
 Los comandos concretos deben corresponder al código generado; no se presume que un proyecto vacío tiene pruebas pasadas.
 ''',
-    'docs/decisions/README.md': '''# Registro de decisiones de arquitectura (ADR)
+    'aikya/docs/decisions/README.md': '''# Registro de decisiones de arquitectura (ADR)
 
 Crear `000N-titulo.md` por cada decisión que implique trade-offs, cambios de contrato, tecnología o impacto difícil de revertir.
 
 Formato: contexto, decisión, opciones descartadas, consecuencias, riesgos, estado y fecha. No marcar como aceptada una propuesta pendiente de revisión.
 ''',
-    'docs/decisions/0001-entrevista-stack.md': f'''# ADR-0001 — Perfil inicial de stack
+    'aikya/docs/decisions/0001-entrevista-stack.md': f'''# ADR-0001 — Perfil inicial de stack
 
 - Estado: **Propuesto** (pendiente de revisar y aceptar por responsables).
 - Contexto: decisiones registradas durante instalación del harness.
@@ -225,7 +225,7 @@ Formato: contexto, decisión, opciones descartadas, consecuencias, riesgos, esta
 
 Referencia: `.harness/project-profile.json`.
 ''',
-    'docs/changes/README.md': '''# Bitácora por petición
+    'aikya/docs/changes/README.md': '''# Bitácora por petición
 
 Cada cambio técnico se rastrea en un `REQ-YYYYMMDD-xxxxxxxx.md` vinculado al estado registrado por el hook `UserPromptSubmit`.
 
@@ -249,7 +249,7 @@ El Stop hook bloquea tareas con código modificado pero sin trazabilidad documen
     }
     # Documentación visual sólo cuando el perfil requiere UI web o móvil.
     if profile.get('frontend') != 'none' or profile.get('mobile') != 'none':
-        pages['docs/design/design-system.md'] = f'''# Sistema de diseño y experiencia de usuario
+        pages['aikya/docs/design/design-system.md'] = f'''# Sistema de diseño y experiencia de usuario
 
 ## Stack objetivo
 
@@ -267,8 +267,8 @@ El Stop hook bloquea tareas con código modificado pero sin trazabilidad documen
 
 Actualizar este documento cuando cambien el sistema visual, tokens, patrones de interacción o navegación; incluir resultados verificables de pruebas visuales y de accesibilidad.
 '''
-        pages['docs/README.md'] += '\n- [Sistema de diseño y UI/UX](design/design-system.md)\n'
-    pages['docs/harness/skills-comparison.md'] = '''# Auditoría Agent Skills — Harness v4
+        pages['aikya/docs/README.md'] += '\n- [Sistema de diseño y UI/UX](design/design-system.md)\n'
+    pages['aikya/docs/harness/skills-comparison.md'] = '''# Auditoría Agent Skills — Harness v4
 
 Estándar: https://agentskills.io/specification
 Repositorio de referencia: https://github.com/agentskills/agentskills
@@ -289,13 +289,13 @@ Las 8 skills del harness v3 contienen `SKILL.md`, `name` y `description` en YAML
 
 No hay garantía de reducción porcentual de tokens. El ahorro se comprobará con métricas del mismo conjunto de tareas y Claude Code, registrando tokens/coste, tiempo y calidad, no con afirmaciones de los repos upstream. Todos los paquetes de terceros deben revisarse y actualizarse deliberadamente.
 '''
-    pages['docs/harness/token-policy.md'] = '''# Política de contexto y tokens
+    pages['aikya/docs/harness/token-policy.md'] = '''# Política de contexto y tokens
 
-1. Prioriza `docs/overview.md`, el perfil técnico y el archivo del módulo relevante; no leas todo `docs/`.
+1. Prioriza `aikya/docs/overview.md`, el perfil técnico y el archivo del módulo relevante; no leas todo `aikya/docs/`.
 2. Para repos grandes, genera el índice Graphify **una vez**, al necesitarlo (`graphify . --no-viz`), y actualízalo sólo cuando cambie el código (`graphify update .`, tras verificar soporte CLI). Si no hay índice, no lo supongas.
 3. Prefiere `graphify query "pregunta concreta"` o consultas de rutas frente a cargar `graphify-out/GRAPH_REPORT.md` o `graph.json` en el contexto. Comprueba hallazgos críticos leyendo archivos fuente.
 4. Aplica ideas de Ponytail: examina código existente antes de escribir, evita dependencias superfluas, **no** reduzcas seguridad, pruebas, accesibilidad o manejo de errores.
-5. Activa UI UX Pro Max para nuevas interfaces/diseño y revisión UX, no para API/infraestructura. Guarda design tokens aprobados en `docs/design/design-system.md`.
+5. Activa UI UX Pro Max para nuevas interfaces/diseño y revisión UX, no para API/infraestructura. Guarda design tokens aprobados en `aikya/docs/design/design-system.md`.
 6. Mantén la respuesta acotada: archivos modificados, pruebas, riesgos y docs actualizados. Evita duplicar documentación o informes de agentes sin valor.
 7. Subagentes sólo si aportan especialización, aislamiento útil o revisión independiente; para cambios triviales, ejecución directa.
 8. No indexes, instales, sincronicies ni llames a servicios externos automáticamente por petición. Descargas/updates requieren aprobación y auditoría.
@@ -305,16 +305,17 @@ No hay garantía de reducción porcentual de tokens. El ahorro se comprobará co
 
 def infra_files(p:dict) -> dict[str,str]:
     outputs={}
-    outputs['apps/README.md']='''# Aplicaciones del monorepo\n\nLos generadores crean los proyectos bajo `apps/api`, `apps/web`, `apps/frontend`, `apps/mobile`, `apps/android` y/o `apps/ios` según el perfil. La existencia de esta carpeta **no** significa que los módulos estén generados o verificados.\n'''
-    outputs['packages/README.md']='''# Paquetes compartidos\n\nUbicar aquí sólo librerías, contratos y utilidades justificadas para varios módulos. No compartir directamente entidades de persistencia ni secretos. Añadir documentación y tests antes de publicarlos.\n'''
-    outputs['contracts/README.md']='''# Contratos y compatibilidad\n\nMantener contratos REST (OpenAPI), GraphQL o gRPC cuando corresponda, versionados y con tests de compatibilidad. Evita generar un contrato ficticio sin requisitos de endpoints.\n'''
+    if p.get('repository_layout', 'monorepo') == 'monorepo':
+        outputs['apps/README.md']='''# Aplicaciones del monorepo\n\nLos generadores crean los proyectos bajo `apps/api`, `apps/web`, `apps/frontend`, `apps/mobile`, `apps/android` y/o `apps/ios` según el perfil. La existencia de esta carpeta **no** significa que los módulos estén generados o verificados.\n'''
+        outputs['packages/README.md']='''# Paquetes compartidos\n\nUbicar aquí sólo librerías, contratos y utilidades justificadas para varios módulos. No compartir directamente entidades de persistencia ni secretos. Añadir documentación y tests antes de publicarlos.\n'''
+        outputs['contracts/README.md']='''# Contratos y compatibilidad\n\nMantener contratos REST (OpenAPI), GraphQL o gRPC cuando corresponda, versionados y con tests de compatibilidad. Evita generar un contrato ficticio sin requisitos de endpoints.\n'''
     js_app=(p['backend'] in ('node','next') or p['frontend'] in ('react','vue','angular') or p['mobile_framework']=='react-native')
-    if js_app:
+    if js_app and p.get('repository_layout','monorepo') == 'monorepo':
         import re
         package_name=re.sub(r'[^a-z0-9-]','-',p['name'].lower()).strip('-') or 'application'
         pkg={'name':package_name+'-workspace','private':True,'version':'0.0.0','scripts':{
-            'harness:docs':'python3 scripts/harness/docs_guard.py base',
-            'harness:verify':'python3 scripts/harness/run_checks.py'}}
+            'harness:docs':'python3 aikya/scripts/harness/docs_guard.py base',
+            'harness:verify':'python3 aikya/scripts/harness/run_checks.py'}}
         if p['package_manager'] != 'pnpm':
             pkg['workspaces']=['apps/*','packages/*']
         else:
@@ -419,12 +420,12 @@ jobs:
         with:
           python-version: '3.11'
       - name: Validate documentation structure
-        run: python3 scripts/harness/docs_guard.py base
+        run: python3 aikya/scripts/harness/docs_guard.py base
       - name: Validate change documentation
         if: github.event_name == 'pull_request'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: python3 scripts/harness/docs_guard.py ci --base "$BASE_SHA"
+        run: python3 aikya/scripts/harness/docs_guard.py ci --base "$BASE_SHA"
   # Integrar un job adicional por stack para SDKs/instalación y quality gates reales.
   # run_checks.py exige runtimes y dependencias; no asumirlos en runner Python.
 '''

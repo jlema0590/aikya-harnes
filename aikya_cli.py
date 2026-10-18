@@ -39,7 +39,7 @@ def main(argv=None):
         return 0
     if args.command=='status':
         print(json.dumps({'configured':(target/'.harness/project-profile.json').is_file(),
-           'docs':(target/'docs/README.md').is_file(),
+           'docs':(target/'aikya/docs/README.md').is_file(),
            'answers':(target/'.aikya/answers.json').is_file()},indent=2))
         return 0
     try:
@@ -64,7 +64,7 @@ def main(argv=None):
     if (target/'.aikya/bootstrap.json').exists() or (target/'.aikya/answers.json').exists(): flags.append('--allow-bootstrap')
     result=installer.main(flags)
     if result==0 and not args.dry_run:
-        output=target/'docs/harness/requirements.md'
+        output=target/'aikya/docs/harness/requirements.md'
         output.parent.mkdir(parents=True,exist_ok=True)
         if output.is_symlink():
             print('AVISO: documento de requisitos es un enlace simbólico; no sobrescrito.',file=sys.stderr)

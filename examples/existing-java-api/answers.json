@@ -10,5 +10,6 @@
   "ci": "gitlab-ci",
   "deployment": "kubernetes",
   "package_manager": "none",
-  "notes": "Ejemplo de entrevista sobre repositorio existente: detectar módulos y preservar código y configuración."
+  "notes": "Ejemplo de entrevista sobre repositorio existente: detectar módulos y preservar código y configuración.",
+  "repository_layout": "singlerepo"
 }

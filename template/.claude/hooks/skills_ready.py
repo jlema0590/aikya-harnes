@@ -17,4 +17,4 @@ if choices.get('frontend') not in (None,'none') or choices.get('mobile') not in 
 missing=[s for s in requested if not (root/'.claude/skills'/s/'SKILL.md').is_file()]
 if missing:
     print('Harness: integraciones pendientes: '+', '.join(missing)+'. Para instalarlas con autorización: '
-          'python3 scripts/harness/external_skills.py install --yes. No se instalan automáticamente durante SessionStart.')
+          'python3 aikya/scripts/harness/external_skills.py install --yes. No se instalan automáticamente durante SessionStart.')

@@ -10,4 +10,4 @@ Solicitud: $ARGUMENTS
 4. Crea pruebas unitarias e instrumentadas/UI cuando existan herramientas disponibles.
 5. Ejecuta builds por variante/scheme real; si faltan SDK, Xcode o simulador, informa NO VERIFICADO.
 6. Revisa claves, permisos, firma y publicación; no ejecutes releases sin aprobación.
-7. Actualiza `docs/features/index.md` con diferencias Android/iOS y criterios de aceptación, `docs/quality/testing.md` con pruebas reales y `docs/security/security.md` si toca permisos/datos. Registra la petición en `docs/changes/REQ-*.md`.
+7. Actualiza `aikya/docs/features/index.md` con diferencias Android/iOS y criterios de aceptación, `aikya/docs/quality/testing.md` con pruebas reales y `aikya/docs/security/security.md` si toca permisos/datos. Registra la petición en `aikya/docs/changes/REQ-*.md`.

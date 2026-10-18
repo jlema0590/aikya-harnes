@@ -13,5 +13,6 @@
   "ci": "gitlab-ci",
   "deployment": "kubernetes",
   "package_manager": "pnpm",
-  "notes": "Evaluar costes distribuidos: empezar con límites y contratos, no crear múltiples servicios sin necesidad."
+  "notes": "Evaluar costes distribuidos: empezar con límites y contratos, no crear múltiples servicios sin necesidad.",
+  "repository_layout": "monorepo"
 }

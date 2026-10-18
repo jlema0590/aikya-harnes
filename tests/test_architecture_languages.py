@@ -112,15 +112,15 @@ class SpecialistIntegrationTests(unittest.TestCase):
             for name in ('java-engineering','react-engineering','clean-architecture','event-driven-architecture'):
                 self.assertTrue((root/'.claude/skills'/name/'SKILL.md').is_file(),name)
             self.assertFalse((root/'.claude/agents/angular-developer.md').exists())
-            self.assertTrue((root/'scripts/harness/engineering/agents/angular-developer.md').exists())
-            report=(root/'docs/agents.md').read_text()
+            self.assertTrue((root/'aikya/scripts/harness/engineering/agents/angular-developer.md').exists())
+            report=(root/'aikya/docs/agents.md').read_text()
             self.assertIn('java-developer',report)
             source=root/'.claude/agents/java-developer.md'
             source.write_text(source.read_text()+'\n# equipo: personalización\n')
             catalog.install_selected(root,{'agents':['java-developer','angular-developer'],'skills':['angular-engineering']})
             self.assertIn('# equipo: personalización',source.read_text())
             self.assertTrue((root/'.claude/agents/angular-developer.md').exists())
-            self.assertIn('angular-engineering',(root/'docs/skills.md').read_text())
+            self.assertIn('angular-engineering',(root/'aikya/docs/skills.md').read_text())
 
     def test_existing_python_and_angular_project_detection(self):
         with tempfile.TemporaryDirectory() as temp:

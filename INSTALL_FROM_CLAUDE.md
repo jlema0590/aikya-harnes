@@ -39,6 +39,10 @@ Volver al [README](README.md).
 
 ## Gestión de Skills con comandos Aikya
 
-Desde Claude Code utiliza `/aikya-skills-status` para ver el inventario de skills en `docs/skills.md`, `/aikya-skills-plan` para estudiar compatibilidad y fuentes, y `/aikya-skills-install` para instalar las seleccionadas con aprobación. Para una skill GitHub nueva, proporciona URL HTTPS, nombre conforme a Agent Skills, carpeta que contiene `SKILL.md` y referencia (idealmente commit fijo). Aikya no instala ni ejecuta código remoto sin tu autorización.
+Desde Claude Code utiliza `/aikya-skills-status` para ver el inventario de skills en `aikya/docs/skills.md`, `/aikya-skills-plan` para estudiar compatibilidad y fuentes, y `/aikya-skills-install` para instalar las seleccionadas con aprobación. Para una skill GitHub nueva, proporciona URL HTTPS, nombre conforme a Agent Skills, carpeta que contiene `SKILL.md` y referencia (idealmente commit fijo). Aikya no instala ni ejecuta código remoto sin tu autorización.
 
 Los comandos nuevos sustituyen a `/aikya-skills status`, `/aikya-skills plan`, `/aikya-skills install` y `/aikya-project-bootstrap`; este último pasa a `/aikya-infra-project`. La migración sólo retira wrappers gestionados sin personalizaciones.
+
+## Nueva organización del proyecto
+
+Durante `/aikya-init`, selecciona `repository_layout: monorepo` (apps/, packages/, contracts/) o `repository_layout: singlerepo` (una aplicación en raíz). Los documentos, pruebas y scripts del harness se guardan en `aikya/docs/`, `aikya/test/` y `aikya/scripts/`. La bienvenida se emite al abrir una nueva sesión de Claude Code, no durante una sesión ya iniciada.

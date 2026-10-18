@@ -11,7 +11,7 @@ Respetar el stack y las convenciones reales del repositorio; **no asumir** frame
 2. **Aclarar alcance**: escribir criterios de aceptación; si falta un dato, asumir lo mínimo y registrar la hipótesis.
 3. **Planificar**: para cambios no triviales, proponer archivos afectados, impacto, riesgos y plan de pruebas.
 4. **Implementar**: cambios pequeños, pruebas junto al cambio, no alterar APIs públicas innecesariamente.
-5. **Verificar**: ejecutar `python3 scripts/harness/run_checks.py` y las pruebas relevantes del área afectada.
+5. **Verificar**: ejecutar `python3 aikya/scripts/harness/run_checks.py` y las pruebas relevantes del área afectada.
 6. **Revisar**: delegar a `qa-reviewer` y/o `security-reviewer` cuando haya riesgo; usar `architect` para cambios de diseño significativos.
 7. **Informar**: enumerar archivos modificados, evidencia de tests, riesgos y verificaciones omitidas.
 
@@ -44,11 +44,11 @@ Respetar el stack y las convenciones reales del repositorio; **no asumir** frame
 
 ## Documentación viva y trazabilidad (OBLIGATORIO)
 
-Antes y después de cualquier implementación, revisa `docs/README.md`, `docs/overview.md` y `.claude/rules/01-documentation-policy.md`. Cada petición que modifique código, tests o infraestructura requiere actualizar la documentación afectada y crear `docs/changes/REQ-*.md` con cambios, evidencias reales y documentos actualizados. `UserPromptSubmit` registra la petición y `Stop` verifica la cobertura. No asumir que una edición sin tests ni documentación está lista.
+Antes y después de cualquier implementación, revisa `aikya/docs/README.md`, `aikya/docs/overview.md` y `.claude/rules/01-documentation-policy.md`. Cada petición que modifique código, tests o infraestructura requiere actualizar la documentación afectada y crear `aikya/docs/changes/REQ-*.md` con cambios, evidencias reales y documentos actualizados. `UserPromptSubmit` registra la petición y `Stop` verifica la cobertura. No asumir que una edición sin tests ni documentación está lista.
 
 ## Ingeniería Bootstrap
 
-En un proyecto nuevo consulta `python3 scripts/harness/scaffold.py plan` y `docs/harness/bootstrap.md`. Los generadores remotos se ejecutan sólo tras aprobación; verificar toolchains, dependencias, módulos, Docker y pipelines reales antes de dar el scaffold por completo. Actualizar `harness.json` tras generar la aplicación.
+En un proyecto nuevo consulta `python3 aikya/scripts/harness/scaffold.py plan` y `aikya/docs/harness/bootstrap.md`. Los generadores remotos se ejecutan sólo tras aprobación; verificar toolchains, dependencias, módulos, Docker y pipelines reales antes de dar el scaffold por completo. Actualizar `harness.json` tras generar la aplicación.
 
 ## Skills y coste de contexto
 

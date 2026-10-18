@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 from doc_bootstrap import pages as doc_pages, infra_files
 from external_skills import enabled_names, planned_commands, install_all
+from aikya_layout import LAYOUTS, app_count, layout_of, validate_layout
 
 HERE = Path(__file__).resolve().parent
 TEMPLATE = HERE / 'template'
@@ -184,6 +185,8 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
     backend_framework = choice('Framework de backend', frameworks[backend], frameworks[backend][1] if backend in ('java','dotnet','next') else frameworks[backend][0]) if backend != 'none' else 'none'
     api_style = choice('Estilo de API', API_STYLES, 'rest') if backend != 'none' else 'undecided'
     frontend_rendering = choice('Estrategia de renderizado web', RENDERING, 'hybrid' if backend=='next' and frontend=='react' else 'spa') if frontend != 'none' else 'undecided'
+    layout = choice('Topología del repositorio', list(LAYOUTS),
+                    'monorepo' if app_count({'backend':backend, 'frontend':frontend, 'mobile':mobile, 'mobile_framework':framework}) > 1 or (target/'apps').is_dir() else 'singlerepo')
     arch = choice('Arquitectura preferida (en existing, se respeta la observada)', ARCHS,
                   'existing' if mode == 'existing' else 'modular-monolith')
     event_driven = yesno('¿El proyecto necesita eventos asíncronos como estilo complementario?', False)
@@ -195,7 +198,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
     telemetry = choice('Observabilidad', OBSERVABILITY, 'opentelemetry' if backend != 'none' else 'undecided')
     quality = choice('Estrategia de pruebas', TEST_STYLES, 'unit+integration')
     versions = ask('Versiones/SDKs que necesitas fijar (vacío = por decidir)', '')
-    return {'mode': mode, 'name': ask('Nombre del producto/proyecto', target.name),
+    return {'mode': mode, 'repository_layout':layout, 'name': ask('Nombre del producto/proyecto', target.name),
             'backend': backend, 'frontend': frontend, 'mobile': mobile,
             'mobile_framework': framework, 'backend_framework':backend_framework, 'api_style':api_style,
             'frontend_rendering':frontend_rendering, 'auth':auth, 'observability':telemetry,
@@ -207,14 +210,14 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
 
 
 def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
-    choices = {'mode': ['existing','new'], 'backend': BACKENDS, 'frontend': FRONTENDS,
+    choices = {'mode': ['existing','new'], 'repository_layout': list(LAYOUTS), 'backend': BACKENDS, 'frontend': FRONTENDS,
                'mobile': MOBILES, 'mobile_framework': ['none']+FRAMEWORKS,
                'android_language':['none','kotlin','java'], 'ios_ui':['none','swiftui','uikit'],
                'architecture': ARCHS, 'database':DATABASES, 'ci':CIS,
                'deployment':DEPLOYS, 'package_manager':['none']+PACKAGES,
                'api_style': API_STYLES, 'auth':AUTH, 'observability':OBSERVABILITY,
                'quality':TEST_STYLES, 'frontend_rendering':RENDERING}
-    defaults = {'mode':'new', 'backend':'none', 'frontend':'none', 'mobile':'none',
+    defaults = {'mode':'new', 'repository_layout':'monorepo', 'backend':'none', 'frontend':'none', 'mobile':'none',
                 'mobile_framework':'none', 'android_language':'none', 'ios_ui':'none',
                 'architecture':'undecided', 'database':'undecided', 'ci':'undecided',
                 'deployment':'undecided', 'package_manager':'npm',
@@ -250,6 +253,7 @@ def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
                   'next':['undecided','next-app-router']}
     if result['backend_framework'] not in frameworks[result['backend']]:
         raise ValueError('backend_framework no coincide con backend.')
+    validate_layout(result)
     return result
 
 
@@ -417,6 +421,7 @@ def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> 
 | Aspecto | Decisión |
 |---|---|
 | Modalidad | {md_text(profile['mode'])} |
+| Topología del repositorio | {md_text(layout_of(profile))} |
 | Backend | {md_text(profile['backend'])} |
 | Framework backend | {md_text(profile['backend_framework'])} |
 | Estilo de API | {md_text(profile['api_style'])} |
@@ -446,7 +451,7 @@ def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> 
 ## Instrucciones permanentes para Claude Code
 - En repositorio existente: inspeccionar el código real antes de proponer cambios; si contradice el perfil, comunicar la divergencia.
 - En proyecto nuevo: establecer primero estructura, contratos, versiones y comandos de scaffold; solicitar confirmación antes de ejecutar creadores remotos o instalar dependencias.
-- Separar backend, frontend y apps móviles en módulos claros salvo que el framework tenga frontend integrado (Next.js).
+- Crear apps/, contracts/ y packages/ únicamente en monorepo; en singlerepo generar la única aplicación en la raíz y mantener Aikya en aikya/.
 - Para Next.js, usar Route Handlers / Server Actions según arquitectura y exposición, no asumir que equivale a un backend independiente por defecto.
 - Para Android, usar convenciones Kotlin/Java y lifecycle; para iOS, Swift, signing y Xcode; para Flutter/React Native, contemplar ambas plataformas y pruebas reales.
 - No atribuir éxito a builds, testing de simulador, firma o publicación sin ejecutarlos.
@@ -518,16 +523,40 @@ def project_bootstrap(profile: dict[str, Any]) -> str:
     lines += ['## Activación de verificaciones',
               '1. Genera el código usando la herramienta oficial apropiada y revisa sus archivos.',
               '2. Ajusta `harness.json`: reemplaza cada `command: null` con un comando real que funcione en ese módulo.',
-              '3. Ejecuta `python3 scripts/harness/run_checks.py` y registra evidencias.',
+              '3. Ejecuta `python3 aikya/scripts/harness/run_checks.py` y registra evidencias.',
               '4. Desde Claude Code, continúa con `/aikya-feature` o `/aikya-quality`.', '']
-    return '\n'.join(lines) + '\n'
+    guide = '\n'.join(lines) + '\n'
+    if layout_of(profile) == 'singlerepo':
+        for folder in ('apps/api','apps/web','apps/frontend','apps/mobile','apps/android','apps/ios'):
+            guide = guide.replace(folder, '.')
+        guide += '\nScaffold de singlerepo: generar temporalmente, revisar conflictos y trasladar a la raíz sin sobrescribir archivos preexistentes.\n'
+    return guide
+
+
+def copy_legacy_docs(target: Path, actions: list[str]) -> None:
+    """Copiar documentación anterior sin eliminar ni sobrescribir fuentes del usuario."""
+    source_dir = target/'docs'
+    target_dir = target/'aikya/docs'
+    if not source_dir.is_dir() or source_dir.is_symlink():
+        return
+    for old in sorted(source_dir.rglob('*')):
+        if not old.is_file() or old.is_symlink():
+            continue
+        new = target_dir / old.relative_to(source_dir)
+        if new.exists() or any(x.is_symlink() for x in (new, *new.parents) if x != target.parent and target in (x, *x.parents)):
+            actions.append('CONSERVADO legacy sin migrar: '+str(old))
+            continue
+        new.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(old,new)
+        actions.append('COPIADO docs legacy a aikya/docs (original conservado): '+str(new))
 
 
 def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False) -> list[str]:
     """Instala sin sobrescribir archivos de usuario. Para dry-run no muta."""
     actions: list[str] = []
+    validate_layout(profile)
     if dry_run:
-        return [f'PLAN: instalar harness en {target}', 'PLAN: crear docs/ (overview, roadmap, features, bugs, security, arquitectura, operaciones, testing, ADR, cambios), infra/ y CI según perfil', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
+        return [f'PLAN: instalar harness en {target}', 'PLAN: crear aikya/docs/, aikya/test/, aikya/scripts/ según '+layout_of(profile)+' y CI/infra', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
     target.mkdir(parents=True, exist_ok=True)
     # Guardar un perfil estructurado: en reruns sólo actualizar si es del instalador.
     profile_path = target / '.harness/project-profile.json'
@@ -548,7 +577,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         rel = source.relative_to(TEMPLATE)
         if rel.as_posix() in ('CLAUDE.md','harness.json','.claude/settings.json'):
             continue
-        dest = target / rel
+        dest = target / (Path('aikya/scripts') / Path(*rel.parts[1:]) if rel.parts[0]=='scripts' else Path('aikya/test') / Path(*rel.parts[1:]) if rel.parts[0]=='tests' else rel)
         if dest.exists():
             old_hash = V3_TEMPLATE_HASHES.get(rel.as_posix())
             if old_hash and dest.is_file() and not dest.is_symlink() and hashlib.sha256(dest.read_bytes()).hexdigest() == old_hash:
@@ -609,7 +638,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     # Disponible también cuando Aikya se instaló desde la fuente sin bootstrap.
     requirements_file=HERE/'aikya_requirements.py'
     if requirements_file.is_file():
-        safe_write(target/'scripts/harness/aikya_requirements.py',requirements_file.read_text(encoding='utf8'),actions)
+        safe_write(target/'aikya/scripts/harness/aikya_requirements.py',requirements_file.read_text(encoding='utf8'),actions)
     merge_settings(target, actions)
     claude = target / 'CLAUDE.md'
     if not claude.exists():
@@ -618,14 +647,15 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     else:
         actions.append('CONSERVADO CLAUDE.md existente; el perfil se encuentra en .claude/rules/00-project-profile.md')
     safe_write(target/'.claude/rules/00-project-profile.md', context_markdown(profile,detected['modules']), actions, replace_managed=True)
-    checks = [{'name':'docs:structure', 'command':['python3','scripts/harness/docs_guard.py','base'], 'cwd':'.', 'required':True}, {'name':'skills:format', 'command':['python3','scripts/harness/skills_lint.py'], 'cwd':'.', 'required':True}] + make_checks(target,profile,detected['modules'])
+    checks = [{'name':'docs:structure', 'command':['python3','aikya/scripts/harness/docs_guard.py','base'], 'cwd':'.', 'required':True}, {'name':'skills:format', 'command':['python3','aikya/scripts/harness/skills_lint.py'], 'cwd':'.', 'required':True}] + make_checks(target,profile,detected['modules'])
     safe_write(target/'harness.json',json.dumps({'schema_version':2,'checks':checks},indent=2,ensure_ascii=False)+'\n',actions)
-    safe_write(target/'docs/harness/bootstrap.md',project_bootstrap(profile)+
+    safe_write(target/'aikya/docs/harness/bootstrap.md',project_bootstrap(profile)+
         '\n## Bootstrap ejecutable, opcional\n\n'
         'Desde Claude Code utiliza `/aikya-scaffold plan` para revisar generadores soportados. '
         'La skill `/aikya-scaffold` ejecutará los generadores **sólo con aprobación expresa**: pueden descargar dependencias y crear código. '
         'Java y proyectos móviles nativos pueden requerir sus generadores gráficos oficiales.\n',
         actions,replace_managed=False)
+    copy_legacy_docs(target,actions)
     for rel, content in doc_pages(profile,detected['modules']).items():
         safe_write(target/rel,content,actions)
     # Catálogo técnico importado y curado: copia assets sin ejecutarlos y activa sólo
@@ -634,9 +664,9 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     for original in sorted((HERE/'engineering').rglob('*')):
         if original.is_file() and not original.is_symlink():
             relative = original.relative_to(HERE/'engineering')
-            safe_write(target/'scripts/harness/engineering'/relative,
+            safe_write(target/'aikya/scripts/harness/engineering'/relative,
                        original.read_text(encoding='utf8'), actions)
-    safe_write(target/'scripts/harness/engineering_catalog.py',
+    safe_write(target/'aikya/scripts/harness/engineering_catalog.py',
                (HERE/'engineering_catalog.py').read_text(encoding='utf8'), actions)
     selected = discover(target, profile, detected['modules'])
     actions.extend(install_selected(target, selected, source=HERE/'engineering'))
@@ -661,7 +691,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                     actions.append('SIN CAMBIOS '+str(ignore))
         else:
             safe_write(target/rel,content,actions)
-    safe_write(target/'docs/harness/installer-readme.md',
+    safe_write(target/'aikya/docs/harness/installer-readme.md',
         '<!-- GENERATED BY AIKYA-HARNESS -->\n# Instalación del harness\n\n'
         'Perfil de decisiones: `.harness/project-profile.json`.\n\n'
         'Reglas contextuales: `.claude/rules/00-project-profile.md`.\n\n'

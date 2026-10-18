@@ -91,7 +91,7 @@ def build_message(root: Path) -> str:
         f'Repositorio: {repo}',
         f'Proyecto Aikya: {DEFAULT_SOURCE}',
         'Comandos: /aikya-init · /aikya-scaffold · /aikya-skills-status · /aikya-quality',
-        'Guía completa: README.md',
+        'Documentación del proyecto: aikya/docs/README.md',
     ]
     width = min(max(len(line) for line in lines), 95)
     border = '+' + '-' * (width + 2) + '+'

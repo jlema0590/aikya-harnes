@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2] if Path(__file__).resolve().parents[1].name == 'aikya' else Path(__file__).resolve().parents[1]
 
 
 def load(name, relative_path):
@@ -20,7 +20,7 @@ class HarnessTests(unittest.TestCase):
     def setUpClass(cls):
         cls.guard = load('guard_bash', '.claude/hooks/guard_bash.py')
         cls.edits = load('check_edit', '.claude/hooks/check_edit.py')
-        cls.runner = load('run_checks', 'scripts/harness/run_checks.py')
+        cls.runner = load('run_checks', 'aikya/scripts/harness/run_checks.py')
 
     def test_guard_blocks_critical_commands(self):
         for cmd in ('git reset --hard HEAD', 'git push origin main --force',

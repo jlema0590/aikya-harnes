@@ -1,55 +1,70 @@
 #!/usr/bin/env python3
-"""SessionStart discovery notice for uninitialized workspaces.
+"""Bienvenida de Aikya en sesiones globales y aviso de inicio para nuevos proyectos.
 
-Does NOT execute agents or commands. Interactive Claude Code does not support
-starting a user turn from SessionStart; the hook prompts /aikya-init.
+SessionStart no inicia automáticamente la entrevista: espera /aikya-init.
+No descarga recursos, no lee secretos y evita duplicar el saludo local.
 """
 from __future__ import annotations
+import importlib.util
 import json
 import os
 import sys
 from pathlib import Path
 
-
 def is_new_project(directory: Path, home: Path | None = None) -> bool:
-    home = (home or Path.home()).resolve()
-    root = directory.resolve()
-    if root == home or root == root.parent:
+    home=(home or Path.home()).resolve()
+    root=directory.resolve()
+    if root in (home, home/'.claude', home/'.claude/aikya-harnes') or root==root.parent:
         return False
-    if root == home/'.claude/aikya-harnes' or root == home/'.claude':
+    if (root/'.harness/project-profile.json').is_file() or not root.is_dir():
         return False
-    if (root/'.harness/project-profile.json').is_file():
-        return False
-    # Avoid advising Aikya on arbitrary folders. A project is an empty workspace,
-    # a Git repo, or has clear project/build/bootstrap files.
-    if not root.is_dir():
-        return False
-    visible=[p for p in root.iterdir() if p.name not in ('.DS_Store',)]
-    if not visible:
-        return True
-    return any((root/path).exists() for path in
-               ('.git','.aikya/bootstrap.json','.aikya/answers.json','pom.xml','build.gradle',
-                'package.json','global.json','Cargo.toml','pubspec.yaml'))
+    visible=[x for x in root.iterdir() if x.name != '.DS_Store']
+    if not visible:return True
+    return any((root/x).exists() for x in
+               ('.git','.aikya/bootstrap.json','.aikya/answers.json',
+                'pom.xml','build.gradle','package.json','global.json','pubspec.yaml'))
 
+def has_local_welcome(root: Path) -> bool:
+    # Si el proyecto ya tiene su propio SessionStart de Aikya, no mostrar doble aviso.
+    config=root/'.claude/settings.json'
+    if not (root/'.claude/hooks/welcome.py').is_file():
+        return False
+    try:
+        hooks=json.loads(config.read_text(encoding='utf8')).get('hooks',{}).get('SessionStart',[])
+        return any('welcome.py' in str(h.get('command',''))
+                   for group in hooks if isinstance(group,dict)
+                   for h in group.get('hooks',[]) if isinstance(h,dict))
+    except (OSError,ValueError,AttributeError,TypeError):
+        return False
 
-def main():
+def banner(root: Path) -> str:
+    source=Path(__file__).resolve().parent/'template/.claude/hooks/welcome.py'
     try:
-        data=json.load(sys.stdin)
-    except (ValueError,OSError):
-        data={}
-    if not isinstance(data,dict) or data.get('source','startup')!='startup':
+        spec=importlib.util.spec_from_file_location('aikya_global_welcome',source)
+        mod=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.build_message(root)
+    except (OSError,ValueError,AttributeError,TypeError):
+        return 'Bienvenido a Aikya Harness · '+root.name
+
+def main() -> int:
+    try:data=json.load(sys.stdin)
+    except (ValueError,OSError):data={}
+    if not isinstance(data,dict) or data.get('source','startup') not in ('startup','resume','fork'):
         return 0
-    root=Path(data.get('cwd') or os.environ.get('CLAUDE_PROJECT_DIR') or os.getcwd()).expanduser()
-    try:
-        if not is_new_project(root):
-            return 0
-    except OSError:
+    root=Path(data.get('cwd') or os.environ.get('CLAUDE_PROJECT_DIR') or os.getcwd()).expanduser().resolve()
+    if not root.is_dir() or has_local_welcome(root):
         return 0
-    print(json.dumps({
-        'systemMessage':'Aikya Harness disponible · Proyecto sin inicializar. Usa /aikya-init para la entrevista o /aikya-answers para usar decisiones guardadas. Después: /aikya-scaffold, /aikya-skills-status y /aikya-quality.',
-        'hookSpecificOutput':{'hookEventName':'SessionStart',
-           'additionalContext':'Este repositorio aún no tiene perfil de Aikya. El usuario puede iniciar /aikya-init o /aikya-answers; confirma sus preferencias antes de hacer cualquier instalación o cambio.'}
-    },ensure_ascii=False))
+    try:new=is_new_project(root)
+    except OSError:new=False
+    message=banner(root)
+    payload={'systemMessage':message}
+    if new:
+        payload['systemMessage'] += '\nProyecto sin inicializar. Ejecuta /aikya-init o /aikya-answers para comenzar.'
+        if data.get('source','startup')=='startup':
+            payload['hookSpecificOutput']={'hookEventName':'SessionStart',
+                'additionalContext':'Aikya está disponible. El usuario puede pedir /aikya-init o /aikya-answers; no generes código ni instales herramientas sin confirmación.'}
+    print(json.dumps(payload,ensure_ascii=False))
     return 0
 
 if __name__=='__main__':sys.exit(main())

@@ -1,5 +1,14 @@
 # Changelog
 
+## v5.6 — 2026-10-18
+
+- Selección explícita de monorepo/singlerepo en entrevista y respuestas JSON.
+- Sólo monorepo crea apps/, packages/ y contracts/. Singlerepo genera una aplicación en raíz mediante staging.
+- Aikya concentra documentación, pruebas y scripts en aikya/docs/, aikya/test/ y aikya/scripts/.
+- Bienvenida global en proyectos nuevos y existentes, sin duplicados cuando existe hook local.
+- Migración conservadora de documentación previa y actualización de quality gates.
+
+
 ## v5.5 — 2026-10-18
 
 - Se integran 11 agentes y 11 Agent Skills adicionales de lenguajes y arquitecturas dentro de `engineering/`.
@@ -20,7 +29,7 @@
 
 - Renombrados comandos: `/aikya-infra-project`, `/aikya-skills-status`, `/aikya-skills-plan`, `/aikya-skills-install`.
 - `/aikya-skills-install` admite skills GitHub adicionales con verificación de origen, ruta, nombre y commit opcional; sin sobrescribir.
-- Nuevo `docs/skills.md`, inventario de skills disponibles del proyecto; generado en la entrevista y sincronizado tras instalaciones/estado.
+- Nuevo `aikya/docs/skills.md`, inventario de skills disponibles del proyecto; generado en la entrevista y sincronizado tras instalaciones/estado.
 - Migración conservadora de comandos renombrados; se preservan personalizaciones.
 
 
@@ -55,7 +64,7 @@
 - Integración autorizada por el usuario de Ponytail, Graphify CLI sin MCP y UI UX Pro Max condicional por stack.
 - `SessionStart` verifica skills sin red ni reindexación; gestora `external_skills.py` para plan/install/status.
 - Verificador básico de Agent Skills, audit y reglas de carga progresiva para ahorrar tokens.
-- `docs/design/design-system.md` condicional y validación documental de cambios de UI.
+- `aikya/docs/design/design-system.md` condicional y validación documental de cambios de UI.
 - Migración segura de archivos v3 originales con respaldo; archivos personalizados preservados.
 - Suite de 32 pruebas automatizadas locales; se requieren pruebas externas en equipo con red.
 
@@ -68,5 +77,5 @@
 - Revisados 19 agentes y 21 skills del ZIP externo del usuario. Excluidos 6 agentes jurídicos, 6 skills jurídicas y todos los componentes de LinkedIn.
 - Integrados 12 agentes nuevos y 15 skills técnicas; se conserva el agente de seguridad ya presente en Aikya.
 - Activación progresiva según stack y gestión mediante `/aikya-skills-plan`, `/aikya-skills-install` y `/aikya-skills-status` dentro de Claude Code.
-- Nuevo `docs/agents.md` junto al inventario existente `docs/skills.md`, y auditoría en `ENGINEERING_AUDIT.md`.
+- Nuevo `aikya/docs/agents.md` junto al inventario existente `aikya/docs/skills.md`, y auditoría en `ENGINEERING_AUDIT.md`.
 - Integración idempotente que evita sobrescrituras y no ejecuta contenido ajeno.

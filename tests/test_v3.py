@@ -54,9 +54,9 @@ class V3Tests(unittest.TestCase):
     def test_install_creates_living_docs_ci_infra_and_hooks(self):
         self.install()
         self.assertEqual([],GUARD.validate_base())
-        self.assertTrue((self.root/'docs/security/security.md').is_file())
-        self.assertTrue((self.root/'docs/plan/roadmap.md').is_file())
-        self.assertTrue((self.root/'docs/decisions/0001-entrevista-stack.md').is_file())
+        self.assertTrue((self.root/'aikya/docs/security/security.md').is_file())
+        self.assertTrue((self.root/'aikya/docs/plan/roadmap.md').is_file())
+        self.assertTrue((self.root/'aikya/docs/decisions/0001-entrevista-stack.md').is_file())
         self.assertTrue((self.root/'compose.yaml').is_file())
         self.assertTrue((self.root/'.github/workflows/harness.yml').is_file())
         settings=json.loads((self.root/'.claude/settings.json').read_text())
@@ -70,7 +70,7 @@ class V3Tests(unittest.TestCase):
         state=GUARD.start_request('session-1','¿Qué representa esta arquitectura?')
         ok,notes=GUARD.validate_request(state)
         self.assertTrue(ok,notes)
-        self.assertFalse((self.root/'docs/changes'/f'{state["request_id"]}.md').exists())
+        self.assertFalse((self.root/'aikya/docs/changes'/f'{state["request_id"]}.md').exists())
         self.assertNotIn('¿Qué representa',str(state))
 
     def test_feature_requires_docs_and_per_request_changelog(self):
@@ -80,14 +80,14 @@ class V3Tests(unittest.TestCase):
         (self.root/'apps/api/server.ts').write_text('export const route="/catalog";\n')
         ok,errors=GUARD.validate_request(state)
         self.assertFalse(ok)
-        self.assertTrue(any('docs/features/index.md' in m for m in errors))
-        self.assertTrue(any('docs/plan/roadmap.md' in m for m in errors))
+        self.assertTrue(any('aikya/docs/features/index.md' in m for m in errors))
+        self.assertTrue(any('aikya/docs/plan/roadmap.md' in m for m in errors))
         self.assertTrue(any('REQ-' in m for m in errors))
-        for doc in ('docs/features/index.md','docs/plan/roadmap.md'):
+        for doc in ('aikya/docs/features/index.md','aikya/docs/plan/roadmap.md'):
             with (self.root/doc).open('a') as f:
                 f.write('\nSe añade endpoint catálogo con criterios de aceptación y regresión.\n')
-        req=self.root/'docs/changes'/f'{state["request_id"]}.md'
-        req.write_text(f'''# {state["request_id"]} — catálogo\n\n## Cambios\n- `apps/api/server.ts`: se implementa endpoint catálogo.\n\n## Evidencias\n- No ejecutado: falta SDK de la aplicación, pendiente de configurar.\n\n## Documentos actualizados\n- `docs/features/index.md`: nueva ruta.\n- `docs/plan/roadmap.md`: nueva tarea.\n''')
+        req=self.root/'aikya/docs/changes'/f'{state["request_id"]}.md'
+        req.write_text(f'''# {state["request_id"]} — catálogo\n\n## Cambios\n- `apps/api/server.ts`: se implementa endpoint catálogo.\n\n## Evidencias\n- No ejecutado: falta SDK de la aplicación, pendiente de configurar.\n\n## Documentos actualizados\n- `aikya/docs/features/index.md`: nueva ruta.\n- `aikya/docs/plan/roadmap.md`: nueva tarea.\n''')
         ok,messages=GUARD.validate_request(state)
         self.assertTrue(ok,messages)
 
@@ -98,7 +98,7 @@ class V3Tests(unittest.TestCase):
         (self.root/'apps/api/index.ts').write_text('export const login = ()=> true;')
         ok,msgs=GUARD.validate_request(state)
         self.assertFalse(ok)
-        self.assertTrue(any('docs/bugs/index.md' in m for m in msgs))
+        self.assertTrue(any('aikya/docs/bugs/index.md' in m for m in msgs))
 
     def test_security_path_requires_security_page(self):
         self.install()
@@ -106,11 +106,11 @@ class V3Tests(unittest.TestCase):
         (self.root/'apps/api').mkdir(parents=True)
         (self.root/'apps/api/auth.ts').write_text('export const auth=true;')
         _,msgs=GUARD.validate_request(state)
-        self.assertTrue(any('docs/security/security.md' in m for m in msgs))
+        self.assertTrue(any('aikya/docs/security/security.md' in m for m in msgs))
 
     def test_docs_preserved_if_existing(self):
-        page=self.root/'docs/overview.md'
-        page.parent.mkdir()
+        page=self.root/'aikya/docs/overview.md'
+        page.parent.mkdir(parents=True,exist_ok=True)
         page.write_text('# Documento propio\nRequisitos específicos.\n')
         (self.root/'CLAUDE.md').write_text('# Instrucciones propias\n')
         self.install(profile('existing'))
@@ -134,10 +134,10 @@ class V3Tests(unittest.TestCase):
             self.assertEqual(2,SCAFFOLD.apply(p,self.root,True,runner=lambda *a,**k: self.fail('must not run')))
 
     def test_ci_enforces_security_docs_and_changelog(self):
-        paths=['apps/api/auth.ts','docs/changes/REQ-20261018-abcdef12.md','docs/security/security.md']
+        paths=['apps/api/auth.ts','aikya/docs/changes/REQ-20261018-abcdef12.md','aikya/docs/security/security.md']
         ok,msgs=GUARD.validate_ci(paths)
         self.assertTrue(ok,msgs)
-        ok,msgs=GUARD.validate_ci(['apps/api/auth.ts','docs/features/index.md'])
+        ok,msgs=GUARD.validate_ci(['apps/api/auth.ts','aikya/docs/features/index.md'])
         self.assertFalse(ok)
 
     def test_end_to_end_hook_stop_blocks_until_documented(self):

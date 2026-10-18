@@ -11,7 +11,7 @@ Fecha de revisión: 2026-10-18. Fuentes: documentación publicada en GitHub por 
 | Nombre válido y coincidente con carpeta | Sí | Sí, verificación automática |
 | Descripción no vacía (`description`) | Sí | Sí, verificación automática |
 | Funcionalidad específica de Claude Code | `disable-model-invocation: true` | Conservada como extensión, identificada explícitamente |
-| Carga progresiva de referencias | Básica, skills breves | Guías largas bajo `docs/harness` y metadatos breves en skills |
+| Carga progresiva de referencias | Básica, skills breves | Guías largas bajo `aikya/docs/harness` y metadatos breves en skills |
 | Validación con `skills-ref` oficial | No incluida | Comando documentado, no ejecutado ni instalado; se usa un linter propio más limitado |
 
 En v3 las ocho skills son: `architecture-review`, `bugfix`, `documentation-sync`, `feature`, `mobile-feature`, `project-bootstrap`, `project-init` y `verify`. Las ocho cumplen el contrato mínimo de directorio/nombre/descripción. La función de `.claude/agents/*.md` no es equivalente a Agent Skills: son **subagentes** con prompt y herramientas, conservados como tales.
@@ -31,7 +31,7 @@ En v3 las ocho skills son: `architecture-review`, `bugfix`, `documentation-sync`
 ## 3. Política operativa para reducir tokens
 
 - **Evita cargas completas**: Graphify se consulta con una pregunta acotada y se comprueba el código fuente; nunca se vuelca `graph.json` a la conversación.
-- **No reindexar por prompt**: indexar código una vez y actualizar cuando haya cambios relevantes. Generar docs/PDFs semánticos puede usar el modelo y no es «gratis».
+- **No reindexar por prompt**: indexar código una vez y actualizar cuando haya cambios relevantes. Generar aikya/docs/PDFs semánticos puede usar el modelo y no es «gratis».
 - **No invocar las tres skills siempre**: sus descripciones breves pueden estar disponibles, pero el contenido completo sólo cuando una tarea las necesita.
 - **Evitar especialización innecesaria**: subagentes sólo si hay un análisis complejo o revisión independiente que justifica coste adicional.
 - **Mantener pruebas y seguridad**: un menor número de líneas o tokens no equivale a mejor calidad sin evidencia.
@@ -54,11 +54,11 @@ Cualquier skill externa puede introducir instrucciones adversas o depender de so
 
 - [Agent Skills: specification](https://agentskills.io/specification)
 - [Agent Skills: source and documentation](https://github.com/agentskills/agentskills)
-- [Claude Code: skills](https://code.claude.com/docs/en/skills)
+- [Claude Code: skills](https://code.claude.com/aikya/docs/en/skills)
 - [Ponytail](https://github.com/DietrichGebert/ponytail)
 - [Graphify](https://github.com/Graphify-Labs/graphify)
 - [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
 
 ## Inventario y gobernanza en Aikya v5.2
 
-Cada proyecto inicializado incluye `docs/skills.md`, generado a partir de `.claude/skills/*/SKILL.md` y del estado de integraciones externas. `/aikya-skills-status` lo sincroniza; `/aikya-skills-plan` analiza dependencias y `/aikya-skills-install` instala únicamente con autorización. El registro indica **disponibilidad y origen**, no ejecución real. Para nuevas fuentes GitHub se exige ruta, nombre que coincida con `SKILL.md` y revisión de su contenido; se recomienda fijar commit. Las skills globales no se atribuyen a un proyecto hasta incorporarlas explícitamente.
+Cada proyecto inicializado incluye `aikya/docs/skills.md`, generado a partir de `.claude/skills/*/SKILL.md` y del estado de integraciones externas. `/aikya-skills-status` lo sincroniza; `/aikya-skills-plan` analiza dependencias y `/aikya-skills-install` instala únicamente con autorización. El registro indica **disponibilidad y origen**, no ejecución real. Para nuevas fuentes GitHub se exige ruta, nombre que coincida con `SKILL.md` y revisión de su contenido; se recomienda fijar commit. Las skills globales no se atribuyen a un proyecto hasta incorporarlas explícitamente.

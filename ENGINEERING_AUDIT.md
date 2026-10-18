@@ -19,7 +19,7 @@ Origen revisado: archivo de usuario `claude-agentes-y-skills-sin-linkedin.zip`, 
 4. **Dependencias externas opcionales**: las referencias a `frontend-design`, `web-design-guidelines`, `writing-plans`, `brainstorming`, `test-driven-development` y `systematic-debugging` se retiraron del preloading de los agentes para no exigir software ausente ni consumir contexto innecesario.
 5. **Sin acciones ocultas**: se importa Markdown, no el `install.sh` del paquete original. El instalador local no ejecuta comandos de terceros ni actualiza SDKs.
 6. **Idempotencia**: las instalaciones repetidas conservan archivos personalizados y rechazan nombres ajenos al catálogo.
-7. **Trazabilidad**: `docs/agents.md`, `docs/skills.md` y `.harness/engineering-catalog.json` documentan la disponibilidad, no afirman invocaciones no verificadas.
+7. **Trazabilidad**: `aikya/docs/agents.md`, `aikya/docs/skills.md` y `.harness/engineering-catalog.json` documentan la disponibilidad, no afirman invocaciones no verificadas.
 
 ## Pendiente de validación real
 

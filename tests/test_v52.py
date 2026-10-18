@@ -30,27 +30,27 @@ class V52(unittest.TestCase):
             root=Path(tmp)
             p=install.validated(json.loads((ROOT/'examples/new-next-react.json').read_text()),root)
             install.install(root,p,{'modules':[]})
-            inv=(root/'docs/skills.md').read_text()
+            inv=(root/'aikya/docs/skills.md').read_text()
             self.assertIn('aikya-infra-project',inv)
             self.assertIn('aikya-skills-install',inv)
             self.assertIn('aikya-feature',inv)
             self.assertIn('no es un histórico de invocaciones',inv.lower())
-            self.assertIn('skills.md',(root/'docs/README.md').read_text())
+            self.assertIn('skills.md',(root/'aikya/docs/README.md').read_text())
             self.assertFalse((root/'.claude/skills/aikya-project-bootstrap').exists())
             self.assertFalse((root/'.claude/skills/aikya-skills').exists())
-            self.assertTrue((root/'scripts/harness/skills_registry.py').is_file())
-            r=subprocess.run([sys.executable,str(root/'scripts/harness/docs_guard.py'),'base'],cwd=root,capture_output=True,text=True)
+            self.assertTrue((root/'aikya/scripts/harness/skills_registry.py').is_file())
+            r=subprocess.run([sys.executable,str(root/'aikya/scripts/harness/docs_guard.py'),'base'],cwd=root,capture_output=True,text=True)
             self.assertEqual(0,r.returncode,r.stderr)
 
     def test_inventory_preserves_user_docs(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
             (root/'docs').mkdir()
-            (root/'docs/skills.md').write_text('Documento de equipo\n')
+            (root/'aikya/docs/skills.md').write_text('Documento de equipo\n')
             ok,note=write_inventory(root)
             self.assertFalse(ok)
             self.assertIn('personalizado',note)
-            self.assertEqual('Documento de equipo\n',(root/'docs/skills.md').read_text())
+            self.assertEqual('Documento de equipo\n',(root/'aikya/docs/skills.md').read_text())
 
     def test_selected_install_updates_inventory_without_others(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -64,7 +64,7 @@ class V52(unittest.TestCase):
             with patch.dict(ext.INSTALLERS,{'ponytail':ponytail,'graphify':lambda _:self.fail('Graphify NO seleccionado')}):
                 record=ext.install_all(root,decisions,permission=True,selected=['ponytail'])
             self.assertEqual({'ponytail'},set(record['skills']))
-            self.assertIn('https://github.com/DietrichGebert/ponytail.git',(root/'docs/skills.md').read_text())
+            self.assertIn('https://github.com/DietrichGebert/ponytail.git',(root/'aikya/docs/skills.md').read_text())
             self.assertIn('ponytail',render(root))
 
     def test_custom_skill_github_fixture_no_network(self):
@@ -86,7 +86,7 @@ class V52(unittest.TestCase):
                 result=ext.install_custom(root,{},name='example',repo='https://github.com/org/repo.git',skill_path='skills/example',permission=True)
             self.assertEqual('installed',result['skills']['example']['state'])
             self.assertTrue((root/'.claude/skills/example/SKILL.md').is_file())
-            doc=(root/'docs/skills.md').read_text()
+            doc=(root/'aikya/docs/skills.md').read_text()
             self.assertIn('https://github.com/org/repo.git',doc)
             self.assertIn('/example',doc)
             with patch.object(ext,'_invoke',side_effect=lambda *a,**k:self.fail('No sobrescribir / clonar')):
@@ -137,7 +137,7 @@ class V52(unittest.TestCase):
         spec=importlib.util.spec_from_file_location('aikya_guard_skills',path)
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         self.assertTrue(module.is_source('.claude/skills/new-skill/SKILL.md'))
-        self.assertIn('docs/skills.md',module.affected_docs('feature',['.claude/skills/new-skill/SKILL.md']))
-        self.assertIn('docs/skills.md',module.DOCS_REQUIRED)
+        self.assertIn('aikya/docs/skills.md',module.affected_docs('feature',['.claude/skills/new-skill/SKILL.md']))
+        self.assertIn('aikya/docs/skills.md',module.DOCS_REQUIRED)
 
 if __name__=='__main__': unittest.main()

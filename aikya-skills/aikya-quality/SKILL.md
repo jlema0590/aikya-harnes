@@ -13,8 +13,8 @@ Objetivo: evaluar calidad del repositorio actual, no instalar dependencias.
 - Lee sólo el perfil, los archivos directamente relacionados y las reglas estrictamente necesarias; evita grandes volcados de contexto.
 
 1. Lee `harness.json` y las reglas del proyecto. Si no hay checks configurados, informa explícitamente de que no pueden considerarse verificados.
-2. Ejecuta `python3 scripts/harness/run_checks.py` y registra fallos, omisiones, checks `NOT_CONFIGURED` y aprobados con comando y evidencia.
-3. Ejecuta `python3 scripts/harness/skills_lint.py` y `python3 scripts/harness/docs_guard.py base` si existen. Para cobertura de la petición, utiliza `/aikya-docs`; no fuerces una validación de sesión equivocada.
+2. Ejecuta `python3 aikya/scripts/harness/run_checks.py` y registra fallos, omisiones, checks `NOT_CONFIGURED` y aprobados con comando y evidencia.
+3. Ejecuta `python3 aikya/scripts/harness/skills_lint.py` y `python3 aikya/scripts/harness/docs_guard.py base` si existen. Para cobertura de la petición, utiliza `/aikya-docs`; no fuerces una validación de sesión equivocada.
 4. Revisa seguridad o CI/CD del área afectada cuando el cambio lo justifique, evitando scans costosos no autorizados. No confundir archivos de CI generados con pipelines ejecutados.
-5. Actualiza `docs/quality/testing.md` con resultados comprobados sólo si hay cambios de código/proceso que afecten documentación, y registra evidencias en `docs/changes/` si hubo cambios técnicos. Nunca declares éxito si un gate requerido falló o no estaba configurado.
+5. Actualiza `aikya/docs/quality/testing.md` con resultados comprobados sólo si hay cambios de código/proceso que afecten documentación, y registra evidencias en `aikya/docs/changes/` si hubo cambios técnicos. Nunca declares éxito si un gate requerido falló o no estaba configurado.
 6. Devuelve resumen de QA con estado `APROBADO`, `FALLÓ` o `NO VERIFICADO`, lista de riesgos y próximos pasos.
