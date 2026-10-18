@@ -551,6 +551,41 @@ def copy_legacy_docs(target: Path, actions: list[str]) -> None:
         actions.append('COPIADO docs legacy a aikya/docs (original conservado): '+str(new))
 
 
+def migrate_v55_project_config(target: Path, actions: list[str]) -> None:
+    """Actualizar exclusivamente hooks anteriores bit a bit y quality gates de Aikya."""
+    for name in ('request_docs.py','stop_docs.py','skills_ready.py'):
+        old=HERE/'migrations/v55/hooks'/name
+        newer=TEMPLATE/'.claude/hooks'/name
+        current=target/'.claude/hooks'/name
+        if (old.is_file() and newer.is_file() and current.is_file()
+                and not current.is_symlink() and current.read_bytes()==old.read_bytes()):
+            shutil.copy2(newer,current)
+            actions.append('ACTUALIZADO HOOK AIKYA LEGACY '+str(current))
+    config=target/'harness.json'
+    if config.is_symlink() or not config.is_file():
+        return
+    obj=read_json_safe(config)
+    if obj.get('schema_version')!=2 or not isinstance(obj.get('checks'),list):
+        return
+    expected={
+        'docs:structure': (['python3','scripts/harness/docs_guard.py','base'],
+                           ['python3','aikya/scripts/harness/docs_guard.py','base']),
+        'skills:format': (['python3','scripts/harness/skills_lint.py'],
+                          ['python3','aikya/scripts/harness/skills_lint.py'])
+    }
+    changed=False
+    for item in obj['checks']:
+        if not isinstance(item,dict):
+            continue
+        update=expected.get(item.get('name'))
+        if update and item.get('command')==update[0]:
+            item['command']=update[1]
+            changed=True
+    if changed:
+        config.write_text(json.dumps(obj,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
+        actions.append('MIGRADOS quality gates anteriores sin alterar checks personalizados.')
+
+
 def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False) -> list[str]:
     """Instala sin sobrescribir archivos de usuario. Para dry-run no muta."""
     actions: list[str] = []
@@ -593,6 +628,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, dest)
             actions.append('CREADO '+str(dest))
+    migrate_v55_project_config(target,actions)
     # Alias prefijados: se conservan los comandos heredados para compatibilidad.
     for original in sorted((TEMPLATE/'.claude/skills').glob('*/SKILL.md')):
         old_name=original.parent.name

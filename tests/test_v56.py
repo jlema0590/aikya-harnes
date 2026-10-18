@@ -144,5 +144,35 @@ class AikyaLayoutTests(unittest.TestCase):
             self.assertEqual(0,code)
             self.assertIn('Bienvenido a Aikya Harness',json.loads(out.getvalue())['systemMessage'])
 
+    def test_migrate_only_original_v55_hooks(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            hooks=root/'.claude/hooks'
+            hooks.mkdir(parents=True)
+            previous=ROOT/'migrations/v55/hooks/request_docs.py'
+            (hooks/'request_docs.py').write_bytes(previous.read_bytes())
+            custom=(hooks/'stop_docs.py')
+            custom.write_text('#!/usr/bin/env python3\n# custom team hook\n')
+            p=self.answers(root,mode='existing')
+            install.install(root,p,{'modules':[],'findings':[]})
+            self.assertEqual((ROOT/'template/.claude/hooks/request_docs.py').read_bytes(),
+                             (hooks/'request_docs.py').read_bytes())
+            self.assertIn('custom team hook',custom.read_text())
+
+    def test_migrate_default_quality_check_paths_without_touching_user_check(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            checks={'schema_version':2,'checks':[
+                {'name':'docs:structure','command':['python3','scripts/harness/docs_guard.py','base'],'cwd':'.','required':True},
+                {'name':'skills:format','command':['python3','scripts/harness/skills_lint.py'],'cwd':'.','required':True},
+                {'name':'custom:lint','command':['npm','run','lint'],'cwd':'.','required':True}]}
+            (root/'harness.json').write_text(json.dumps(checks))
+            p=self.answers(root,mode='existing')
+            install.install(root,p,{'modules':[],'findings':[]})
+            actual=json.loads((root/'harness.json').read_text())['checks']
+            self.assertEqual('aikya/scripts/harness/docs_guard.py',actual[0]['command'][1])
+            self.assertEqual('aikya/scripts/harness/skills_lint.py',actual[1]['command'][1])
+            self.assertEqual(['npm','run','lint'],actual[2]['command'])
+
 if __name__=='__main__':
     unittest.main()
