@@ -6,3 +6,8 @@ Cada carpeta contiene `answers.json` con `repository_layout` (`monorepo` o `sing
 - `android-kotlin`: singlerepo, Android nativo.
 - `existing-java-api`: singlerepo, sólo se analiza el repositorio existente sin reorganizarlo.
 - `java-react-clean`, `dotnet-vue`, `python-angular`, `node-react-microservices`: monorepos con apps separadas.
+
+- `next-react-terraform-helm`: singlerepo, Next.js/React, Terraform, Docker/Compose y Helm.
+- `java-react-ansible-kustomize`: monorepo Java/React con Ansible y Kustomize.
+
+En estos dos ejemplos, los archivos de despliegue se generan sólo tras la aprobación del plan y cuando los requisitos de imágenes/puertos y versiones están confirmados.

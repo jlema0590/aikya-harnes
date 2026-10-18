@@ -35,3 +35,11 @@ Material aportado por el usuario: `claude-arquitecturas-lenguajes-agentes-skills
 **Ámbitos excluidos:** LinkedIn, Derecho digital, contratos SaaS y propiedad intelectual.
 **Licencias:** el ZIP no incluye una licencia de redistribución individual para los textos importados; antes de reutilizarlos comercialmente en un repositorio público, confirmar titularidad y permisos de redistribución con el autor.
 **Validación pendiente:** integración interactiva de subagentes y SDK reales en Claude Code, y ejecución de compilaciones de los distintos ejemplos sobre proyectos generados.
+
+## Ampliación Infrastructure & DevOps (v5.7)
+
+- Catálogo actual: **27 agentes** y **29 skills** especializadas, más los 18 comandos Aikya.
+- Agentes añadidos: terraform-engineer, ansible-engineer, helm-engineer y kubernetes-engineer.
+- Skills añadidas: ansible-automation, helm-deployment y kustomize-deployment.
+- Se reutilizan terraform-iac, docker-best-practices, kubernetes-operations, cloud-architecture y cicd-pipelines.
+- Disponibilidad no significa invocación real; validaciones y cambios en infraestructura remota necesitan autorización.

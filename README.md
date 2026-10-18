@@ -162,7 +162,7 @@ Tras la entrevista y la instalación aprobada, Aikya crea o completa la estructu
 
 ## 8. Catálogo técnico de agentes y skills integrados
 
-Aikya incorpora **23 agentes técnicos** y **26 Agent Skills especializadas**, integrados a partir de dos paquetes proporcionados para el proyecto (12 agentes/15 skills del paquete inicial y 11 agentes/11 skills adicionales). Se mantiene el `security-reviewer` existente de Aikya, sin crear un duplicado. **No se incluyen** agentes ni skills de LinkedIn, derecho digital, contratos SaaS o propiedad intelectual.
+Aikya incorpora **27 agentes técnicos** y **29 Agent Skills especializadas**, integrados a partir de dos paquetes proporcionados para el proyecto (12 agentes/15 skills del paquete inicial y 11 agentes/11 skills adicionales). Se mantiene el `security-reviewer` existente de Aikya, sin crear un duplicado. **No se incluyen** agentes ni skills de LinkedIn, derecho digital, contratos SaaS o propiedad intelectual.
 
 | Dominio | Agentes disponibles | Skills relevantes |
 |---|---|---|
@@ -182,7 +182,7 @@ Aikya incorpora **23 agentes técnicos** y **26 Agent Skills especializadas**, i
 
 **Selección y despliegue:** al confirmar la entrevista con `/aikya-init` o `/aikya-answers`, Aikya identifica el backend, frontend, móvil, arquitectura y patrones complementarios. El catálogo (`engineering_catalog.py`) selecciona los especialistas necesarios y los copia a `.claude/agents/` y `.claude/skills/` del proyecto. Se conservan los archivos personalizados. Los especialistas no seleccionados permanecen en el catálogo para instalarlos posteriormente con `/aikya-skills-install` **tras aprobación**. La instalación global mantiene el catálogo en el runtime compartido, pero no configura todos los repositorios automáticamente.
 
-**Orquestación:** el agente principal coordina el flujo, el planificador o un arquitecto revisa diseños si hace falta, el desarrollador del lenguaje realiza los cambios, y los revisores comprueban calidad y seguridad. Los agentes de arquitectura importados están configurados para análisis en modo plan, mientras que los de desarrollo pueden editar según permisos y autorización. Los campos `skills:` de los agentes vinculan sus instrucciones técnicas; no hay necesidad de cargar las 26 skills en cada petición. La ejecución está sujeta a las herramientas y permisos efectivos de Claude Code.
+**Orquestación:** el agente principal coordina el flujo, el planificador o un arquitecto revisa diseños si hace falta, el desarrollador del lenguaje realiza los cambios, y los revisores comprueban calidad y seguridad. Los agentes de arquitectura importados están configurados para análisis en modo plan, mientras que los de desarrollo pueden editar según permisos y autorización. Los campos `skills:` de los agentes vinculan sus instrucciones técnicas; no hay necesidad de cargar las 29 skills en cada petición. La ejecución está sujeta a las herramientas y permisos efectivos de Claude Code.
 
 **Arquitectura independiente del lenguaje:** un proyecto `java` con `architecture=clean` activa `java-developer`/`java-engineering` junto con `clean-architecture-architect`/`clean-architecture`. `modular-monolith` activa `monolith-architect` y `modular-monolith-architecture`; `microservices` activa su pareja correspondiente; `layered` también. El patrón `event-driven` se activa únicamente si el perfil lo solicita explícitamente en `architecture_patterns`, porque no equivale a usar microservicios. Un perfil `hexagonal` no se convierte silenciosamente en `clean`.
 
@@ -222,6 +222,8 @@ Cada subcarpeta de `examples/` contiene `answers.json` (decisiones que valida Ai
 | [FastAPI + Angular (aplicación nueva)](examples/python-angular/README.md) | [`answers.json`](examples/python-angular/answers.json) |
 | [NestJS + React, microservicios y eventos](examples/node-react-microservices/README.md) | [`answers.json`](examples/node-react-microservices/answers.json) |
 | [API Java existente (sin scaffolding destructivo)](examples/existing-java-api/README.md) | [`answers.json`](examples/existing-java-api/answers.json) |
+| [Next.js + Terraform + Helm](examples/next-react-terraform-helm/README.md) | [`answers.json`](examples/next-react-terraform-helm/answers.json) |
+| [Java/React + Ansible + Kustomize](examples/java-react-ansible-kustomize/README.md) | [`answers.json`](examples/java-react-ansible-kustomize/answers.json) |
 
 **Uso:** abre Claude Code con Aikya instalado y solicita `/aikya-answers Usa las decisiones del ejemplo examples/next-react/answers.json, enséñame primero el plan y valida requisitos antes de generar código.` Cambia la ruta por otro ejemplo si lo necesitas. El desarrollador no tiene que ejecutar instaladores o scripts en una terminal externa.
 
