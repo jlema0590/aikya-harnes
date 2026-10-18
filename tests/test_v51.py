@@ -22,7 +22,7 @@ class V51Commands(unittest.TestCase):
     def test_all_commands_are_registered_and_valid(self):
         self.assertEqual(REQUIRED,set(aikya_setup.BOOTSTRAP_COMMANDS))
         for name in REQUIRED:
-            body=(ROOT/'bootstrap_skills'/name/'SKILL.md').read_text()
+            body=(ROOT/'aikya-skills'/name/'SKILL.md').read_text()
             self.assertTrue(body.startswith('---\nname: '+name+'\n'),name)
             self.assertIn('<!-- AIKYA BOOTSTRAP MANAGED -->',body,name)
             self.assertIn('disable-model-invocation: true',body,name)
@@ -42,7 +42,7 @@ class V51Commands(unittest.TestCase):
             project=Path(tmp)/'app'
             aikya_setup.setup(ROOT,project,'project')
             self.assertTrue(install.only_aikya_bootstrap(project))
-            self.assertTrue((project/'.aikya/runtime/bootstrap_skills/aikya-skills-status/SKILL.md').exists())
+            self.assertTrue((project/'.aikya/runtime/aikya-skills/aikya-skills-status/SKILL.md').exists())
             for name in REQUIRED:
                 self.assertTrue((project/'.claude/skills'/name/'SKILL.md').exists(),name)
 
@@ -55,12 +55,12 @@ class V51Commands(unittest.TestCase):
             managed.write_text(managed.read_text().replace('Agent Skills', 'Agent Skills actualizadas'))
             custom.write_text('Reglas del equipo\n')
             aikya_setup.setup(ROOT,project,'project')
-            self.assertEqual((ROOT/'bootstrap_skills/aikya-skills-status/SKILL.md').read_text(),managed.read_text())
+            self.assertEqual((ROOT/'aikya-skills/aikya-skills-status/SKILL.md').read_text(),managed.read_text())
             self.assertEqual('Reglas del equipo\n',custom.read_text())
 
     def test_external_and_scaffold_require_approval_from_claude(self):
-        skills=(ROOT/'bootstrap_skills/aikya-skills-install/SKILL.md').read_text()
-        scaffold=(ROOT/'bootstrap_skills/aikya-scaffold/SKILL.md').read_text()
+        skills=(ROOT/'aikya-skills/aikya-skills-install/SKILL.md').read_text()
+        scaffold=(ROOT/'aikya-skills/aikya-scaffold/SKILL.md').read_text()
         self.assertIn('autorización explícita',skills.lower())
         self.assertIn('aprobación inequívoca',scaffold.lower())
         self.assertIn('requirements',scaffold)

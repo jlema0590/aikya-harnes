@@ -21,7 +21,7 @@ class V52(unittest.TestCase):
         self.assertTrue(expected.issubset(aikya_setup.BOOTSTRAP_COMMANDS))
         self.assertFalse({'aikya-project-bootstrap','aikya-skills'} & set(aikya_setup.BOOTSTRAP_COMMANDS))
         for name in expected:
-            body=(ROOT/'bootstrap_skills'/name/'SKILL.md').read_text()
+            body=(ROOT/'aikya-skills'/name/'SKILL.md').read_text()
             self.assertIn(f'name: {name}\n',body)
             self.assertIn('AIKYA BOOTSTRAP MANAGED',body)
 
@@ -116,11 +116,13 @@ class V52(unittest.TestCase):
             aikya_setup.setup(ROOT,root,'project')
             runtime=root/'.aikya/runtime'
             for old in ('aikya-skills','aikya-project-bootstrap'):
-                template=(ROOT.parent/'aikya-v6/bootstrap_skills'/old/'SKILL.md')
+                # Self-contained legacy fixture; no dependency on an earlier checkout.
+                legacy_content=('---\nname: '+old+'\ndescription: Legacy command\n---\n'
+                                '<!-- AIKYA BOOTSTRAP MANAGED -->\n').encode('utf-8')
                 legacy=root/'.claude/skills'/old/'SKILL.md';legacy.parent.mkdir(parents=True)
-                legacy.write_bytes(template.read_bytes())
+                legacy.write_bytes(legacy_content)
                 rt=runtime/'bootstrap_skills'/old/'SKILL.md';rt.parent.mkdir(parents=True)
-                rt.write_bytes(template.read_bytes())
+                rt.write_bytes(legacy_content)
             custom=root/'.claude/skills/aikya-skills/SKILL.md'
             custom.write_text(custom.read_text()+'\n# Personalizado\n')
             log=aikya_setup.setup(ROOT,root,'project')

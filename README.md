@@ -6,6 +6,13 @@ Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**.
 
 > **Todo el flujo de usuario se inicia y se dirige desde Claude Code.** No necesitas ejecutar instaladores, verificadores ni generadores en una terminal externa. Claude utiliza los scripts internos del repositorio cuando corresponde, con tu autorización para las acciones que modifican el entorno o descargan dependencias.
 
+## Organización de skills en el repositorio
+
+- **`aikya-skills/`**: comandos nativos de operación de Aikya, como `/aikya-init`, `/aikya-skills-install` y `/aikya-quality`. Se registran desde Claude Code en modo global o proyecto.
+- **`engineering/agents/`** y **`engineering/skills/`**: catálogo técnico especializado que Aikya activa de forma selectiva según las decisiones del proyecto.
+
+El nombre anterior `bootstrap_skills/` se migra de forma conservadora al actualizar Aikya: se limpian sólo archivos gestionados y verificados, manteniendo intactas las personalizaciones.
+
 ## 1. Instalar Aikya desde Claude Code
 
 Abre una conversación de **Claude Code** en la carpeta en la que quieras trabajar y envía esta solicitud. Puedes elegir **global** para habilitar los comandos en todos los proyectos, o **proyecto** para habilitarlos sólo en el repositorio actual.

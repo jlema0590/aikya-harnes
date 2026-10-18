@@ -26,7 +26,7 @@ CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py',
 def files_to_copy(source:Path):
     for name in CORE_FILES:
         yield source/name,Path(name)
-    for folder in ('template','examples','bootstrap_skills','engineering'):
+    for folder in ('template','examples','aikya-skills','engineering'):
         for path in sorted((source/folder).rglob('*')):
             if path.is_file() and '__pycache__' not in path.parts and not path.name.endswith('.pyc'):
                 yield path,path.relative_to(source)
@@ -107,12 +107,49 @@ def retire_legacy_commands(skill_root: Path, runtime: Path, logs: list[str]) -> 
         except OSError: pass
         logs.append(f'RETIRADO comando gestionado antiguo /{name}; sustituido por /{replacement}')
 
+def migrate_legacy_runtime_skills(runtime: Path, previous: dict[str, str], logs: list[str]) -> None:
+    """Remove only verifiably managed skills from the former runtime directory.
+
+    The active commands in .claude/skills are NOT moved or deleted here.
+    Customized, untracked and symlinked legacy files are preserved.
+    """
+    legacy_root = runtime / 'bootstrap_skills'
+    if not legacy_root.exists() and not legacy_root.is_symlink():
+        return
+    if legacy_root.is_symlink() or not legacy_root.is_dir():
+        logs.append(f'CONSERVADO directorio legacy no regular: {legacy_root}')
+        return
+    for name in sorted(set(BOOTSTRAP_COMMANDS) | set(LEGACY_RENAMES)):
+        folder = legacy_root / name
+        skill = folder / 'SKILL.md'
+        if folder.is_symlink() or not folder.is_dir() or skill.is_symlink() or not skill.is_file():
+            continue
+        key = skill.relative_to(runtime).as_posix()
+        recorded = previous.get(key)
+        raw = skill.read_bytes()
+        if not recorded or hashlib.sha256(raw).hexdigest() != recorded or b'AIKYA BOOTSTRAP MANAGED' not in raw:
+            logs.append(f'CONSERVADO legacy personalizado o no verificado: {skill}')
+            continue
+        # Do not remove an entire folder if it contains other user files.
+        skill.unlink()
+        previous.pop(key, None)
+        try:
+            folder.rmdir()
+        except OSError:
+            pass
+        logs.append(f'MIGRADO a aikya-skills/ (runtime anterior retirado): {skill}')
+    try:
+        legacy_root.rmdir()
+    except OSError:
+        logs.append(f'CONSERVADO contenido legacy adicional: {legacy_root}')
+
+
 def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=False)->list[str]:
     source=source.resolve()
     target=target.expanduser().resolve()
     home=(home or Path.home()).expanduser().resolve()
     if scope not in ('global','project'):raise ValueError('scope debe ser global o project')
-    if not (source/'install.py').is_file() or any(not (source/'bootstrap_skills'/name/'SKILL.md').is_file() for name in BOOTSTRAP_COMMANDS):
+    if not (source/'install.py').is_file() or any(not (source/'aikya-skills'/name/'SKILL.md').is_file() for name in BOOTSTRAP_COMMANDS):
         raise ValueError('La fuente no es una distribución completa de Aikya')
     runtime=(home/'.claude/aikya-harnes') if scope=='global' else (target/'.aikya/runtime')
     skill_root=(home/'.claude/skills') if scope=='global' else (target/'.claude/skills')
@@ -125,11 +162,16 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
         logs.append(f'PLAN: {len(operations)} ficheros de runtime y {len(BOOTSTRAP_COMMANDS)} skills; sin entrevista, sin descarga externa')
         return logs
     runtime.mkdir(parents=True,exist_ok=True)
-    retire_legacy_commands(skill_root,runtime,logs)
     old_manifest={}
     if (runtime/'manifest.json').is_file():
-        try:old_manifest=json.loads((runtime/'manifest.json').read_text(encoding='utf8')).get('files',{})
-        except (ValueError,OSError):old_manifest={}
+        try:
+            old_manifest=json.loads((runtime/'manifest.json').read_text(encoding='utf8')).get('files',{})
+            if not isinstance(old_manifest, dict):
+                old_manifest={}
+        except (ValueError,OSError):
+            old_manifest={}
+    retire_legacy_commands(skill_root,runtime,logs)
+    migrate_legacy_runtime_skills(runtime,old_manifest,logs)
     new_manifest=dict(old_manifest)
     for src,rel in operations:
         dst=runtime/rel
@@ -137,7 +179,7 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
         new_manifest[rel.as_posix()]=hashlib.sha256(dst.read_bytes()).hexdigest()
     (runtime/'manifest.json').write_text(json.dumps({'_generated_by':'aikya-setup','files':new_manifest},indent=2)+'\n',encoding='utf8')
     for name in BOOTSTRAP_COMMANDS:
-        src=source/'bootstrap_skills'/name/'SKILL.md'
+        src=source/'aikya-skills'/name/'SKILL.md'
         dst=skill_root/name/'SKILL.md'
         if dst.is_symlink() or dst.parent.is_symlink():
             raise ValueError(f'Skill simbólica no permitida: {dst}')

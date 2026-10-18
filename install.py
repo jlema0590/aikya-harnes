@@ -551,7 +551,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     # Los wrappers tienen la marca AIKYA BOOTSTRAP MANAGED y no sustituyen skills personalizadas.
     from aikya_setup import BOOTSTRAP_COMMANDS
     for name in BOOTSTRAP_COMMANDS:
-        src=HERE/'bootstrap_skills'/name/'SKILL.md'
+        src=HERE/'aikya-skills'/name/'SKILL.md'
         dst=target/'.claude/skills'/name/'SKILL.md'
         if not src.is_file():
             continue

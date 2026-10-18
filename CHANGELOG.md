@@ -1,5 +1,12 @@
 # Changelog
 
+## v5.4 — Organización de comandos Aikya
+
+- Renombrada la carpeta fuente `bootstrap_skills/` a `aikya-skills/`; sin cambios en los nombres de los comandos `/aikya-*`.
+- Actualizados el bootstrap global/proyecto, el instalador y la documentación para usar la nueva ruta.
+- Migración conservadora de runtimes existentes: se retiran sólo archivos legacy previamente gestionados y verificados; se conserva contenido personalizado.
+- Pruebas de instalación limpia, actualización en ambos alcances y protección de contenido ajeno.
+
 ## v5.2 — 2026-10-18
 
 - Renombrados comandos: `/aikya-infra-project`, `/aikya-skills-status`, `/aikya-skills-plan`, `/aikya-skills-install`.
