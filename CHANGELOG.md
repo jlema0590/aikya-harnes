@@ -1,8 +1,16 @@
 # Changelog
 
+## v5.2 — 2026-10-18
+
+- Renombrados comandos: `/aikya-infra-project`, `/aikya-skills-status`, `/aikya-skills-plan`, `/aikya-skills-install`.
+- `/aikya-skills-install` admite skills GitHub adicionales con verificación de origen, ruta, nombre y commit opcional; sin sobrescribir.
+- Nuevo `docs/skills.md`, inventario de skills disponibles del proyecto; generado en la entrevista y sincronizado tras instalaciones/estado.
+- Migración conservadora de comandos renombrados; se preservan personalizaciones.
+
+
 ## v5.1 — comandos Claude-native
 
-- Comandos `/aikya-scaffold`, `/aikya-skills`, `/aikya-quality`, `/aikya-docs` y `/aikya-tests`, además de los comandos de desarrollo ya disponibles, invocables desde Claude Code.
+- Comandos `/aikya-scaffold`, `/aikya-skills-status`, `/aikya-quality`, `/aikya-docs` y `/aikya-tests`, además de los comandos de desarrollo ya disponibles, invocables desde Claude Code.
 - El bootstrap global/proyecto expone 16 skills de Aikya, todas con ejecución conversacional y autorización para acciones externas; conserva las skills personalizadas.
 - README reorganizado para explicar sólo instalación y uso desde Claude Code: sin comandos manuales de Python, shell ni scaffolding fuera de Claude.
 - Se preservan scripts internos y documentación viva obligatoria; validación de SDK antes de generar aplicaciones.

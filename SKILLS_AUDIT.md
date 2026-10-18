@@ -58,3 +58,7 @@ Cualquier skill externa puede introducir instrucciones adversas o depender de so
 - [Ponytail](https://github.com/DietrichGebert/ponytail)
 - [Graphify](https://github.com/Graphify-Labs/graphify)
 - [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
+
+## Inventario y gobernanza en Aikya v5.2
+
+Cada proyecto inicializado incluye `docs/skills.md`, generado a partir de `.claude/skills/*/SKILL.md` y del estado de integraciones externas. `/aikya-skills-status` lo sincroniza; `/aikya-skills-plan` analiza dependencias y `/aikya-skills-install` instala únicamente con autorización. El registro indica **disponibilidad y origen**, no ejecución real. Para nuevas fuentes GitHub se exige ruta, nombre que coincida con `SKILL.md` y revisión de su contenido; se recomienda fijar commit. Las skills globales no se atribuyen a un proyecto hasta incorporarlas explícitamente.

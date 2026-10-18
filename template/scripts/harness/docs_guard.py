@@ -25,7 +25,7 @@ CONFIG_FILES = {'pom.xml','build.gradle','build.gradle.kts','package.json',
                 'tsconfig.json','Dockerfile','docker-compose.yml','compose.yaml',
                 'settings.gradle','settings.gradle.kts', 'pubspec.yaml',
                 'global.json', 'gradle.properties'}
-DOCS_REQUIRED = ('docs/overview.md','docs/plan/roadmap.md',
+DOCS_REQUIRED = ('docs/skills.md','docs/overview.md','docs/plan/roadmap.md',
                  'docs/features/index.md','docs/bugs/index.md',
                  'docs/security/security.md','docs/architecture/overview.md',
                  'docs/operations/deployment.md','docs/operations/observability.md',
@@ -66,6 +66,8 @@ def file_map() -> dict[str,str]:
 
 def is_source(path: str) -> bool:
     name = path.rsplit('/',1)[-1]
+    if path.startswith('.claude/skills/') and name == 'SKILL.md':
+        return True
     if name in CONFIG_FILES or name.endswith(('.csproj','.sln','.xcodeproj','.xcworkspace')):
         return True
     return (path.startswith(('apps/','api/','backend/','server/','src/','web/',
@@ -138,6 +140,8 @@ def affected_docs(kind: str, paths: list[str]) -> list[str]:
     if 'operations' in kinds:
         required.add('docs/operations/deployment.md')
     for path in paths:
+        if path.startswith('.claude/skills/'):
+            required.add('docs/skills.md')
         p = path.lower()
         # El sistema de diseño sólo se exige si existe una interfaz y se toca una pantalla/componente.
         if (p.endswith(('.tsx','.jsx','.vue','.css','.scss','.svelte')) or

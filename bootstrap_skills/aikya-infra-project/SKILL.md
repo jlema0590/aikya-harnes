@@ -1,10 +1,10 @@
 ---
-name: aikya-project-bootstrap
+name: aikya-infra-project
 description: Coordina la generación y configuración inicial de aplicaciones Aikya.
 disable-model-invocation: true
 ---
 <!-- AIKYA BOOTSTRAP MANAGED -->
-# /aikya-project-bootstrap
+# /aikya-infra-project
 
 Petición: `$ARGUMENTS`.
 ## Resolución y seguridad

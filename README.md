@@ -36,9 +36,9 @@ Claude pregunta únicamente por las decisiones que faltan, inspecciona la estruc
 | Comando de Claude Code | Qué hace | Ejemplo en la conversación |
 |---|---|---|
 | `/aikya-scaffold` | Previsualiza y, con aprobación, ejecuta generadores oficiales por módulo. | `/aikya-scaffold Planifica backend .NET y frontend Vue` |
-| `/aikya-project-bootstrap` | Completa contratos, infraestructura inicial, CI, observabilidad y quality gates después del scaffold. | `/aikya-project-bootstrap Configura el proyecto recién generado` |
+| `/aikya-infra-project` | Completa contratos, infraestructura inicial, CI, observabilidad y quality gates después del scaffold. | `/aikya-infra-project Configura el proyecto recién generado` |
 
-**Flujo recomendado:** `/aikya-init` → `/aikya-doctor` → `/aikya-scaffold plan` → revisar el plan y autorizar su ejecución → `/aikya-project-bootstrap` → `/aikya-quality`.
+**Flujo recomendado:** `/aikya-init` → `/aikya-doctor` → `/aikya-scaffold plan` → revisar el plan y autorizar su ejecución → `/aikya-infra-project` → `/aikya-quality`.
 
 Aikya nunca asume que un generador externo, un build o un pipeline de CI se ejecutó correctamente por el hecho de estar configurado. Los proyectos existentes se amplían de manera incremental: no se ejecuta un scaffold destructivo sobre su estructura.
 
@@ -48,9 +48,15 @@ La integración de terceros es **optativa y supervisada**: [Ponytail](https://gi
 
 | Comando de Claude Code | Qué hace | Ejemplo en la conversación |
 |---|---|---|
-| `/aikya-skills status` | Muestra qué skills y herramientas están disponibles. | `/aikya-skills status` |
-| `/aikya-skills plan` | Prepara un plan de integración y comprueba necesidades del stack. | `/aikya-skills plan` |
-| `/aikya-skills install` | Presenta el plan, solicita consentimiento y ejecuta instaladores externos autorizados. | `/aikya-skills install Sólo Ponytail y Graphify` |
+| `/aikya-skills-status` | Muestra skills disponibles y sincroniza `docs/skills.md`. | `/aikya-skills-status` |
+| `/aikya-skills-plan` | Prepara un plan de integración y comprueba necesidades del stack. | `/aikya-skills-plan` |
+| `/aikya-skills-install` | Instala skills autorizadas (incluidas **nuevas skills de GitHub** mediante URL HTTPS, nombre, carpeta y ref/commit), valida la procedencia y actualiza `docs/skills.md`. | `/aikya-skills-install Sólo Ponytail y Graphify` |
+
+Al inicializar un proyecto se genera `docs/skills.md`, que inventaría las skills registradas en `.claude/skills/`, su disponibilidad y origen. La instalación de nuevas skills lo sincroniza; **estar disponible no implica haber sido ejecutada**. **Ejemplo para una skill nueva en Claude Code:**
+
+> `/aikya-skills-install Quiero incorporar una skill desde https://github.com/ORGANIZACION/REPOSITORIO.git. Revisa primero su SKILL.md y licencia, identifica la carpeta skills/NOMBRE, verifica el commit exacto, explícame los permisos y solicita mi aprobación antes de instalarla. Registra el resultado en docs/skills.md.`
+
+**Ejemplo para consultar el inventario:** `/aikya-skills-status Revisa las skills del proyecto y su origen.`
 
 La selección es contextual para no cargar instrucciones innecesarias. Graphify trabaja con consultas concretas, no con volcados completos del grafo. No se descarga ni indexa nada de forma automática al iniciar Claude Code. Consulta [SKILLS_AUDIT.md](SKILLS_AUDIT.md) para criterios de compatibilidad y carga progresiva.
 
@@ -64,7 +70,7 @@ La selección es contextual para no cargar instrucciones innecesarias. Graphify 
 | `/aikya-documentation-sync` | Comando histórico compatible para sincronización documental. | `/aikya-documentation-sync Revisa la documentación de seguridad` |
 | `/aikya-verify` | Comando histórico compatible de validación integral. | `/aikya-verify Comprueba la última feature` |
 
-Cada cambio técnico debe revisar y actualizar **los documentos realmente afectados** de `docs/`: overview, roadmap, features, bugs, security, architecture/ADRs, design, operations y testing. El cambio se registra en `docs/changes/REQ-*.md` con evidencias ejecutadas. Los hooks de Aikya ayudan a detectar documentación faltante antes del cierre de una tarea; el contenido técnico sigue necesitando revisión.
+Cada cambio técnico debe revisar y actualizar **los documentos realmente afectados** de `docs/`: overview, roadmap, features, bugs, security, architecture/ADRs, design, operations, testing y `docs/skills.md` cuando se incorporen o retiren skills. El cambio se registra en `docs/changes/REQ-*.md` con evidencias ejecutadas. Los hooks de Aikya ayudan a detectar documentación faltante antes del cierre de una tarea; el contenido técnico sigue necesitando revisión.
 
 Un check requerido que no está configurado, falla o no pudo ejecutarse se informa como **NO VERIFICADO** o **FALLÓ**; nunca se declara aprobado por omisión.
 
@@ -86,7 +92,7 @@ Tras la entrevista y la instalación aprobada, Aikya crea o completa la estructu
 - `.claude/`: agentes, skills, reglas y hooks de Claude Code.
 - `.aikya/`: decisiones de entrevista y runtime local cuando corresponda.
 - `.harness/` y `harness.json`: perfil técnico, estado de petición y controles de calidad.
-- `docs/`: documentación viva, ADRs, guías de operación y registro de cambios.
+- `docs/`: documentación viva, inventario `docs/skills.md`, ADRs, guías de operación y registro de cambios.
 - `apps/`, `infra/` y configuración de CI: sólo cuando son adecuados para el stack y se autoriza el scaffold.
 
 **Para empezar:** instala Aikya mediante una petición a Claude Code, ejecuta `/aikya-init` y continúa usando exclusivamente los comandos `/aikya-*` descritos aquí.

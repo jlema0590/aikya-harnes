@@ -540,6 +540,8 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     # Alias prefijados: se conservan los comandos heredados para compatibilidad.
     for original in sorted((TEMPLATE/'.claude/skills').glob('*/SKILL.md')):
         old_name=original.parent.name
+        if old_name == 'project-bootstrap':
+            continue  # Comando público renombrado a aikya-infra-project.
         if old_name.startswith('aikya-'):
             continue
         alias='aikya-'+old_name
@@ -559,6 +561,23 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                 actions.append('ACTUALIZADO skill gestionada '+str(dst))
         elif not dst.exists():
             safe_write(dst,src.read_text(encoding='utf8'),actions)
+    # Migrar únicamente wrappers anteriores que coinciden con los originales de Aikya.
+    from aikya_setup import retire_legacy_commands
+    for _scope in (target/'.aikya/runtime', HERE):
+        if (_scope/'bootstrap_skills').is_dir():
+            retire_legacy_commands(target/'.claude/skills',_scope,actions)
+            break
+    # v4 también generaba un alias sin marca gestionada, a partir de la skill interna.
+    old_alias=target/'.claude/skills/aikya-project-bootstrap/SKILL.md'
+    original=TEMPLATE/'.claude/skills/project-bootstrap/SKILL.md'
+    if old_alias.is_file() and not old_alias.is_symlink() and original.is_file():
+        expected=original.read_text(encoding='utf8').replace('name: project-bootstrap\n',
+                                                               'name: aikya-project-bootstrap\n',1)
+        if old_alias.read_text(encoding='utf8')==expected:
+            old_alias.unlink()
+            try: old_alias.parent.rmdir()
+            except OSError: pass
+            actions.append('RETIRADO alias anterior aikya-project-bootstrap')
     # Comandos no Aikya heredados permanecen disponibles en el proyecto.
     # Disponible también cuando Aikya se instaló desde la fuente sin bootstrap.
     requirements_file=HERE/'aikya_requirements.py'
@@ -582,6 +601,10 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         actions,replace_managed=False)
     for rel, content in doc_pages(profile,detected['modules']).items():
         safe_write(target/rel,content,actions)
+    # Inventario local de skills (disponibles != invocadas); conserva documento personalizado.
+    from skills_registry import write_inventory
+    ok, note = write_inventory(target,profile)
+    actions.append(('INVENTARIO ' if ok else 'AVISO ') + note)
     for rel, content in infra_files(profile).items():
         if rel == '.gitignore':
             ignore = target/'.gitignore'
@@ -727,10 +750,10 @@ def main(argv: list[str]|None=None) -> int:
             if failed:
                 failed_external = True
                 print('AVISO: instalaciones externas pendientes: '+', '.join(failed),file=sys.stderr)
-                print('Desde Claude Code utiliza /aikya-skills install, con autorización explícita.')
+                print('Desde Claude Code utiliza /aikya-skills-install, con autorización explícita.')
         elif policy == 'plan':
             print('Skills externas PENDIENTES; para instalarlas tras revisar procedencia:')
-            print('Desde Claude Code utiliza /aikya-skills install, con autorización explícita.')
+            print('Desde Claude Code utiliza /aikya-skills-install, con autorización explícita.')
         print('\nSiguiente: desde Claude Code ejecuta /aikya-doctor y /aikya-scaffold plan; luego /aikya-quality.')
     return 3 if failed_external else 0
 

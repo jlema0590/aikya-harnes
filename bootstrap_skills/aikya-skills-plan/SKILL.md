@@ -1,0 +1,18 @@
+---
+name: aikya-skills-plan
+description: Gestiona desde Claude Code skills externas Ponytail, Graphify y UI UX Pro Max: estado, plan e instalación autorizada.
+disable-model-invocation: true
+---
+<!-- AIKYA BOOTSTRAP MANAGED -->
+# /aikya-skills-plan
+
+Argumentos de la petición: `$ARGUMENTS`.
+## Resolución y seguridad
+- Trabaja en el directorio de proyecto abierto por Claude Code, NUNCA dentro del runtime global. Si falta `.harness/project-profile.json`, indica `/aikya-init` o `/aikya-answers` antes de continuar.
+- No descargues dependencias, modifiques el SDK, realices despliegues, commits ni pushes sin autorización explícita. Conserva archivos y configuraciones ajenas.
+- Lee sólo el perfil, los archivos directamente relacionados y las reglas estrictamente necesarias; evita grandes volcados de contexto.
+
+1. Ejecuta `python3 scripts/harness/external_skills.py plan`; muestra las integraciones conocidas, fuentes y riesgos.
+2. Si se solicita una **nueva skill de GitHub**, confirma URL pública HTTPS de GitHub, carpeta interna con SKILL.md, nombre propuesto y ref/commit antes de sugerir instalación. Lee/revisa las instrucciones y código de la fuente si es accesible.
+3. Evalúa necesidad por stack, coste de contexto, permisos y condiciones de licencia. No instales ni descargues automáticamente.
+4. Sugiere `/aikya-skills-install` para la instalación aprobada, `/aikya-skills-status` para consultar inventario.

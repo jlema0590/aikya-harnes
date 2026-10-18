@@ -12,9 +12,9 @@ import install
 
 REQUIRED={
     'aikya-init', 'aikya-answers', 'aikya-doctor', 'aikya-project-init',
-    'aikya-project-bootstrap', 'aikya-scaffold', 'aikya-feature',
+    'aikya-infra-project', 'aikya-scaffold', 'aikya-feature',
     'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
-    'aikya-skills', 'aikya-quality', 'aikya-docs', 'aikya-tests',
+    'aikya-skills-status','aikya-skills-plan','aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
     'aikya-documentation-sync', 'aikya-verify',
 }
 
@@ -42,7 +42,7 @@ class V51Commands(unittest.TestCase):
             project=Path(tmp)/'app'
             aikya_setup.setup(ROOT,project,'project')
             self.assertTrue(install.only_aikya_bootstrap(project))
-            self.assertTrue((project/'.aikya/runtime/bootstrap_skills/aikya-skills/SKILL.md').exists())
+            self.assertTrue((project/'.aikya/runtime/bootstrap_skills/aikya-skills-status/SKILL.md').exists())
             for name in REQUIRED:
                 self.assertTrue((project/'.claude/skills'/name/'SKILL.md').exists(),name)
 
@@ -50,16 +50,16 @@ class V51Commands(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             base=Path(tmp); project=base/'proj'
             aikya_setup.setup(ROOT,project,'project')
-            managed=project/'.claude/skills/aikya-skills/SKILL.md'
+            managed=project/'.claude/skills/aikya-skills-status/SKILL.md'
             custom=project/'.claude/skills/aikya-tests/SKILL.md'
             managed.write_text(managed.read_text().replace('Agent Skills', 'Agent Skills actualizadas'))
             custom.write_text('Reglas del equipo\n')
             aikya_setup.setup(ROOT,project,'project')
-            self.assertEqual((ROOT/'bootstrap_skills/aikya-skills/SKILL.md').read_text(),managed.read_text())
+            self.assertEqual((ROOT/'bootstrap_skills/aikya-skills-status/SKILL.md').read_text(),managed.read_text())
             self.assertEqual('Reglas del equipo\n',custom.read_text())
 
     def test_external_and_scaffold_require_approval_from_claude(self):
-        skills=(ROOT/'bootstrap_skills/aikya-skills/SKILL.md').read_text()
+        skills=(ROOT/'bootstrap_skills/aikya-skills-install/SKILL.md').read_text()
         scaffold=(ROOT/'bootstrap_skills/aikya-scaffold/SKILL.md').read_text()
         self.assertIn('autorización explícita',skills.lower())
         self.assertIn('aprobación inequívoca',scaffold.lower())
@@ -72,7 +72,7 @@ class V51Commands(unittest.TestCase):
             sample=json.loads((ROOT/'examples/new-next-react.json').read_text())
             profile=install.validated(sample,target)
             install.install(target,profile,{'modules':[]},dry_run=False)
-            for name in ('aikya-scaffold','aikya-skills','aikya-quality','aikya-tests','aikya-docs'):
+            for name in ('aikya-scaffold','aikya-skills-install','aikya-quality','aikya-tests','aikya-docs'):
                 self.assertTrue((target/'.claude/skills'/name/'SKILL.md').is_file(),name)
 
     def test_readme_no_manual_terminal_commands(self):

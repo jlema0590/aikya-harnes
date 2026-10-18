@@ -15,12 +15,12 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parent
 BOOTSTRAP_COMMANDS=(
     'aikya-init', 'aikya-answers', 'aikya-doctor',
-    'aikya-project-init', 'aikya-project-bootstrap', 'aikya-scaffold',
+    'aikya-project-init', 'aikya-infra-project', 'aikya-scaffold',
     'aikya-feature', 'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
-    'aikya-skills', 'aikya-quality', 'aikya-docs', 'aikya-tests',
+    'aikya-skills-status', 'aikya-skills-plan', 'aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
     'aikya-documentation-sync', 'aikya-verify',
 )
-CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py')
+CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py')
 
 
 def files_to_copy(source:Path):
@@ -86,6 +86,27 @@ def register_startup_hook(settings:Path, command:str, logs:list[str]) -> None:
         logs.append(f'HOOK SessionStart añadido: {settings}')
 
 
+# Sólo se retiran los comandos anteriores si conservan literalmente la plantilla antigua.
+# Una skill modificada por el usuario nunca se elimina de forma implícita.
+LEGACY_RENAMES={
+    'aikya-project-bootstrap':'aikya-infra-project',
+    'aikya-skills':'aikya-skills-status',
+}
+
+def retire_legacy_commands(skill_root: Path, runtime: Path, logs: list[str]) -> None:
+    for name,replacement in LEGACY_RENAMES.items():
+        legacy=skill_root/name/'SKILL.md'
+        older=runtime/'bootstrap_skills'/name/'SKILL.md'
+        if not legacy.exists() or legacy.is_symlink():
+            continue
+        if not older.is_file() or older.is_symlink() or legacy.read_bytes()!=older.read_bytes():
+            logs.append(f'CONSERVADO comando antiguo personalizado /{name}; revisar migración a /{replacement}')
+            continue
+        legacy.unlink()
+        try: legacy.parent.rmdir()
+        except OSError: pass
+        logs.append(f'RETIRADO comando gestionado antiguo /{name}; sustituido por /{replacement}')
+
 def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=False)->list[str]:
     source=source.resolve()
     target=target.expanduser().resolve()
@@ -104,6 +125,7 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
         logs.append(f'PLAN: {len(operations)} ficheros de runtime y {len(BOOTSTRAP_COMMANDS)} skills; sin entrevista, sin descarga externa')
         return logs
     runtime.mkdir(parents=True,exist_ok=True)
+    retire_legacy_commands(skill_root,runtime,logs)
     old_manifest={}
     if (runtime/'manifest.json').is_file():
         try:old_manifest=json.loads((runtime/'manifest.json').read_text(encoding='utf8')).get('files',{})
@@ -152,7 +174,7 @@ def main(argv=None):
     except (OSError,ValueError) as exc:
         print(f'ERROR: {exc}',file=sys.stderr)
         return 1
-    print('Siguiente: dentro de Claude Code utiliza /aikya-init, /aikya-answers, /aikya-scaffold, /aikya-skills o /aikya-quality.')
+    print('Siguiente: dentro de Claude Code utiliza /aikya-init, /aikya-answers, /aikya-scaffold, /aikya-skills-status o /aikya-quality.')
     return 0
 
 if __name__=='__main__':sys.exit(main())

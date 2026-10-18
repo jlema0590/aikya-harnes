@@ -16,3 +16,5 @@ Petición: `$ARGUMENTS`.
 2. Sigue las instrucciones técnicas especializadas de esa skill y las reglas del proyecto; no te limites a invocarla, ejecuta el flujo dentro de Claude Code.
 3. Para scaffolding ejecuta `/aikya-scaffold`; para documentar ejecuta `/aikya-docs`; para pruebas ejecuta `/aikya-tests`.
 4. Devuelve resultados realmente observados y pendientes. No uses herramientas externas automáticamente ni delegues sin motivo.
+
+Si la petición afecta skills de Claude Code, sincroniza `docs/skills.md` sin registrar como ejecutadas las skills sólo disponibles.

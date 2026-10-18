@@ -16,6 +16,7 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from skills_registry import write_inventory
 
 SOURCES = {
     'ponytail': 'https://github.com/DietrichGebert/ponytail.git',
@@ -180,19 +181,27 @@ def status(root: Path, profile: dict[str,Any]) -> dict[str, Any]:
             raw = json.loads(lock.read_text(encoding='utf8'))
         except (ValueError,OSError):
             pass
-    for name in enabled_names(profile):
+    known=raw.get('skills',{}) if isinstance(raw.get('skills',{}),dict) else {}
+    discovered=[p.name for p in (root/'.claude/skills').iterdir() if p.is_dir() and (p/'SKILL.md').is_file()] if (root/'.claude/skills').is_dir() and not (root/'.claude/skills').is_symlink() else []
+    for name in sorted(set(enabled_names(profile)) | set(known) | set(discovered)):
         location = root/'.claude/skills'/name/'SKILL.md'
         item = raw.get('skills',{}).get(name,{}) if isinstance(raw.get('skills'),dict) else {}
         state = 'present' if location.is_file() else 'missing'
         print(f'{name}: {state}' + (f' ({item.get("state")}: {item.get("detail", "")})' if item and state=='missing' else ''))
     print('Graphify CLI:', 'disponible' if _bin('graphify') else 'no encontrado')
+    _, note=write_inventory(root,profile)
+    print('Inventario:',note)
     return raw
 
 
-def install_all(root: Path, profile: dict[str, Any], *, permission: bool, dry_run: bool=False) -> dict[str, Any]:
+def install_all(root: Path, profile: dict[str, Any], *, permission: bool, dry_run: bool=False, selected: list[str]|None=None) -> dict[str, Any]:
+    if selected is not None and (not selected or any(n not in enabled_names(profile) for n in selected)):
+        raise ValueError('La selección contiene skills desconocidas o incompatibles con el perfil.')
     if not dry_run and not permission:
         raise PermissionError('Instalación de terceros exige aprobación explícita (--yes).')
     root = root.resolve()
+    if (root/'.claude').is_symlink() or (root/'.claude/skills').is_symlink() or (root/'.harness').is_symlink():
+        raise ValueError('No se admiten directorios .claude/.harness simbólicos para instalaciones externas.')
     if not root.is_dir():
         raise RuntimeError('El destino debe existir y ser directorio.')
     if dry_run:
@@ -208,7 +217,7 @@ def install_all(root: Path, profile: dict[str, Any], *, permission: bool, dry_ru
                 record['skills'].update(old['skills'])
         except (OSError,ValueError):
             pass
-    for name in enabled_names(profile):
+    for name in (selected if selected is not None else enabled_names(profile)):
         print('Instalando/verificando:',name,flush=True)
         try:
             record['skills'][name] = INSTALLERS[name](root)
@@ -218,13 +227,112 @@ def install_all(root: Path, profile: dict[str, Any], *, permission: bool, dry_ru
             print('  -> FALLÓ:',str(exc)[:300],file=sys.stderr)
     old_lock.parent.mkdir(parents=True,exist_ok=True)
     old_lock.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
+    _, note=write_inventory(root,profile)
+    print('Inventario:',note)
     return record
 
 
+
+def install_github_skill(root: Path, *, name: str, repo: str, skill_path: str,
+                         ref: str|None, commit: str|None, permission: bool) -> dict[str, str]:
+    """Importar SOLO una carpeta de Agent Skills desde un checkout aislado y aprobado."""
+    if not permission:
+        raise PermissionError('Se requiere aprobación explícita del usuario para instalar una skill externa.')
+    if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',name) or len(name)>64:
+        raise ValueError('Nombre de skill inválido; use minúsculas y guiones.')
+    if name.startswith('aikya-'):
+        raise ValueError('No se puede reemplazar el espacio de comandos Aikya.')
+    if not re.fullmatch(r'https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:\.git)?',repo):
+        raise ValueError('Origen permitido: URL HTTPS pública de repositorio github.com/owner/repo.')
+    if ref is not None and (not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._/-]{0,120}',ref) or '..' in ref or ref.endswith('.lock')):
+        raise ValueError('Ref Git inválida.')
+    if commit is not None and not re.fullmatch(r'[a-fA-F0-9]{40}',commit):
+        raise ValueError('El commit esperado debe tener 40 caracteres hexadecimales.')
+    rel=Path(skill_path)
+    if rel.is_absolute() or '..' in rel.parts or not rel.parts or str(rel) in ('.','') or '\\' in skill_path:
+        raise ValueError('Ruta de skill inválida; debe ser relativa y estar contenida en el repositorio.')
+    dest=root/'.claude/skills'/name
+    if (root/'.claude').is_symlink() or (root/'.claude/skills').is_symlink() or (root/'.harness').is_symlink():
+        raise ValueError('No se admiten directorios .claude/.harness simbólicos para instalaciones externas.')
+    if dest.exists() or dest.is_symlink():
+        raise FileExistsError(f'La skill {name} ya existe; no se sobrescribe.')
+    if not shutil.which('git'):
+        raise RuntimeError('git no está disponible.')
+    with tempfile.TemporaryDirectory(prefix='aikya-skill-') as temp:
+        checkout=Path(temp)/'upstream'
+        args=['git','clone','--depth','1','--no-checkout']
+        if ref: args+=['--branch',ref]
+        args += ['--',repo,str(checkout)]
+        result=_invoke(args,timeout=120)
+        if result.returncode:
+            raise RuntimeError(f'No fue posible descargar la fuente: {result.stderr[-250:]}')
+        result=_invoke(['git','-C',str(checkout),'checkout','--force','HEAD'],timeout=60)
+        if result.returncode:
+            raise RuntimeError('No fue posible materializar el checkout Git.')
+        rev=_invoke(['git','-C',str(checkout),'rev-parse','HEAD'],timeout=15)
+        sha=rev.stdout.strip()
+        if rev.returncode or not re.fullmatch(r'[a-f0-9]{40}',sha):
+            raise RuntimeError('No se verificó el commit de origen.')
+        if commit and sha.lower()!=commit.lower():
+            raise ValueError('El commit descargado difiere del hash aprobado.')
+        src=checkout/rel
+        if not src.resolve().is_relative_to(checkout.resolve()) or src.is_symlink():
+            raise ValueError('La ruta de skill sale del repositorio o es simbólica.')
+        if not src.is_dir():
+            raise ValueError('La ruta no contiene un directorio de skill.')
+        # Validación de contrato Agent Skills antes de copiar; nunca ejecutar el código recibido.
+        md=src/'SKILL.md'
+        if not md.is_file() or md.is_symlink():
+            raise ValueError('Falta SKILL.md regular.')
+        fm=md.read_text(encoding='utf8')[:12000]
+        if not fm.startswith('---\n') or '\n---\n' not in fm:
+            raise ValueError('SKILL.md carece de frontmatter Agent Skills.')
+        fields=fm.split('---\n',2)[1]
+        if not re.search(r'^name:\s*'+re.escape(name)+r'\s*$',fields,re.M) or not re.search(r'^description:\s*\S',fields,re.M):
+            raise ValueError('SKILL.md debe declarar nombre coincidente y description.')
+        dest.parent.mkdir(parents=True,exist_ok=True)
+        _copy_safe_skill(src,dest)
+        return {'state':'installed','source':repo,'commit':sha,'location':f'.claude/skills/{name}',
+                'detail':'Skill de GitHub copiada sin ejecutar hooks ni scripts de terceros.'}
+
+
+def install_custom(root: Path, profile: dict[str, Any], *, name: str, repo: str,
+                   skill_path: str, ref: str|None=None, commit: str|None=None,
+                   permission: bool=False) -> dict[str, Any]:
+    if not permission:
+        raise PermissionError('La instalación exige aprobación explícita.')
+    root=root.resolve()
+    if (root/'.claude').is_symlink() or (root/'.claude/skills').is_symlink() or (root/'.harness').is_symlink():
+        raise ValueError('No se admiten directorios .claude/.harness simbólicos para instalaciones externas.')
+    lock=root/'.harness/external-skills-lock.json'
+    record={'schema_version':1,'sources':SOURCES,'updated_at_utc':datetime.now(timezone.utc).isoformat(),'skills':{}}
+    if lock.is_file():
+        try:
+            old=json.loads(lock.read_text(encoding='utf8'))
+            if isinstance(old.get('skills'),dict): record['skills'].update(old['skills'])
+        except (OSError,ValueError,TypeError):
+            pass
+    try:
+        record['skills'][name]=install_github_skill(root,name=name,repo=repo,skill_path=skill_path,
+                                                     ref=ref,commit=commit,permission=True)
+    except (RuntimeError,OSError,ValueError) as exc:
+        record['skills'][name]={'state':'failed','source':repo,'detail':str(exc)[:350]}
+    lock.parent.mkdir(parents=True,exist_ok=True)
+    lock.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
+    _, note=write_inventory(root,profile)
+    print('Inventario:',note)
+    return record
+
 def main(argv: list[str]|None = None) -> int:
-    parser = argparse.ArgumentParser(description='Gestionar skills externas de Claude Dev Harness v4')
+    parser = argparse.ArgumentParser(description='Aikya Harness · gestión de skills externas')
     parser.add_argument('action',choices=['plan','install','status'])
     parser.add_argument('--target',type=Path,default=Path.cwd())
+    parser.add_argument('--only',help='Nombres predefinidos separados por coma')
+    parser.add_argument('--repo',help='URL HTTPS de repositorio de nueva skill')
+    parser.add_argument('--skill-path',help='Ruta relativa al directorio que contiene SKILL.md')
+    parser.add_argument('--name',help='Nombre declarado en SKILL.md')
+    parser.add_argument('--ref',help='Rama o tag Git, preferiblemente inmutable')
+    parser.add_argument('--commit',help='SHA-1 de 40 caracteres que se debe comprobar')
     parser.add_argument('--yes',action='store_true',help='Aprueba explícitamente ejecutar instaladores externos')
     args=parser.parse_args(argv)
     root=args.target.expanduser().resolve()
@@ -236,9 +344,17 @@ def main(argv: list[str]|None = None) -> int:
         if args.action == 'status':
             status(root,profile)
             return 0
-        result = install_all(root,profile,permission=args.yes)
-        return 1 if any(v.get('state')=='failed' for v in result['skills'].values()) else 0
-    except (RuntimeError, PermissionError) as exc:
+        if any((args.repo,args.skill_path,args.name)):
+            if not all((args.repo,args.skill_path,args.name)):
+                raise ValueError('Una skill nueva requiere --repo, --skill-path y --name.')
+            result=install_custom(root,profile,name=args.name,repo=args.repo,skill_path=args.skill_path,
+                                  ref=args.ref,commit=args.commit,permission=args.yes)
+            return 1 if result['skills'][args.name]['state']=='failed' else 0
+        selected=args.only.split(',') if args.only else None
+        result = install_all(root,profile,permission=args.yes,selected=selected)
+        return 1 if any(v.get('state')=='failed' for n,v in result['skills'].items()
+                        if selected is None or n in selected) else 0
+    except (RuntimeError, PermissionError, ValueError, OSError) as exc:
         print('ERROR:',exc,file=sys.stderr)
         return 2
 

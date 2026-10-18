@@ -33,6 +33,7 @@ La documentación de este repositorio es parte del entregable. Una modificación
 - [Decisiones de arquitectura (ADR)](decisions/README.md)
 - [Bitácora por petición](changes/README.md)
 - [Bootstrap técnico](harness/bootstrap.md)
+- [Skills del proyecto](skills.md)
 
 ## Política documental
 

@@ -57,5 +57,5 @@ Aplica `.claude/rules/02-context-budget.md`: Ponytail para cambios mínimos, Gra
 ## Aikya v5: inicio desde Claude Code
 - La entrevista inicial se realiza con `/aikya-init` **en Claude**, no con preguntas de `install.py` en terminal.
 - `/aikya-answers` utiliza el perfil JSON aprobado y `/aikya-doctor` verifica SDKs antes de scaffold.
-- Prefiere comandos `/aikya-feature`, `/aikya-bugfix`, `/aikya-scaffold`, `/aikya-skills`, `/aikya-tests`, `/aikya-docs` y `/aikya-quality`; aliases heredados disponibles. Todo el flujo de usuario ocurre dentro de Claude Code; los scripts se ejecutan internamente cuando corresponda.
+- Prefiere comandos `/aikya-feature`, `/aikya-bugfix`, `/aikya-scaffold`, `/aikya-skills-status`, `/aikya-tests`, `/aikya-docs` y `/aikya-quality`; aliases heredados disponibles. Todo el flujo de usuario ocurre dentro de Claude Code; los scripts se ejecutan internamente cuando corresponda.
 - Nunca actualices SDK, interpretes que el build pasó ni ejecutes generadores remotos sin autorización.
