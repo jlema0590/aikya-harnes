@@ -17,3 +17,9 @@ disable-model-invocation: true
 7. Confirma artefactos creados, documentación `docs/`, `docs/harness/requirements.md`, pendiente de SDKs, y comandos `/aikya-infra-project`, `/aikya-feature`, `/aikya-verify` disponibles tras instalar. Pide aprobación antes de ejecutar generadores de código.
 
 Si quieres reiniciar la entrevista sin perder cambios, mantén los archivos del usuario y usa `mode: existing`; el instalador preserva personalizaciones.
+
+## Activación de especialistas de ingeniería
+
+- Tras confirmar el stack, Aikya selecciona automáticamente los agentes/skills técnicos pertinentes desde su catálogo incluido, sin descarga ni ejecución de scripts externos.
+- Consulta `docs/agents.md` y `docs/skills.md`; instala especialistas opcionales únicamente a petición y con aprobación mediante `/aikya-skills-install`.
+- Excluye agentes y skills de LinkedIn, derecho digital, SaaS y propiedad intelectual.

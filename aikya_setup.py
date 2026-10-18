@@ -20,13 +20,13 @@ BOOTSTRAP_COMMANDS=(
     'aikya-skills-status', 'aikya-skills-plan', 'aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
     'aikya-documentation-sync', 'aikya-verify',
 )
-CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py')
+CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py')
 
 
 def files_to_copy(source:Path):
     for name in CORE_FILES:
         yield source/name,Path(name)
-    for folder in ('template','examples','bootstrap_skills'):
+    for folder in ('template','examples','bootstrap_skills','engineering'):
         for path in sorted((source/folder).rglob('*')):
             if path.is_file() and '__pycache__' not in path.parts and not path.name.endswith('.pyc'):
                 yield path,path.relative_to(source)

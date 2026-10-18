@@ -50,6 +50,15 @@ def render(root: Path, profile: dict|None=None) -> str:
             if isinstance(data.get('skills'),dict): lock=data['skills']
         except (OSError,ValueError,TypeError):
             pass
+    engineering={}
+    manifest=root/'.harness/engineering-catalog.json'
+    if manifest.is_file() and not manifest.is_symlink():
+        try:
+            payload=json.loads(manifest.read_text(encoding='utf8'))
+            if payload.get('_generated_by')=='aikya-engineering-catalog' and isinstance(payload.get('files'),dict):
+                engineering=payload['files']
+        except (ValueError,OSError,TypeError):
+            pass
     rows=[]
     names=sorted(set(discovered)|set(lock))
     for folder in names:
@@ -57,9 +66,11 @@ def render(root: Path, profile: dict|None=None) -> str:
         item=lock.get(folder,{})
         if not isinstance(item,dict): item={}
         installed=folder in discovered
+        catalog_key=f'.claude/skills/{folder}/SKILL.md'
         kind=('Externa' if folder in BUILTIN or folder in lock else
+              'Aikya Engineering' if catalog_key in engineering else
               'Aikya' if folder.startswith('aikya-') else 'Proyecto')
-        source=item.get('source') or item.get('location') or ('Fuente Aikya' if kind=='Aikya' else 'Local')
+        source=item.get('source') or item.get('location') or ('Aikya / paquete técnico revisado' if kind=='Aikya Engineering' else 'Fuente Aikya' if kind=='Aikya' else 'Local')
         state='Disponible' if installed else 'No disponible'
         if not installed and item.get('state')=='failed': state='Falló instalación'
         rows.append(f'| `/{_plain(folder)}` | {_plain(kind)} | {_plain(state)} | {_plain(source)} | {_plain(description or item.get("detail") or "No instalada")} |')

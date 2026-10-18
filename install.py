@@ -601,6 +601,18 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         actions,replace_managed=False)
     for rel, content in doc_pages(profile,detected['modules']).items():
         safe_write(target/rel,content,actions)
+    # Catálogo técnico importado y curado: copia assets sin ejecutarlos y activa sólo
+    # los agentes/skills adecuados a las decisiones confirmadas de la entrevista.
+    from engineering_catalog import discover, install_selected
+    for original in sorted((HERE/'engineering').rglob('*')):
+        if original.is_file() and not original.is_symlink():
+            relative = original.relative_to(HERE/'engineering')
+            safe_write(target/'scripts/harness/engineering'/relative,
+                       original.read_text(encoding='utf8'), actions)
+    safe_write(target/'scripts/harness/engineering_catalog.py',
+               (HERE/'engineering_catalog.py').read_text(encoding='utf8'), actions)
+    selected = discover(target, profile, detected['modules'])
+    actions.extend(install_selected(target, selected, source=HERE/'engineering'))
     # Inventario local de skills (disponibles != invocadas); conserva documento personalizado.
     from skills_registry import write_inventory
     ok, note = write_inventory(target,profile)

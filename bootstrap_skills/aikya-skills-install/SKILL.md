@@ -18,3 +18,11 @@ Argumentos de la petición: `$ARGUMENTS`.
 4. Para predefinidas, ejecuta `python3 scripts/harness/external_skills.py install --yes` sólo para las integraciones autorizadas. Nunca actualices SDK ni dependencias indirectas ocultas.
 5. Tras instalar, verifica `python3 scripts/harness/external_skills.py status`, valida formato con `/aikya-quality` y comprueba que `docs/skills.md` registre **cada skill disponible en el proyecto** y el estado real (instalada, faltante o fallida), origen y finalidad. Si la documentación está personalizada, solicita editarla de manera conservadora.
 6. Si se modifica configuración o código, registra el cambio en `docs/changes/REQ-*.md`. No afirmes que una skill se ejecutó porque esté instalada; no reindexes Graphify automáticamente.
+
+## Instalación de un especialista del catálogo técnico de Aikya
+
+- Si la petición pide una skill o agente del catálogo **incluido con Aikya**, previsualiza los nombres solicitados con `python3 scripts/harness/engineering_catalog.py plan --root . --names nombre1,nombre2`.
+- Tras autorización explícita, utiliza `python3 scripts/harness/engineering_catalog.py install --root . --names nombre1,nombre2 --approved` desde el proyecto. Esta vía NO requiere red y conserva las personalizaciones.
+- Si se solicitan todos los recomendados para el stack actual, usa `plan --root .` y, tras aprobación, `install --root . --approved`.
+- Revisa `docs/agents.md`, `docs/skills.md` y `.harness/engineering-catalog.json` tras ejecutar; conserva documentación personalizada. No confundas disponibilidad con invocación real.
+- No instales materiales de LinkedIn, derecho digital, SaaS ni propiedad intelectual desde el ZIP original.

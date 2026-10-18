@@ -102,3 +102,31 @@ Tras la entrevista y la instalación aprobada, Aikya crea o completa la estructu
 - [Instalación y primeros pasos dentro de Claude Code](INSTALL_FROM_CLAUDE.md)
 - [Auditoría de skills y política de contexto](SKILLS_AUDIT.md)
 - [Historial de versiones](CHANGELOG.md)
+
+## 8. Catálogo técnico de agentes y skills integrados
+
+Aikya incorpora **12 subagentes técnicos nuevos** y **15 Agent Skills especializadas**, adaptados de un paquete de desarrollo proporcionado para el proyecto. Se mantiene el `security-reviewer` existente de Aikya, sin crear un duplicado. **No se incluyen** agentes ni skills de LinkedIn, derecho digital, contratos SaaS o propiedad intelectual.
+
+| Dominio | Agentes disponibles | Skills relevantes |
+|---|---|---|
+| Coordinación y planificación | `planner`, `orchestrator` | Reutiliza el flujo de Aikya |
+| Node.js / APIs | `node-backend-developer` | `node-api-design` |
+| Next.js | `nextjs-developer` | `nextjs-architecture` |
+| Vue 3 | `vue-developer` | `vue-architecture` |
+| Flutter | `flutter-developer` | `flutter-architecture` |
+| Astro | `astro-tailwind-developer` | `astro-performance` |
+| Calidad | `code-reviewer`, `test-engineer` | `code-review`, `testing-strategy`, `security-audit` |
+| Infraestructura y Cloud | `cicd-engineer`, `docker-developer`, `cloud-architect` | `cicd-pipelines`, `docker-best-practices`, `kubernetes-operations`, `cloud-architecture` |
+| Especialidades opcionales | Agentes existentes según perfil | `terraform-iac`, `cloud-security`, `finops-optimization` |
+
+**Activación progresiva:** `/aikya-init` incorpora los componentes adecuados al stack. Los demás quedan en un catálogo local para activarse, con aprobación, mediante `/aikya-skills-install`. Esto reduce instrucciones irrelevantes y evita instalar una especialidad Cloud en un proyecto web sencillo. El catálogo local no requiere descargas; las Agent Skills externas conservan su flujo de consentimiento.
+
+Ejemplos dentro de Claude Code:
+
+> `/aikya-skills-plan Muéstrame las skills y agentes técnicos que convienen a este proyecto Next.js.`
+
+> `/aikya-skills-install Instala también terraform-iac y cloud-security desde el catálogo Aikya; presenta el plan antes de proceder.`
+
+> `/aikya-skills-status Comprueba los agentes y skills disponibles y actualiza docs/skills.md.`
+
+La inicialización genera `docs/agents.md`, `docs/skills.md` y `.harness/engineering-catalog.json`, con procedencia y componentes instalados. Estar registrado no demuestra uso efectivo de un agente o skill. Los archivos personalizados existentes no se sobrescriben.

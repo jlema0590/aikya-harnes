@@ -46,3 +46,11 @@
 ## v3
 
 - Engineering Bootstrap, entrevista, scaffold asistido, infraestructura y documentación viva con hooks de trazabilidad.
+
+## v5.3 — Integración de catálogo técnico
+
+- Revisados 19 agentes y 21 skills del ZIP externo del usuario. Excluidos 6 agentes jurídicos, 6 skills jurídicas y todos los componentes de LinkedIn.
+- Integrados 12 agentes nuevos y 15 skills técnicas; se conserva el agente de seguridad ya presente en Aikya.
+- Activación progresiva según stack y gestión mediante `/aikya-skills-plan`, `/aikya-skills-install` y `/aikya-skills-status` dentro de Claude Code.
+- Nuevo `docs/agents.md` junto al inventario existente `docs/skills.md`, y auditoría en `ENGINEERING_AUDIT.md`.
+- Integración idempotente que evita sobrescrituras y no ejecuta contenido ajeno.
