@@ -2,7 +2,7 @@
 """Bootstrap reversible de Aikya para Claude Code: scopes global y project.
 
 Invócalo DESDE Claude Code mediante una petición natural. No ejecuta entrevistas ni
-instala SDKs ni terceros. Sólo expone /aikya-init, /aikya-answers y /aikya-doctor.
+instala SDKs ni terceros. Registra comandos Aikya con ejecución conversacional y consentimiento en Claude Code.
 """
 from __future__ import annotations
 import argparse
@@ -13,14 +13,20 @@ import sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent
-BOOTSTRAP_COMMANDS=('aikya-init','aikya-answers','aikya-doctor')
-CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py')
+BOOTSTRAP_COMMANDS=(
+    'aikya-init', 'aikya-answers', 'aikya-doctor',
+    'aikya-project-init', 'aikya-project-bootstrap', 'aikya-scaffold',
+    'aikya-feature', 'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
+    'aikya-skills', 'aikya-quality', 'aikya-docs', 'aikya-tests',
+    'aikya-documentation-sync', 'aikya-verify',
+)
+CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py')
 
 
 def files_to_copy(source:Path):
     for name in CORE_FILES:
         yield source/name,Path(name)
-    for folder in ('template','examples'):
+    for folder in ('template','examples','bootstrap_skills'):
         for path in sorted((source/folder).rglob('*')):
             if path.is_file() and '__pycache__' not in path.parts and not path.name.endswith('.pyc'):
                 yield path,path.relative_to(source)
@@ -85,7 +91,7 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
     target=target.expanduser().resolve()
     home=(home or Path.home()).expanduser().resolve()
     if scope not in ('global','project'):raise ValueError('scope debe ser global o project')
-    if not (source/'install.py').is_file() or not (source/'bootstrap_skills/aikya-init/SKILL.md').is_file():
+    if not (source/'install.py').is_file() or any(not (source/'bootstrap_skills'/name/'SKILL.md').is_file() for name in BOOTSTRAP_COMMANDS):
         raise ValueError('La fuente no es una distribución completa de Aikya')
     runtime=(home/'.claude/aikya-harnes') if scope=='global' else (target/'.aikya/runtime')
     skill_root=(home/'.claude/skills') if scope=='global' else (target/'.claude/skills')
@@ -146,7 +152,7 @@ def main(argv=None):
     except (OSError,ValueError) as exc:
         print(f'ERROR: {exc}',file=sys.stderr)
         return 1
-    print('Siguiente: dentro de Claude Code ejecuta /aikya-init para entrevista o /aikya-answers para perfil JSON.')
+    print('Siguiente: dentro de Claude Code utiliza /aikya-init, /aikya-answers, /aikya-scaffold, /aikya-skills o /aikya-quality.')
     return 0
 
 if __name__=='__main__':sys.exit(main())

@@ -1,5 +1,13 @@
 # Changelog
 
+## v5.1 — comandos Claude-native
+
+- Comandos `/aikya-scaffold`, `/aikya-skills`, `/aikya-quality`, `/aikya-docs` y `/aikya-tests`, además de los comandos de desarrollo ya disponibles, invocables desde Claude Code.
+- El bootstrap global/proyecto expone 16 skills de Aikya, todas con ejecución conversacional y autorización para acciones externas; conserva las skills personalizadas.
+- README reorganizado para explicar sólo instalación y uso desde Claude Code: sin comandos manuales de Python, shell ni scaffolding fuera de Claude.
+- Se preservan scripts internos y documentación viva obligatoria; validación de SDK antes de generar aplicaciones.
+
+
 ## v5 — 2026-10-18
 
 - Instalación conversacional en Claude Code con scopes global/proyecto y comandos /aikya-init, /aikya-answers, /aikya-doctor.

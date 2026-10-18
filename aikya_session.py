@@ -46,7 +46,7 @@ def main():
     except OSError:
         return 0
     print(json.dumps({
-        'systemMessage':'Aikya Harness disponible · Proyecto sin inicializar. Escribe /aikya-init para comenzar la entrevista técnica, o /aikya-answers para usar decisiones guardadas.',
+        'systemMessage':'Aikya Harness disponible · Proyecto sin inicializar. Usa /aikya-init para la entrevista o /aikya-answers para usar decisiones guardadas. Después: /aikya-scaffold, /aikya-skills y /aikya-quality.',
         'hookSpecificOutput':{'hookEventName':'SessionStart',
            'additionalContext':'Este repositorio aún no tiene perfil de Aikya. El usuario puede iniciar /aikya-init o /aikya-answers; confirma sus preferencias antes de hacer cualquier instalación o cambio.'}
     },ensure_ascii=False))
