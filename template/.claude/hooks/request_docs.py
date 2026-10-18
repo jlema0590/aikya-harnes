@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 
 root=Path(os.environ.get('CLAUDE_PROJECT_DIR') or '.').resolve()
-sys.path.insert(0,str(root/'scripts/harness'))
+sys.path.insert(0,str(root/'aikya/scripts/harness'))
 try:
     from docs_guard import start_request
     event=json.load(sys.stdin)

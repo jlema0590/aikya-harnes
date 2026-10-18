@@ -46,6 +46,7 @@ class V52(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp)
             (root/'docs').mkdir()
+            (root/'aikya/docs').mkdir(parents=True,exist_ok=True)
             (root/'aikya/docs/skills.md').write_text('Documento de equipo\n')
             ok,note=write_inventory(root)
             self.assertFalse(ok)

@@ -103,7 +103,7 @@ class ExternalIntegrationTests(unittest.TestCase):
         previous=HERE/'tests/fixtures'
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)
-            old=root/'aikya/scripts/harness/docs_guard.py'
+            old=root/'scripts/harness/docs_guard.py'
             old.parent.mkdir(parents=True)
             old.write_bytes((previous/'v3_docs_guard.py').read_bytes())
             custom=root/'.claude/skills/feature/SKILL.md'

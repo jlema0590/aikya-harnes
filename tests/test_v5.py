@@ -112,7 +112,7 @@ class AikyaV5(unittest.TestCase):
     def test_scaffold_rejects_missing_requirements_before_runner(self):
         with tempfile.TemporaryDirectory() as tmp:
             project=Path(tmp)
-            (project/'scripts/harness').mkdir(parents=True)
+            (project/'aikya/scripts/harness').mkdir(parents=True,exist_ok=True)
             (project/'aikya/scripts/harness/aikya_requirements.py').write_bytes((ROOT/'aikya_requirements.py').read_bytes())
             spec=importlib.util.spec_from_file_location('aikya_scaffold_test',ROOT/'template/scripts/harness/scaffold.py')
             module=importlib.util.module_from_spec(spec)
