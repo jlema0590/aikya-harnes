@@ -104,7 +104,7 @@ class V57Tests(unittest.TestCase):
             text=INFRA.plan(root,p)
             self.assertIn('infra/terraform/versions.tf',text)
             self.assertIn('infra/ansible/ansible.cfg',text)
-            self.assertIn('Helm',text)
+            self.assertIn('infra/helm/charts/',text)
             self.assertFalse((root/'infra').exists())
             status,rows=INFRA.generate(root,p,False)
             self.assertEqual(2,status)

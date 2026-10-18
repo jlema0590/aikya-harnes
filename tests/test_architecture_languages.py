@@ -28,9 +28,9 @@ ARCHITECTURES={
 
 class SpecialistIntegrationTests(unittest.TestCase):
     def test_catalog_has_expected_names_and_disallows_prohibited_material(self):
-        self.assertEqual((23,26),(len(catalog.AGENTS),len(catalog.SKILLS)))
-        self.assertEqual(23,len(list((ROOT/'engineering/agents').glob('*.md'))))
-        self.assertEqual(26,len(list((ROOT/'engineering/skills').glob('*/SKILL.md'))))
+        self.assertEqual((27,29),(len(catalog.AGENTS),len(catalog.SKILLS)))
+        self.assertEqual(27,len(list((ROOT/'engineering/agents').glob('*.md'))))
+        self.assertEqual(29,len(list((ROOT/'engineering/skills').glob('*/SKILL.md'))))
         for entry in (ROOT/'engineering').rglob('*.md'):
             body=entry.read_text(encoding='utf8')
             for prohibited in ('linkedin','derecho digital','propiedad intelectual','saas contract'):
@@ -80,7 +80,7 @@ class SpecialistIntegrationTests(unittest.TestCase):
 
     def test_all_examples_validate_and_describe_claude_workflow(self):
         examples=sorted((ROOT/'examples').glob('*/answers.json'))
-        self.assertEqual(7,len(examples))
+        self.assertEqual(9,len(examples))
         with tempfile.TemporaryDirectory() as temp:
             target=Path(temp)
             for file in examples:

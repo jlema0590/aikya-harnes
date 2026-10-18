@@ -616,6 +616,8 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     """Instala sin sobrescribir archivos de usuario. Para dry-run no muta."""
     actions: list[str] = []
     validate_layout(profile)
+    # También se admiten llamadas directas desde harnesses antiguos sin validated().
+    profile = {**profile, 'infrastructure': validate_infrastructure(profile)}
     if dry_run:
         return [f'PLAN: instalar harness en {target}', 'PLAN: crear aikya/docs/, aikya/test/, aikya/scripts/ según '+layout_of(profile)+' y CI/infra', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
     target.mkdir(parents=True, exist_ok=True)
