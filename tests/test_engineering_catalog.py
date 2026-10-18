@@ -21,8 +21,8 @@ EXCLUDED = {'digital-law-coordinator','ecommerce-platform-lawyer',
 
 class EngineeringCatalogTests(unittest.TestCase):
     def test_only_engineering_components_packaged(self):
-        self.assertEqual(12,len(catalog.AGENTS))
-        self.assertEqual(15,len(catalog.SKILLS))
+        self.assertEqual(23,len(catalog.AGENTS))
+        self.assertEqual(26,len(catalog.SKILLS))
         self.assertFalse((catalog.AGENTS|catalog.SKILLS)&EXCLUDED)
         self.assertNotIn('security-reviewer', catalog.AGENTS)
         for path in (ROOT/'engineering').rglob('*.md'):

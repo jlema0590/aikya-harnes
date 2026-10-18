@@ -1,0 +1,14 @@
+{
+  "mode": "new",
+  "name": "api-python-angular",
+  "backend": "python",
+  "backend_framework": "fastapi",
+  "frontend": "angular",
+  "mobile": "none",
+  "architecture": "layered",
+  "database": "postgresql",
+  "ci": "github-actions",
+  "deployment": "docker",
+  "package_manager": "npm",
+  "notes": "FastAPI con Python y Angular; los generadores deben seleccionarse en Claude Code tras comprobar SDK y compatibilidad."
+}

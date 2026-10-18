@@ -19,7 +19,9 @@ Argumentos de la petición: `$ARGUMENTS`.
 
 ## Catálogo técnico Aikya integrado (sin descargas)
 
-- Además de terceros, lista los **15 playbooks técnicos y 12 especialistas** incluidos en Aikya con `python3 scripts/harness/engineering_catalog.py list`.
+- Además de terceros, lista los **26 playbooks técnicos y 23 especialistas** incluidos en Aikya con `python3 scripts/harness/engineering_catalog.py list`.
 - Para mostrar qué especialistas corresponden al stack ya entrevistado, ejecuta `python3 scripts/harness/engineering_catalog.py plan --root .`; no modifica el proyecto.
 - El catálogo instala sólo los componentes pertinentes a frontend, backend, Flutter, Docker, CI/CD o Cloud. Evita precargar skills no usadas para reducir contexto.
 - **Excluidos** de este catálogo: LinkedIn, derecho digital, contratos SaaS y propiedad intelectual. No sugieras recuperarlos desde el paquete original.
+
+- Las especialidades de lenguajes (Java, .NET, Python, React, Angular, Kotlin) y arquitecturas se componen por separado según el perfil; no presupongas microservicios ni event-driven.

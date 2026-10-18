@@ -35,7 +35,8 @@ def expected_versions(profile: dict[str, Any], target: Path) -> dict[str, str]:
     notes = str(profile.get('runtime_versions') or '')
     for key, expression in {'java':r'\b(?:java|jdk)\s*(?:sdk\s*)?(\d+(?:\.\d+)*)',
                             'dotnet':r'\b(?:\.net|dotnet)\s*(?:sdk\s*)?(\d+(?:\.\d+)*)',
-                            'node':r'\b(?:node\.?js|node)\s*(?:v\s*)?(\d+(?:\.\d+)*)'}.items():
+                            'node':r'\b(?:node\.?js|node)\s*(?:v\s*)?(\d+(?:\.\d+)*)',
+                            'python3':r'\bpython\s*(?:v\s*)?(\d+(?:\.\d+)*)'}.items():
         match = re.search(expression, notes, re.IGNORECASE)
         if match: result[key] = match.group(1)
     nvmrc = target / '.nvmrc'
@@ -62,7 +63,7 @@ def required_tools(profile: dict[str, Any]) -> list[str]:
     framework = profile.get('mobile_framework')
     if backend == 'java': tools += ['java', 'javac']
     if backend == 'dotnet': tools += ['dotnet']
-    if backend in ('node', 'next') or frontend in ('react', 'vue') or framework == 'react-native':
+    if backend in ('node', 'next') or frontend in ('react', 'vue', 'angular') or framework == 'react-native':
         tools += ['node', profile.get('package_manager') if profile.get('package_manager') in ('pnpm','yarn','bun') else 'npm']
     if mobile not in ('none', None):
         if framework == 'flutter': tools += ['flutter']
@@ -114,7 +115,13 @@ def check(profile: dict[str, Any], target: Path) -> dict[str, Any]:
         elif tool == 'python3':
             actual, detail = command_version(tool)
             status = 'ok' if sys.version_info >= (3,9) else 'version_mismatch'
-            wanted = '3.9+'
+            minimum = expected.get('python3')
+            wanted = minimum or '3.9+'
+            if minimum:
+                wanted_parts = tuple(int(n) for n in minimum.split('.'))
+                actual_parts = (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
+                if actual_parts[:len(wanted_parts)] < wanted_parts or actual_parts[0] != wanted_parts[0]:
+                    status = 'version_mismatch'
         else:
             actual,detail=command_version(tool)
             status='ok' if actual is not None else 'missing'

@@ -26,3 +26,5 @@ Argumentos de la petición: `$ARGUMENTS`.
 - Si se solicitan todos los recomendados para el stack actual, usa `plan --root .` y, tras aprobación, `install --root . --approved`.
 - Revisa `docs/agents.md`, `docs/skills.md` y `.harness/engineering-catalog.json` tras ejecutar; conserva documentación personalizada. No confundas disponibilidad con invocación real.
 - No instales materiales de LinkedIn, derecho digital, SaaS ni propiedad intelectual desde el ZIP original.
+
+- Las especialidades de lenguajes (Java, .NET, Python, React, Angular, Kotlin) y arquitecturas se componen por separado según el perfil; no presupongas microservicios ni event-driven.

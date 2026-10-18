@@ -24,3 +24,14 @@ Origen revisado: archivo de usuario `claude-agentes-y-skills-sin-linkedin.zip`, 
 ## Pendiente de validación real
 
 Probar invocación de subagentes con distintas versiones de Claude Code, versiones reales de los SDKs por stack, y verificar permisos/licencias de publicación de los textos suministrados en caso de distribuirlos públicamente.
+
+## Ampliación de arquitecturas y lenguajes (v5.5)
+
+Material aportado por el usuario: `claude-arquitecturas-lenguajes-agentes-skills.zip` (18/10/2026).
+**Importados:** 11 agentes y 11 skills (5 arquitectos, 6 desarrolladores y sus 11 playbooks).
+**Destino:** `engineering/agents/` y `engineering/skills/`; se han incorporado solamente los Markdown declarados en el manifiesto del ZIP, **no** su `install.sh`, `validate.py` ni otras utilidades que pudieran ejecutarse.
+**Sin duplicaciones:** 23 agentes y 26 skills técnicos en total. Los 18 comandos de `aikya-skills/` no cambian.
+**Selección contextual:** stack + arquitectura explícita + opción `architecture_patterns: ["event-driven"]`; event-driven no se impone a microservicios. Los proyectos existentes mantienen sus personalizaciones.
+**Ámbitos excluidos:** LinkedIn, Derecho digital, contratos SaaS y propiedad intelectual.
+**Licencias:** el ZIP no incluye una licencia de redistribución individual para los textos importados; antes de reutilizarlos comercialmente en un repositorio público, confirmar titularidad y permisos de redistribución con el autor.
+**Validación pendiente:** integración interactiva de subagentes y SDK reales en Claude Code, y ejecución de compilaciones de los distintos ejemplos sobre proyectos generados.

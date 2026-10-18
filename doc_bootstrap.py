@@ -308,7 +308,7 @@ def infra_files(p:dict) -> dict[str,str]:
     outputs['apps/README.md']='''# Aplicaciones del monorepo\n\nLos generadores crean los proyectos bajo `apps/api`, `apps/web`, `apps/frontend`, `apps/mobile`, `apps/android` y/o `apps/ios` según el perfil. La existencia de esta carpeta **no** significa que los módulos estén generados o verificados.\n'''
     outputs['packages/README.md']='''# Paquetes compartidos\n\nUbicar aquí sólo librerías, contratos y utilidades justificadas para varios módulos. No compartir directamente entidades de persistencia ni secretos. Añadir documentación y tests antes de publicarlos.\n'''
     outputs['contracts/README.md']='''# Contratos y compatibilidad\n\nMantener contratos REST (OpenAPI), GraphQL o gRPC cuando corresponda, versionados y con tests de compatibilidad. Evita generar un contrato ficticio sin requisitos de endpoints.\n'''
-    js_app=(p['backend'] in ('node','next') or p['frontend'] in ('react','vue') or p['mobile_framework']=='react-native')
+    js_app=(p['backend'] in ('node','next') or p['frontend'] in ('react','vue','angular') or p['mobile_framework']=='react-native')
     if js_app:
         import re
         package_name=re.sub(r'[^a-z0-9-]','-',p['name'].lower()).strip('-') or 'application'

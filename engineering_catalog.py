@@ -15,6 +15,10 @@ AGENTS = {
     'orchestrator', 'planner', 'astro-tailwind-developer', 'flutter-developer',
     'node-backend-developer', 'vue-developer', 'cicd-engineer', 'cloud-architect',
     'docker-developer', 'nextjs-developer', 'code-reviewer', 'test-engineer',
+    'clean-architecture-architect', 'event-driven-architect',
+    'layered-architecture-architect', 'microservices-architect', 'monolith-architect',
+    'angular-developer', 'dotnet-developer', 'java-developer', 'kotlin-developer',
+    'python-developer', 'react-developer',
 }
 SKILLS = {
     'astro-performance', 'cicd-pipelines', 'cloud-architecture', 'cloud-security',
@@ -22,6 +26,10 @@ SKILLS = {
     'flutter-architecture', 'kubernetes-operations', 'nextjs-architecture',
     'node-api-design', 'security-audit', 'terraform-iac', 'testing-strategy',
     'vue-architecture',
+    'angular-engineering', 'clean-architecture', 'dotnet-engineering',
+    'event-driven-architecture', 'java-engineering', 'kotlin-engineering',
+    'layered-architecture', 'microservices-architecture',
+    'modular-monolith-architecture', 'python-engineering', 'react-engineering',
 }
 BASE_AGENTS = {'planner', 'code-reviewer', 'test-engineer'}
 BASE_SKILLS = {'code-review', 'security-audit', 'testing-strategy'}
@@ -52,7 +60,38 @@ def discover(root: Path, profile: dict, modules: list[dict] | None = None) -> di
     mobile = profile.get('mobile', 'none')
     framework = profile.get('mobile_framework', 'none')
     stacks = {str(m.get('technology', '')).lower() for m in modules if isinstance(m, dict)}
+    patterns = profile.get('architecture_patterns', [])
+    if not isinstance(patterns, list):
+        patterns = []
     agents, skills = set(BASE_AGENTS), set(BASE_SKILLS)
+    # Architecture and programming language are independent dimensions.
+    # Only activate architectural choices explicitly made during the interview.
+    architecture = profile.get('architecture', 'undecided')
+    architectural = {
+        'clean': ('clean-architecture-architect', 'clean-architecture'),
+        'layered': ('layered-architecture-architect', 'layered-architecture'),
+        'modular-monolith': ('monolith-architect', 'modular-monolith-architecture'),
+        'microservices': ('microservices-architect', 'microservices-architecture'),
+    }
+    if architecture in architectural:
+        agent, skill = architectural[architecture]
+        agents.add(agent); skills.add(skill)
+    if 'event-driven' in patterns:
+        agents.add('event-driven-architect'); skills.add('event-driven-architecture')
+    languages = {
+        'java': ('java-developer', 'java-engineering'),
+        'dotnet': ('dotnet-developer', 'dotnet-engineering'),
+        'python': ('python-developer', 'python-engineering'),
+        'react': ('react-developer', 'react-engineering'),
+        'angular': ('angular-developer', 'angular-engineering'),
+    }
+    for tech, (agent, skill) in languages.items():
+        if b == tech or f == tech or tech in stacks or (tech == 'react' and b == 'next'):
+            agents.add(agent); skills.add(skill)
+    if profile.get('android_language') == 'kotlin' and profile.get('mobile_framework') == 'native' and profile.get('mobile') in ('android', 'both'):
+        agents.add('kotlin-developer'); skills.add('kotlin-engineering')
+    if 'kotlin' in stacks:
+        agents.add('kotlin-developer'); skills.add('kotlin-engineering')
     if b == 'node' or 'node' in stacks:
         agents.add('node-backend-developer'); skills.add('node-api-design')
     if b == 'next' or 'next' in stacks:

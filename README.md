@@ -2,7 +2,7 @@
 
 **One engineering workflow. Multiple AI agents. Consistent quality.**
 
-Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**. Reúne entrevista técnica, bootstrap y scaffolding de aplicaciones, agentes especializados, Agent Skills, controles de calidad, pruebas y documentación viva por petición. Funciona con backend Java, .NET, Node.js y Next.js; frontend React y Vue; y aplicaciones Android, iOS, Flutter o React Native.
+Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**. Reúne entrevista técnica, bootstrap y scaffolding de aplicaciones, agentes especializados, Agent Skills, controles de calidad, pruebas y documentación viva por petición. Funciona con backend Java, .NET, Node.js, Next.js y Python; frontend React, Vue y Angular; y aplicaciones Android, iOS, Flutter o React Native.
 
 > **Todo el flujo de usuario se inicia y se dirige desde Claude Code.** No necesitas ejecutar instaladores, verificadores ni generadores en una terminal externa. Claude utiliza los scripts internos del repositorio cuando corresponde, con tu autorización para las acciones que modifican el entorno o descargan dependencias.
 
@@ -112,7 +112,7 @@ Tras la entrevista y la instalación aprobada, Aikya crea o completa la estructu
 
 ## 8. Catálogo técnico de agentes y skills integrados
 
-Aikya incorpora **12 subagentes técnicos nuevos** y **15 Agent Skills especializadas**, adaptados de un paquete de desarrollo proporcionado para el proyecto. Se mantiene el `security-reviewer` existente de Aikya, sin crear un duplicado. **No se incluyen** agentes ni skills de LinkedIn, derecho digital, contratos SaaS o propiedad intelectual.
+Aikya incorpora **23 agentes técnicos** y **26 Agent Skills especializadas**, integrados a partir de dos paquetes proporcionados para el proyecto (12 agentes/15 skills del paquete inicial y 11 agentes/11 skills adicionales). Se mantiene el `security-reviewer` existente de Aikya, sin crear un duplicado. **No se incluyen** agentes ni skills de LinkedIn, derecho digital, contratos SaaS o propiedad intelectual.
 
 | Dominio | Agentes disponibles | Skills relevantes |
 |---|---|---|
@@ -126,6 +126,27 @@ Aikya incorpora **12 subagentes técnicos nuevos** y **15 Agent Skills especiali
 | Infraestructura y Cloud | `cicd-engineer`, `docker-developer`, `cloud-architect` | `cicd-pipelines`, `docker-best-practices`, `kubernetes-operations`, `cloud-architecture` |
 | Especialidades opcionales | Agentes existentes según perfil | `terraform-iac`, `cloud-security`, `finops-optimization` |
 
+### Cómo funcionan `engineering/agents/` y `engineering/skills/`
+
+**Separación de responsabilidades:** `aikya-skills/` contiene los comandos de control y orquestación (`/aikya-init`, `/aikya-feature`, `/aikya-skills-install`, etc.). `engineering/agents/` contiene subagentes que asumen una función especializada; `engineering/skills/` contiene métodos y checklists técnicos que un agente puede consultar o precargar. Una skill no sustituye a un subagente ni ejecuta código por sí sola.
+
+**Selección y despliegue:** al confirmar la entrevista con `/aikya-init` o `/aikya-answers`, Aikya identifica el backend, frontend, móvil, arquitectura y patrones complementarios. El catálogo (`engineering_catalog.py`) selecciona los especialistas necesarios y los copia a `.claude/agents/` y `.claude/skills/` del proyecto. Se conservan los archivos personalizados. Los especialistas no seleccionados permanecen en el catálogo para instalarlos posteriormente con `/aikya-skills-install` **tras aprobación**. La instalación global mantiene el catálogo en el runtime compartido, pero no configura todos los repositorios automáticamente.
+
+**Orquestación:** el agente principal coordina el flujo, el planificador o un arquitecto revisa diseños si hace falta, el desarrollador del lenguaje realiza los cambios, y los revisores comprueban calidad y seguridad. Los agentes de arquitectura importados están configurados para análisis en modo plan, mientras que los de desarrollo pueden editar según permisos y autorización. Los campos `skills:` de los agentes vinculan sus instrucciones técnicas; no hay necesidad de cargar las 26 skills en cada petición. La ejecución está sujeta a las herramientas y permisos efectivos de Claude Code.
+
+**Arquitectura independiente del lenguaje:** un proyecto `java` con `architecture=clean` activa `java-developer`/`java-engineering` junto con `clean-architecture-architect`/`clean-architecture`. `modular-monolith` activa `monolith-architect` y `modular-monolith-architecture`; `microservices` activa su pareja correspondiente; `layered` también. El patrón `event-driven` se activa únicamente si el perfil lo solicita explícitamente en `architecture_patterns`, porque no equivale a usar microservicios. Un perfil `hexagonal` no se convierte silenciosamente en `clean`.
+
+**Lenguajes adicionales:** se incluyen especialistas Java, .NET, Python, React, Angular y Kotlin. Java/.NET/React se activan según la entrevista; Kotlin se activa para Android nativo cuando procede. Python y Angular se han incorporado también a la entrevista, pero su scaffolding se documenta como **asistido/manual** hasta acordar generadores y versiones con el usuario. No se instalan dependencias de forma silenciosa.
+
+| Dominio | Agentes | Skills |
+|---|---|---|
+| Arquitecturas | `clean-architecture-architect`, `layered-architecture-architect`, `monolith-architect`, `microservices-architect`, `event-driven-architect` | `clean-architecture`, `layered-architecture`, `modular-monolith-architecture`, `microservices-architecture`, `event-driven-architecture` |
+| Lenguajes | `java-developer`, `dotnet-developer`, `python-developer`, `react-developer`, `angular-developer`, `kotlin-developer` | `java-engineering`, `dotnet-engineering`, `python-engineering`, `react-engineering`, `angular-engineering`, `kotlin-engineering` |
+
+**Ejemplo dentro de Claude Code:** `/aikya-skills-plan Analiza el backend Java y el frontend React; recomiéndame los agentes de arquitectura y lenguaje, indicando cuáles ya están activos.` Luego `/aikya-skills-install Instala sólo los especialistas acordados. No sobrescribas los personalizados y sincroniza docs/agents.md y docs/skills.md.`
+
+**Versiones y evidencias:** las skills no fijan por defecto versiones de los SDKs. Aikya debe contrastar los manifiestos reales, ejecutar `/aikya-doctor` y actualizar `docs/agents.md` y `docs/skills.md`. La disponibilidad no certifica invocación ni resultado de tests. Consulta [ENGINEERING_AUDIT.md](ENGINEERING_AUDIT.md) para las procedencias y limitaciones.
+
 **Activación progresiva:** `/aikya-init` incorpora los componentes adecuados al stack. Los demás quedan en un catálogo local para activarse, con aprobación, mediante `/aikya-skills-install`. Esto reduce instrucciones irrelevantes y evita instalar una especialidad Cloud en un proyecto web sencillo. El catálogo local no requiere descargas; las Agent Skills externas conservan su flujo de consentimiento.
 
 Ejemplos dentro de Claude Code:
@@ -137,3 +158,19 @@ Ejemplos dentro de Claude Code:
 > `/aikya-skills-status Comprueba los agentes y skills disponibles y actualiza docs/skills.md.`
 
 La inicialización genera `docs/agents.md`, `docs/skills.md` y `.harness/engineering-catalog.json`, con procedencia y componentes instalados. Estar registrado no demuestra uso efectivo de un agente o skill. Los archivos personalizados existentes no se sobrescriben.
+
+## 9. Ejemplos de entrevistas técnicas y perfiles por stack
+
+Cada subcarpeta de `examples/` contiene `answers.json` (decisiones que valida Aikya) y `README.md` (cómo usarlas **desde Claude Code**, selección de especialistas y verificaciones). Son escenarios **simulados**, no aplicaciones compiladas ni desplegadas. Se conservan los ejemplos JSON anteriores para compatibilidad.
+
+| Ejemplo | Contenido |
+|---|---|
+| [Next.js + React (aplicación nueva)](examples/next-react/README.md) | [`answers.json`](examples/next-react/answers.json) |
+| [Spring Boot + React con Clean Architecture](examples/java-react-clean/README.md) | [`answers.json`](examples/java-react-clean/answers.json) |
+| [ASP.NET Core + Vue (monolito modular)](examples/dotnet-vue/README.md) | [`answers.json`](examples/dotnet-vue/answers.json) |
+| [Android nativo con Kotlin](examples/android-kotlin/README.md) | [`answers.json`](examples/android-kotlin/answers.json) |
+| [FastAPI + Angular (aplicación nueva)](examples/python-angular/README.md) | [`answers.json`](examples/python-angular/answers.json) |
+| [NestJS + React, microservicios y eventos](examples/node-react-microservices/README.md) | [`answers.json`](examples/node-react-microservices/answers.json) |
+| [API Java existente (sin scaffolding destructivo)](examples/existing-java-api/README.md) | [`answers.json`](examples/existing-java-api/answers.json) |
+
+**Uso:** abre Claude Code con Aikya instalado y solicita `/aikya-answers Usa las decisiones del ejemplo examples/next-react/answers.json, enséñame primero el plan y valida requisitos antes de generar código.` Cambia la ruta por otro ejemplo si lo necesitas. El desarrollador no tiene que ejecutar instaladores o scripts en una terminal externa.

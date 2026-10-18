@@ -1,5 +1,14 @@
 # Changelog
 
+## v5.5 — 2026-10-18
+
+- Se integran 11 agentes y 11 Agent Skills adicionales de lenguajes y arquitecturas dentro de `engineering/`.
+- El catálogo tiene 23 agentes y 26 skills, selección por backend/frontend/Android y arquitectura/patrones explícitos.
+- Se incorporan Python y Angular a la entrevista y detección; el scaffolding se mantiene guiado hasta validar generadores.
+- Se añaden 7 ejemplos por stack con `answers.json` y README de uso desde Claude Code.
+- Documentación de responsabilidades, activación selectiva, trazabilidad y auditoría ampliada.
+
+
 ## v5.4 — Organización de comandos Aikya
 
 - Renombrada la carpeta fuente `bootstrap_skills/` a `aikya-skills/`; sin cambios en los nombres de los comandos `/aikya-*`.

@@ -42,6 +42,9 @@ def command_plans(p:dict) -> tuple[list[dict],list[str]]:
         add('Aplicación Next.js + React',
             ['npx','create-next-app@latest','apps/web','--typescript','--eslint','--app','--yes'],
             'apps/web')
+    elif backend=='python':
+        manual.append('Python '+p.get('backend_framework','undecided')+
+                      ': crear apps/api con el generador oficial del framework y entorno virtual verificado. No se ejecuta pip automáticamente.')
     elif backend=='node' and p.get('backend_framework')=='nestjs':
         add('Backend NestJS',['npx','@nestjs/cli@latest','new','apps/api','--skip-git','--skip-install'],
             'apps/api')
@@ -51,6 +54,8 @@ def command_plans(p:dict) -> tuple[list[dict],list[str]]:
     elif backend=='java':
         manual.append('Java '+p.get('backend_framework','undecided')+
                       ': utilizar Spring Initializr / code.quarkus.io / Micronaut Launch con versiones verificadas; exportar a apps/api.')
+    if frontend=='angular':
+        manual.append('Angular: confirmar versión Node y Angular CLI; crear apps/web con ng new una vez aprobada la instalación del CLI.')
     if frontend in ('react','vue') and not (backend=='next' and frontend=='react'):
         folder='apps/frontend' if backend=='next' else 'apps/web'
         template='react-ts' if frontend=='react' else 'vue-ts'

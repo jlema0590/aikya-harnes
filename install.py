@@ -23,8 +23,8 @@ CANDIDATE_DIRS = ('', 'api', 'backend', 'server', 'web', 'frontend', 'client',
                   'mobile', 'android', 'ios', 'apps/api', 'apps/web', 'apps/mobile',
                   'apps/android', 'apps/ios', 'apps/mobile/android', 'apps/mobile/ios', 'platforms/android', 'platforms/ios',
                   'packages/api', 'packages/web', 'mobile/android', 'mobile/ios')
-BACKENDS = ['none', 'java', 'dotnet', 'node', 'next']
-FRONTENDS = ['none', 'react', 'vue']
+BACKENDS = ['none', 'java', 'dotnet', 'node', 'next', 'python']
+FRONTENDS = ['none', 'react', 'vue', 'angular']
 MOBILES = ['none', 'android', 'ios', 'both']
 FRAMEWORKS = ['native', 'flutter', 'react-native']
 ARCHS = ['existing', 'modular-monolith', 'layered', 'hexagonal', 'clean', 'microservices', 'undecided']
@@ -76,6 +76,8 @@ def detect_project(root: Path) -> dict[str, Any]:
             declared = pkg.get('dependencies') or {}
             dev = pkg.get('devDependencies') or {}
             deps = {**(declared if isinstance(declared, dict) else {}), **(dev if isinstance(dev, dict) else {})}
+            if '@angular/core' in deps:
+                add('frontend', 'angular', folder)
             if 'next' in deps:
                 add('backend', 'next', folder, 'Next.js, puede ser full-stack')
                 add('frontend', 'react', folder, 'integrado en Next.js')
@@ -90,6 +92,8 @@ def detect_project(root: Path) -> dict[str, Any]:
                     add('frontend', 'vue', folder)
             if not deps:
                 findings.append(f'package.json encontrado en {relative(root, folder)} (framework desconocido)')
+        if (folder / 'pyproject.toml').is_file() or (folder / 'requirements.txt').is_file():
+            add('backend', 'python', folder, 'Verificar framework y entorno virtual')
         if (folder / 'pom.xml').exists():
             add('backend', 'java', folder, 'Maven; confirmar tipo de aplicación')
         if (folder / 'build.gradle').exists() or (folder / 'build.gradle.kts').exists():
@@ -171,6 +175,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
         raise ValueError('Selecciona al menos un backend, frontend o plataforma móvil.')
     frameworks = {
         'java': ['undecided','spring-boot','quarkus','micronaut'],
+        'python': ['undecided','fastapi','django','flask'],
         'dotnet': ['undecided','aspnet-core','minimal-api'],
         'node': ['undecided','nestjs','fastify','express','hono'],
         'next': ['next-app-router'],
@@ -181,6 +186,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
     frontend_rendering = choice('Estrategia de renderizado web', RENDERING, 'hybrid' if backend=='next' and frontend=='react' else 'spa') if frontend != 'none' else 'undecided'
     arch = choice('Arquitectura preferida (en existing, se respeta la observada)', ARCHS,
                   'existing' if mode == 'existing' else 'modular-monolith')
+    event_driven = yesno('¿El proyecto necesita eventos asíncronos como estilo complementario?', False)
     database = choice('Base de datos', DATABASES, 'undecided')
     ci = choice('Integración continua', CIS, 'undecided')
     deployment = choice('Destino de despliegue', DEPLOYS, 'app-stores' if mobile != 'none' and backend == frontend == 'none' else 'undecided')
@@ -194,7 +200,8 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
             'mobile_framework': framework, 'backend_framework':backend_framework, 'api_style':api_style,
             'frontend_rendering':frontend_rendering, 'auth':auth, 'observability':telemetry,
             'runtime_versions':versions, 'android_language': android_language,
-            'ios_ui': ios_ui, 'architecture': arch, 'database': database,
+            'ios_ui': ios_ui, 'architecture': arch,
+            'architecture_patterns':['event-driven'] if event_driven else [], 'database': database,
             'ci': ci, 'deployment': deployment, 'package_manager': pkg_mgr,
             'quality': quality, 'notes': ask('Restricciones técnicas o convenciones adicionales (opcional)', '')}
 
@@ -213,7 +220,8 @@ def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
                 'deployment':'undecided', 'package_manager':'npm',
                 'quality':'unit+integration', 'notes':'', 'name':target.name,
                 'api_style':'undecided', 'auth':'undecided', 'observability':'undecided',
-                'backend_framework':'undecided', 'frontend_rendering':'undecided', 'runtime_versions':''}
+                'backend_framework':'undecided', 'frontend_rendering':'undecided', 'runtime_versions':'',
+                'architecture_patterns':[]}
     result = {**defaults, **data}
     for field, values in choices.items():
         if result[field] not in values:
@@ -228,11 +236,15 @@ def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
     if result['mobile_framework'] != 'native':
         result['android_language'] = 'none'
         result['ios_ui'] = 'none'
+    patterns = result.get('architecture_patterns', [])
+    if not isinstance(patterns, list) or any(v != 'event-driven' for v in patterns) or len(patterns) != len(set(patterns)):
+        raise ValueError('architecture_patterns sólo admite una lista sin duplicados de event-driven.')
     if not isinstance(result['name'], str) or not result['name'].strip():
         raise ValueError('name debe ser texto no vacío.')
     if not isinstance(result['notes'], str) or not isinstance(result['runtime_versions'], str):
         raise ValueError('notes y runtime_versions deben ser texto.')
     frameworks = {'none':['none','undecided'], 'java':['undecided','spring-boot','quarkus','micronaut'],
+                  'python':['undecided','fastapi','django','flask'],
                   'dotnet':['undecided','aspnet-core','minimal-api'],
                   'node':['undecided','nestjs','fastify','express','hono'],
                   'next':['undecided','next-app-router']}
@@ -286,7 +298,7 @@ def make_checks(root: Path, profile: dict[str, Any], modules: list[dict[str, Any
         folder = root / module['path']
         role, tech = module['role'], module['technology']
         suffix = f'{role}:{tech}:{module["path"]}'
-        if (folder / 'package.json').exists() and tech in ('node','next','react','vue','react-native'):
+        if (folder / 'package.json').exists() and tech in ('node','next','react','vue','angular','react-native'):
             pkg = read_json_safe(folder / 'package.json')
             scripts = pkg.get('scripts') or {}
             scripts = scripts if isinstance(scripts, dict) else {}
@@ -304,6 +316,12 @@ def make_checks(root: Path, profile: dict[str, Any], modules: list[dict[str, Any
             elif (folder / 'gradlew').exists():
                 add(f'{suffix}:test', ['./gradlew','test'], module['path'], True)
                 add(f'{suffix}:build', ['./gradlew','build'], module['path'])
+            else:
+                add(f'{suffix}:test', None, module['path'], True)
+        elif tech == 'python':
+            # Sólo ejecutamos pytest cuando existe en la configuración conocida.
+            if (folder / 'pytest.ini').is_file() or (folder / 'pyproject.toml').is_file():
+                add(f'{suffix}:test', [sys.executable,'-m','pytest'], module['path'], True)
             else:
                 add(f'{suffix}:test', None, module['path'], True)
         elif tech == 'dotnet':
@@ -409,6 +427,7 @@ def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> 
 | Android | {md_text(profile['android_language'])} |
 | UI iOS | {md_text(profile['ios_ui'])} |
 | Arquitectura | {md_text(profile['architecture'])} |
+| Patrones complementarios | {md_text(', '.join(profile.get('architecture_patterns', [])) or 'ninguno')} |
 | Versiones/SDK | {md_text(profile['runtime_versions']) or 'Por decidir'} |
 | Autenticación | {md_text(profile['auth'])} |
 | Observabilidad | {md_text(profile['observability'])} |
@@ -454,6 +473,10 @@ def project_bootstrap(profile: dict[str, Any]) -> str:
         lines += ['## Backend Java', f'Genera el proyecto con **{generator}** ({url}) y Maven o Gradle.',
                   'Selecciona Java compatible, paquetes y dependencias necesarias; coloca el proyecto en `apps/api`.',
                   'No fijamos versión de Java o framework sin confirmar compatibilidad.', '']
+    elif backend == 'python':
+        lines += ['## Backend Python',
+                  f'Framework acordado: **{profile["backend_framework"]}**. Crear entorno virtual y proyecto en `apps/api` con generador/documentación oficial apropiada,',
+                  'sin instalar paquetes ni fijar versiones sin confirmación. Validar Python y gestor de dependencias antes del scaffold.', '']
     elif backend == 'dotnet':
         lines += ['## Backend .NET / ASP.NET Core', '```bash', 'dotnet new webapi -o apps/api', '```',
                   'Confirma antes el SDK soportado con `dotnet --list-sdks`.', '']
@@ -469,6 +492,10 @@ def project_bootstrap(profile: dict[str, Any]) -> str:
         lines += [f'## Frontend {frontend.title()} con Vite', '```bash',
                   f'npm create vite@latest apps/web -- --template {template}', '```',
                   'Adapta el gestor de paquetes a la decisión de la entrevista.', '']
+    elif frontend == 'angular':
+        lines += ['## Frontend Angular', 'Utiliza Angular CLI compatible con el Node.js seleccionado,',
+                  'dentro de `apps/web` (o `apps/frontend` cuando el backend es Next.js).',
+                  'Planifica y autoriza cualquier instalación de CLI/dependencias. Evita añadir versiones no verificadas.', '']
     elif frontend == 'vue' and backend == 'next':
         lines += ['## Vue desacoplado de Next.js', '```bash',
                   'npm create vite@latest apps/frontend -- --template vue-ts', '```',

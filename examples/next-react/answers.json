@@ -1,0 +1,14 @@
+{
+  "mode": "new",
+  "name": "portal-next-react",
+  "backend": "next",
+  "backend_framework": "next-app-router",
+  "frontend": "react",
+  "mobile": "none",
+  "architecture": "layered",
+  "database": "postgresql",
+  "ci": "github-actions",
+  "deployment": "cloud-managed",
+  "package_manager": "pnpm",
+  "notes": "Next.js App Router y React en una sola aplicación; revisar Server Components y Route Handlers."
+}
