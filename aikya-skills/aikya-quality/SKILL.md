@@ -18,3 +18,8 @@ Objetivo: evaluar calidad del repositorio actual, no instalar dependencias.
 4. Revisa seguridad o CI/CD del área afectada cuando el cambio lo justifique, evitando scans costosos no autorizados. No confundir archivos de CI generados con pipelines ejecutados.
 5. Actualiza `aikya/docs/quality/testing.md` con resultados comprobados sólo si hay cambios de código/proceso que afecten documentación, y registra evidencias en `aikya/docs/changes/` si hubo cambios técnicos. Nunca declares éxito si un gate requerido falló o no estaba configurado.
 6. Devuelve resumen de QA con estado `APROBADO`, `FALLÓ` o `NO VERIFICADO`, lista de riesgos y próximos pasos.
+
+## Infrastructure & DevOps
+
+- Si `infrastructure` está configurado y existen artefactos, ejecuta `python3 aikya/scripts/harness/infrastructure.py validate` además de los gates habituales. Distingue NOT_CONFIGURED de éxito. No accedas a clusters, cloud ni servidores durante checks locales.
+- Documenta las evidencias en `aikya/docs/operations/deployment.md` y `aikya/docs/infrastructure/`.

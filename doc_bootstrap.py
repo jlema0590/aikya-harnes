@@ -300,6 +300,32 @@ No hay garantía de reducción porcentual de tokens. El ahorro se comprobará co
 7. Subagentes sólo si aportan especialización, aislamiento útil o revisión independiente; para cambios triviales, ejecución directa.
 8. No indexes, instales, sincronicies ni llames a servicios externos automáticamente por petición. Descargas/updates requieren aprobación y auditoría.
 '''
+    # Sólo se crean documentos especializados para tecnologías seleccionadas.
+    info = profile.get('infrastructure', {})
+    if isinstance(info, dict) and (
+        info.get('iac') not in (None,'none','existing') or
+        info.get('configuration_management') == 'ansible' or
+        info.get('containers',{}).get('enabled',False) or
+        info.get('orchestration') not in (None,'none')
+    ):
+        pages['aikya/docs/infrastructure/README.md'] = '''# Infrastructure & DevOps
+
+La infraestructura de aplicación vive bajo infra/ (Terraform, Ansible, Kubernetes)
+y los Dockerfiles junto a cada aplicación. Las decisiones, el plan y las verificaciones
+se documentan aquí. Una plantilla creada NO está desplegada.
+Ejecuta /aikya-infra-project plan y solicita aprobación antes de generate.
+Nunca versionar secretos, estados Terraform ni inventarios con credenciales.
+'''
+        pages['aikya/docs/infrastructure/architecture.md'] = (
+            '# Arquitectura Infrastructure & DevOps\\n\\n'
+            '- Plataforma: '+flat(info.get('provider','none'))+'\n'
+            '- IaC: '+flat(info.get('iac','none'))+'\n'
+            '- Configuración: '+flat(info.get('configuration_management','none'))+'\n'
+            '- Orquestación: '+flat(info.get('orchestration','none'))+'\n'
+            '- Despliegue Kubernetes: '+flat(info.get('deployment_method','none'))+'\n'
+            '- Entornos: '+', '.join(flat(x) for x in info.get('environments',[]))+'\n'
+            '\nRevisar backend remoto, secretos, permisos, costes y despliegue antes de ejecutar cambios.\\n')
+        pages['aikya/docs/README.md'] += '\\n- [Infraestructura y DevOps](infrastructure/README.md)\\n'
     return {key:MARK+value for key,value in pages.items()}
 
 

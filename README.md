@@ -13,6 +13,33 @@ Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**.
 
 El nombre anterior `bootstrap_skills/` se migra de forma conservadora al actualizar Aikya: se limpian sólo archivos gestionados y verificados, manteniendo intactas las personalizaciones.
 
+## Infrastructure & DevOps desde Claude Code
+
+La entrevista de `/aikya-init` incluye un bloque opcional **Infrastructure & DevOps** después de elegir stack, arquitectura y monorepo/singlerepo. Pregunta por proveedor (AWS, Azure, GCP, on-premise, híbrido), infraestructura como código (Terraform/OpenTofu), gestión de configuración con Ansible, Docker/Compose, Kubernetes y una sola estrategia de despliegue (**Helm, Kustomize o YAML nativo**). También confirma entornos, imagen y puerto cuando se conocen.
+
+**Separación de carpetas:**
+- `infra/terraform/`, `infra/ansible/`, `infra/helm/` o `infra/kubernetes/`: infraestructura desplegable del producto, sólo si fue seleccionada.
+- `Dockerfile` y `.dockerignore`: junto a la aplicación existente (`apps/api`, `apps/web` o la raíz de un singlerepo); requieren runtime, lockfiles y comandos de aplicación confirmados.
+- `compose.apps.yaml`: servicios de aplicaciones ya contenerizadas para desarrollo local; no equivale a un despliegue de producción.
+- `aikya/docs/infrastructure/`: decisiones, plan y evidencias. `aikya/scripts/harness/infrastructure.py` es el generador/validador interno.
+
+**Cómo funciona el flujo:**
+
+1. `/aikya-init`: entrevista y perfil en `.aikya/answers.json`. El instalador crea el **plan** en `aikya/docs/infrastructure/plan.md` sin desplegar ni descargar nada.
+2. `/aikya-doctor`: identifica herramientas y versiones seleccionadas; distingue errores de lectura (por ejemplo Node `v25.9.0`) de requisitos reales de compatibilidad.
+3. `/aikya-scaffold`: genera código de aplicación sólo tras autorización. Entonces se conocen los manifiestos y scripts reales para contenerización.
+4. `/aikya-infra-project plan`: muestra artefactos, dependencias, archivos ya existentes y bloqueos, sin modificar nada.
+5. `/aikya-infra-project generate`: **solicita aprobación explícita** y crea únicamente archivos inexistentes. Se preservan configuraciones y manifiestos personalizados.
+6. `/aikya-infra-project validate` y `/aikya-quality`: Terraform/OpenTofu fmt, sintaxis Ansible, Compose config, Helm lint/template o Kustomize build cuando las herramientas están disponibles. Una verificación local no prueba la infraestructura desplegada.
+
+La incorporación de especialistas desde `engineering/agents/` y `engineering/skills/` es **selectiva**: se reutilizan `terraform-iac`, `docker-best-practices`, `kubernetes-operations`, `cicd-pipelines`; se añaden agentes de Terraform, Ansible, Helm y Kubernetes, y skills de Ansible, Helm y Kustomize. No se cargan perfiles innecesarios.
+
+**Seguridad:** no se crean recursos cloud inventados, no se guardan secretos/credenciales o estados Terraform en Git y nunca se ejecuta Terraform apply/destroy, Ansible contra hosts, push de imágenes ni helm/kubectl contra clusters sin aprobación separada. Las plantillas sin imagen versionada, puerto o runtime probado permanecen como **pendientes**, no como validaciones satisfactorias.
+
+### Ejemplos de infraestructura
+
+Consulta `examples/next-react-terraform-helm/` (Next.js + React singlerepo con Terraform y Helm) y `examples/java-react-ansible-kustomize/` (monorepo Java/React con Ansible y Kustomize). Sus JSON son ejemplos de decisiones, no aplicaciones desplegadas.
+
 ## Elegir monorepo o singlerepo
 
 Durante `/aikya-init` debes seleccionar la **topología del repositorio**; esta opción es independiente de la arquitectura Clean, monolítica, en capas, de microservicios o por eventos.

@@ -10,6 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from infrastructure_profile import capabilities
 
 DOCS = {
     'python3': 'https://www.python.org/downloads/',
@@ -27,6 +28,14 @@ DOCS = {
     'adb': 'https://developer.android.com/studio',
     'sdkmanager': 'https://developer.android.com/tools/sdkmanager',
     'android-sdk': 'https://developer.android.com/studio',
+    'terraform':'https://developer.hashicorp.com/terraform/install',
+    'opentofu':'https://opentofu.org/docs/intro/install/',
+    'ansible':'https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html',
+    'docker':'https://docs.docker.com/get-docker/',
+    'docker-compose':'https://docs.docker.com/compose/install/',
+    'kubectl':'https://kubernetes.io/docs/tasks/tools/',
+    'helm':'https://helm.sh/docs/intro/install/',
+    'kustomize':'https://kubectl.docs.kubernetes.io/installation/kustomize/',
 }
 
 
@@ -71,6 +80,7 @@ def required_tools(profile: dict[str, Any]) -> list[str]:
             tools += ['java', 'javac', 'android-sdk', 'adb']
         if framework in ('flutter','react-native') and mobile in ('android','both'): tools += ['android-sdk', 'adb']
         if mobile in ('ios','both'): tools += ['xcodebuild']
+    tools += capabilities(profile)
     return list(dict.fromkeys(tools))
 
 
@@ -84,10 +94,12 @@ def command_version(tool: str) -> tuple[str | None, str | None]:
         return None, 'Android SDK Platform + Build Tools no detectados (ANDROID_HOME/ANDROID_SDK_ROOT)'
     if tool == 'python3':
         return f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}', None
-    path = shutil.which(tool)
+    path = shutil.which('docker' if tool=='docker-compose' else 'tofu' if tool=='opentofu' else tool)
     if not path:
         return None, 'No encontrado en PATH'
     args = {'java':['-version'], 'javac':['-version'], 'dotnet':['--list-sdks'],
+            'docker-compose':['compose','version','--short'],
+            'kubectl':['version','--client=true'],
             'xcodebuild':['-version'], 'adb':['version'], 'sdkmanager':['--version']}
     try:
         r = subprocess.run([path, *args.get(tool,['--version'])], capture_output=True, text=True, timeout=8, check=False)
@@ -101,8 +113,18 @@ def command_version(tool: str) -> tuple[str | None, str | None]:
         if versions:
             ordered=sorted(versions,key=lambda ver:tuple(int(n) for n in ver.split('.')), reverse=True)
             return ','.join(ordered), None
-    match = re.search(r'\b(\d+(?:\.\d+){0,3})\b',output)
-    return match.group(1) if match else 'detectado (versión no analizable)', None
+    # Las versiones tienen formatos distintos; \\b antes de un dígito después de "v"
+    # no coincide (v25.9.0 se interpretaba 9.0). Aplicar un parser robusto.
+    if tool in ('node','npm','pnpm','yarn','bun','docker-compose'):
+        expression = r'(?<![\d.])v?(\d+(?:\.\d+){0,3})\b'
+    elif tool == 'java':
+        expression = r'(?:version\s+")?(\d+(?:\.\d+){0,3})(?:["\s]|$)'
+    else:
+        expression = r'(?<![\d.])v?(\d+(?:\.\d+){0,3})\b'
+    match = re.search(expression, output, re.IGNORECASE)
+    if match:
+        return match.group(1), None
+    return None, 'No se pudo interpretar la versión reportada por '+tool
 
 
 def check(profile: dict[str, Any], target: Path) -> dict[str, Any]:

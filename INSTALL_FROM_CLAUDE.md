@@ -46,3 +46,7 @@ Los comandos nuevos sustituyen a `/aikya-skills status`, `/aikya-skills plan`, `
 ## Nueva organización del proyecto
 
 Durante `/aikya-init`, selecciona `repository_layout: monorepo` (apps/, packages/, contracts/) o `repository_layout: singlerepo` (una aplicación en raíz). Los documentos, pruebas y scripts del harness se guardan en `aikya/docs/`, `aikya/test/` y `aikya/scripts/`. La bienvenida se emite al abrir una nueva sesión de Claude Code, no durante una sesión ya iniciada.
+
+## Infrastructure & DevOps opcional
+
+Durante `/aikya-init` confirma provider, Terraform/OpenTofu, Ansible, Docker/Compose y, si procede, Helm/Kustomize/YAML. Aikya genera un plan en `aikya/docs/infrastructure/plan.md`. Utiliza `/aikya-infra-project plan`, revisa el plan y aprueba expresamente `/aikya-infra-project generate`; valida con `/aikya-infra-project validate`. No ejecutes despliegues por el mero hecho de generar plantillas. Revisa la documentación ampliada en README.md.

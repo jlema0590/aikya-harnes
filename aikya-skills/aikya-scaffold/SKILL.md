@@ -18,3 +18,7 @@ Solicita el alcance de `$ARGUMENTS` (por ejemplo: `plan`, `backend`, `frontend` 
 4. Si `mode: new`, genera únicamente tras aprobación inequívoca del plan específico. Dentro de Claude Code ejecuta `python3 aikya/scripts/harness/scaffold.py apply --yes` y revisa el resultado. No saltes bloqueos por faltantes ni borres directorios para reintentarlo.
 5. Verifica builds y pruebas REALES según el stack. Ajusta `harness.json` sin falsear checks. Actualiza `aikya/docs/architecture/`, `aikya/docs/plan/`, `aikya/docs/features/`, `aikya/docs/quality/testing.md`, `aikya/docs/harness/bootstrap.md` y registro `aikya/docs/changes/REQ-*.md` según corresponda.
 6. Entrega lista de generadores ejecutados, resultados, pendientes manuales, versiones y riesgos; ofrece `/aikya-quality` para revisión completa.
+
+## Infraestructura después del código
+
+Una vez verificados los manifiestos, versiones y pruebas del código, ejecuta `/aikya-infra-project plan` para Dockerfile, Compose, IaC y despliegue según las opciones elegidas. Nunca generes Dockerfiles de una aplicación que aún no existe ni presupongas su puerto.

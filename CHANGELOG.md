@@ -1,5 +1,16 @@
 # Changelog
 
+## v5.7 — 2026-10-18
+
+- Solucionado el parser de Node: detecta correctamente `v25.9.0` y otras versiones con prefijo `v`.
+- Actualización segura de requisitos en runtime: copias gestionadas se migran; se conserva backup v5.6 y contenido personalizado.
+- Perfil `infrastructure` opcional y validado en la entrevista técnica (provider, Terraform/OpenTofu, Ansible, Docker/Compose, Kubernetes con Helm/Kustomize/YAML, entornos, imagen y puerto).
+- Cuatro agentes y tres skills de ingeniería añadidos; catálogo activado por selección explícita.
+- Generador de infraestructura sin despliegue: `plan`, `generate --approved`, `validate` con protección de archivos.
+- Dockerfile derivado del código real y runtime fijado; Kubernetes exige imagen versionada y puerto confirmado.
+- Documentación viva, quality gates y ejemplos con Terraform/Helm y Ansible/Kustomize; pruebas automatizadas ampliadas.
+
+
 ## v5.6 — 2026-10-18
 
 - Selección explícita de monorepo/singlerepo en entrevista y respuestas JSON.

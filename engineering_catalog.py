@@ -19,6 +19,7 @@ AGENTS = {
     'layered-architecture-architect', 'microservices-architect', 'monolith-architect',
     'angular-developer', 'dotnet-developer', 'java-developer', 'kotlin-developer',
     'python-developer', 'react-developer',
+    'terraform-engineer', 'ansible-engineer', 'kubernetes-engineer', 'helm-engineer',
 }
 SKILLS = {
     'astro-performance', 'cicd-pipelines', 'cloud-architecture', 'cloud-security',
@@ -30,6 +31,7 @@ SKILLS = {
     'event-driven-architecture', 'java-engineering', 'kotlin-engineering',
     'layered-architecture', 'microservices-architecture',
     'modular-monolith-architecture', 'python-engineering', 'react-engineering',
+    'ansible-automation', 'helm-deployment', 'kustomize-deployment',
 }
 BASE_AGENTS = {'planner', 'code-reviewer', 'test-engineer'}
 BASE_SKILLS = {'code-review', 'security-audit', 'testing-strategy'}
@@ -114,6 +116,23 @@ def discover(root: Path, profile: dict, modules: list[dict] | None = None) -> di
         skills.add('kubernetes-operations')
     if deployment in ('cloud-managed', 'serverless', 'kubernetes'):
         agents.add('cloud-architect'); skills.add('cloud-architecture')
+    # Especialistas opcionales elegidos explícitamente en la entrevista DevOps.
+    from infrastructure_profile import validated as validate_infrastructure
+    infra = validate_infrastructure(profile)
+    if infra['iac'] in ('terraform','opentofu'):
+        agents.add('terraform-engineer');skills.add('terraform-iac')
+    if infra['configuration_management']=='ansible':
+        agents.add('ansible-engineer');skills.add('ansible-automation')
+    if infra['containers']['enabled']:
+        agents.add('docker-developer');skills.add('docker-best-practices')
+    if infra['orchestration']=='kubernetes':
+        agents.add('kubernetes-engineer');skills.add('kubernetes-operations')
+        if infra['deployment_method']=='helm':
+            agents.add('helm-engineer');skills.add('helm-deployment')
+        if infra['deployment_method']=='kustomize':
+            skills.add('kustomize-deployment')
+    if infra['provider'] in ('aws','azure','gcp','hybrid'):
+        agents.add('cloud-architect');skills.add('cloud-architecture')
     if len(modules) > 1 or profile.get('architecture') in ('microservices', 'modular-monolith'):
         agents.add('orchestrator')
     return {'agents': sorted(agents & AGENTS), 'skills': sorted(skills & SKILLS)}

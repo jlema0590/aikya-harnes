@@ -15,6 +15,7 @@ from typing import Any
 from doc_bootstrap import pages as doc_pages, infra_files
 from external_skills import enabled_names, planned_commands, install_all
 from aikya_layout import LAYOUTS, app_count, layout_of, validate_layout
+from infrastructure_profile import validated as validate_infrastructure, selected as selected_infrastructure
 
 HERE = Path(__file__).resolve().parent
 TEMPLATE = HERE / 'template'
@@ -197,6 +198,27 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
     auth = choice('Identidad/autenticación', AUTH, 'undecided')
     telemetry = choice('Observabilidad', OBSERVABILITY, 'opentelemetry' if backend != 'none' else 'undecided')
     quality = choice('Estrategia de pruebas', TEST_STYLES, 'unit+integration')
+    infrastructure = {'provider':'none','iac':'none','configuration_management':'none',
+                      'containers':{'enabled':False,'compose':False},
+                      'orchestration':'none','deployment_method':'none','environments':[],
+                      'image_repository':'','container_port':None}
+    if yesno('¿Configurar infraestructura y DevOps para este proyecto?', deployment in ('docker','kubernetes')):
+        infrastructure['provider'] = choice('Plataforma de infraestructura', ['none','aws','azure','gcp','on-prem','hybrid'], 'none')
+        infrastructure['iac'] = choice('Infraestructura como código', ['none','terraform','opentofu','existing'], 'none')
+        infrastructure['configuration_management'] = choice('Configuración de servidores', ['none','ansible','existing'], 'none')
+        enabled = yesno('¿Crear contenedores Docker?', deployment in ('docker','kubernetes'))
+        compose = yesno('¿Docker Compose para desarrollo local?', False) if enabled else False
+        infrastructure['containers'] = {'enabled': enabled, 'compose': compose}
+        infrastructure['orchestration'] = choice('Orquestación', ['none','kubernetes','cloud-managed','vm'], 'kubernetes' if deployment=='kubernetes' else 'none') if enabled else 'none'
+        if infrastructure['orchestration'] == 'kubernetes':
+            infrastructure['deployment_method'] = choice('Formato de despliegue Kubernetes', ['helm','kustomize','yaml'], 'helm')
+        if infrastructure['iac'] not in ('none','existing') or infrastructure['configuration_management']=='ansible' or infrastructure['orchestration']=='kubernetes':
+            environments = ask('Entornos (separados por coma; ej. dev,staging,prod)', 'dev')
+            infrastructure['environments'] = [e.strip() for e in environments.split(',') if e.strip()]
+        if enabled:
+            infrastructure['image_repository'] = ask('Imagen del contenedor (opcional, sin credenciales)', '')
+            port = ask('Puerto interno de la aplicación (vacío si se desconoce)', '')
+            infrastructure['container_port'] = int(port) if port.isdecimal() else (port or None)
     versions = ask('Versiones/SDKs que necesitas fijar (vacío = por decidir)', '')
     return {'mode': mode, 'repository_layout':layout, 'name': ask('Nombre del producto/proyecto', target.name),
             'backend': backend, 'frontend': frontend, 'mobile': mobile,
@@ -206,6 +228,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
             'ios_ui': ios_ui, 'architecture': arch,
             'architecture_patterns':['event-driven'] if event_driven else [], 'database': database,
             'ci': ci, 'deployment': deployment, 'package_manager': pkg_mgr,
+            'infrastructure': infrastructure,
             'quality': quality, 'notes': ask('Restricciones técnicas o convenciones adicionales (opcional)', '')}
 
 
@@ -254,6 +277,7 @@ def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
     if result['backend_framework'] not in frameworks[result['backend']]:
         raise ValueError('backend_framework no coincide con backend.')
     validate_layout(result)
+    result['infrastructure'] = validate_infrastructure(result)
     return result
 
 
@@ -422,6 +446,8 @@ def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> 
 |---|---|
 | Modalidad | {md_text(profile['mode'])} |
 | Topología del repositorio | {md_text(layout_of(profile))} |
+| Infraestructura (proveedor/IaC/configuración) | {md_text(profile['infrastructure']['provider'])} / {md_text(profile['infrastructure']['iac'])} / {md_text(profile['infrastructure']['configuration_management'])} |
+| DevOps (contenedores/orquestación/despliegue) | {md_text(profile['infrastructure']['containers'])} / {md_text(profile['infrastructure']['orchestration'])} / {md_text(profile['infrastructure']['deployment_method'])} |
 | Backend | {md_text(profile['backend'])} |
 | Framework backend | {md_text(profile['backend_framework'])} |
 | Estilo de API | {md_text(profile['api_style'])} |
@@ -674,7 +700,30 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     # Disponible también cuando Aikya se instaló desde la fuente sin bootstrap.
     requirements_file=HERE/'aikya_requirements.py'
     if requirements_file.is_file():
-        safe_write(target/'aikya/scripts/harness/aikya_requirements.py',requirements_file.read_text(encoding='utf8'),actions)
+        requirements_target=target/'aikya/scripts/harness/aikya_requirements.py'
+        contents=requirements_file.read_bytes()
+        # v5.6 instalado: sustituir sólo la copia exacta y conservar backup.
+        legacy_blob='97c43d8df0c471e1492eaac4ebc7f13a13967cf8'
+        if requirements_target.is_file() and not requirements_target.is_symlink():
+            raw=requirements_target.read_bytes()
+            digest=hashlib.sha1(('blob '+str(len(raw))+'\0').encode()+raw).hexdigest()
+            if digest==legacy_blob:
+                backup=target/'.harness/backup-v56/aikya_requirements.py'
+                backup.parent.mkdir(parents=True,exist_ok=True)
+                if not backup.exists():
+                    shutil.copy2(requirements_target,backup)
+                requirements_target.write_bytes(contents)
+                actions.append('MIGRADO detector Node v5.6 con backup '+str(requirements_target))
+            else:
+                safe_write(requirements_target,contents.decode('utf8'),actions)
+        else:
+            safe_write(requirements_target,contents.decode('utf8'),actions)
+        # Necesaria también cuando el detector se ejecuta desde el proyecto instalado.
+        local_profile=HERE/'infrastructure_profile.py'
+        if local_profile.is_file():
+            safe_write(target/'aikya/scripts/harness/infrastructure_profile.py',
+                       local_profile.read_text(encoding='utf8'),actions)
+
     merge_settings(target, actions)
     claude = target / 'CLAUDE.md'
     if not claude.exists():
@@ -684,6 +733,10 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         actions.append('CONSERVADO CLAUDE.md existente; el perfil se encuentra en .claude/rules/00-project-profile.md')
     safe_write(target/'.claude/rules/00-project-profile.md', context_markdown(profile,detected['modules']), actions, replace_managed=True)
     checks = [{'name':'docs:structure', 'command':['python3','aikya/scripts/harness/docs_guard.py','base'], 'cwd':'.', 'required':True}, {'name':'skills:format', 'command':['python3','aikya/scripts/harness/skills_lint.py'], 'cwd':'.', 'required':True}] + make_checks(target,profile,detected['modules'])
+    if selected_infrastructure(profile['infrastructure']):
+        checks.append({'name':'infra:static',
+                       'command':['python3','aikya/scripts/harness/infrastructure.py','validate'],
+                       'cwd':'.','required':False})
     safe_write(target/'harness.json',json.dumps({'schema_version':2,'checks':checks},indent=2,ensure_ascii=False)+'\n',actions)
     safe_write(target/'aikya/docs/harness/bootstrap.md',project_bootstrap(profile)+
         '\n## Bootstrap ejecutable, opcional\n\n'
@@ -706,6 +759,10 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                (HERE/'engineering_catalog.py').read_text(encoding='utf8'), actions)
     selected = discover(target, profile, detected['modules'])
     actions.extend(install_selected(target, selected, source=HERE/'engineering'))
+    # Infraestructura declarativa; sin ejecutar terraform, Ansible, Docker ni kubectl.
+    infra_script = TEMPLATE/'scripts/harness/infrastructure.py'
+    if infra_script.is_file():
+        safe_write(target/'aikya/scripts/harness/infrastructure.py', infra_script.read_text(encoding='utf8'), actions)
     # Inventario local de skills (disponibles != invocadas); conserva documento personalizado.
     from skills_registry import write_inventory
     ok, note = write_inventory(target,profile)
@@ -727,6 +784,18 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                     actions.append('SIN CAMBIOS '+str(ignore))
         else:
             safe_write(target/rel,content,actions)
+    from infrastructure_profile import selected
+    if selected(profile['infrastructure']):
+        from importlib.util import spec_from_file_location, module_from_spec
+        infra_module = TEMPLATE/'scripts/harness/infrastructure.py'
+        if infra_module.is_file():
+            spec = spec_from_file_location('aikya_infra_generator', infra_module)
+            module = module_from_spec(spec)
+            spec.loader.exec_module(module)
+            summary = module.plan(target, profile)
+            safe_write(target/'aikya/docs/infrastructure/plan.md',
+                       '<!-- GENERATED BY AIKYA-HARNESS -->\n'+summary, actions,
+                       replace_managed=True)
     safe_write(target/'aikya/docs/harness/installer-readme.md',
         '<!-- GENERATED BY AIKYA-HARNESS -->\n# Instalación del harness\n\n'
         'Perfil de decisiones: `.harness/project-profile.json`.\n\n'

@@ -16,3 +16,8 @@ Petición: `$ARGUMENTS`.
 2. Sigue las instrucciones técnicas especializadas de esa skill y las reglas del proyecto; no te limites a invocarla, ejecuta el flujo dentro de Claude Code.
 3. Para scaffolding ejecuta `/aikya-scaffold`; para documentar ejecuta `/aikya-docs`; para pruebas ejecuta `/aikya-tests`.
 4. Devuelve resultados realmente observados y pendientes. No uses herramientas externas automáticamente ni delegues sin motivo.
+
+## Infrastructure & DevOps
+
+- Si `infrastructure` está configurado y existen artefactos, ejecuta `python3 aikya/scripts/harness/infrastructure.py validate` además de los gates habituales. Distingue NOT_CONFIGURED de éxito. No accedas a clusters, cloud ni servidores durante checks locales.
+- Documenta las evidencias en `aikya/docs/operations/deployment.md` y `aikya/docs/infrastructure/`.
