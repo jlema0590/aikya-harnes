@@ -216,7 +216,7 @@ def main(argv=None):
     except (OSError,ValueError) as exc:
         print(f'ERROR: {exc}',file=sys.stderr)
         return 1
-    print('Siguiente: dentro de Claude Code utiliza /aikya-init, /aikya-answers, /aikya-scaffold, /aikya-skills-status o /aikya-quality.')
+    print('Siguiente: dentro de Claude Code utiliza /aikya-init (nuevo), /aikya-analyze (existente), /aikya-answers, /aikya-scaffold, /aikya-skills-status o /aikya-quality.')
     return 0
 
 if __name__=='__main__':sys.exit(main())
