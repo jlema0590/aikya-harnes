@@ -93,6 +93,11 @@ class RouterTests(unittest.TestCase):
         self.assertEqual(r["recommended_role"], "planner")
         self.assertEqual(r["recommended_model"], "opus")
 
+    def test_api_feature_with_tests_and_docs_is_still_a_feature(self):
+        result = route("Implementa API Java con pruebas y documentación")
+        self.assertEqual(result["category"], "feature")
+        self.assertEqual(result["specialist"], "java-developer")
+
     def test_flutter_bug_avoids_opus(self):
         r = route("Corrige botón favoritos Flutter", affected_components=1)
         self.assertEqual(r["recommended_role"], "flutter-developer")
@@ -135,7 +140,7 @@ class RouterTests(unittest.TestCase):
         self.assertTrue(r["semantic_advice_accepted"])
 
     def test_high_risk_does_not_delegate_to_haiku(self):
-        r = route("Explica cómo configurar production secrets", enabled_policy())
+        r = route("Configura production secrets", enabled_policy())
         self.assertIsNone(r["auxiliary_agent"])
         self.assertTrue(r["requires_approval"])
 
