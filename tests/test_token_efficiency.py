@@ -18,7 +18,7 @@ class PolicyTests(unittest.TestCase):
             validated({"auxiliary_enabled": True, "auxiliary_model": "haiku"})
 
     def test_auxiliary_opt_in(self):
-        p = validated({"auxiliary_enabled": True, "user_approved": True,
+        p = validated({"schema_version": 1, "auxiliary_enabled": True, "user_approved": True,
                        "auxiliary_model": "haiku"})
         self.assertEqual(resolved_agent_model("log-summarizer", p), "haiku")
         self.assertEqual(resolved_agent_model("security-reviewer", p), "inherit")
