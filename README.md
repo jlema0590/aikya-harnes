@@ -10,7 +10,7 @@ Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**.
 
 1. Abre **Claude Code** en la carpeta donde quieras trabajar y envía:
 
-   > **Instala Aikya Harness** desde `https://github.com/jlema0590/aikya-harnes.git`, rama `develop`, en **modo global**. Revisa la fuente antes de instalar y pide mi aprobación para cualquier descarga o cambio de configuración. Registra sus skills, hooks y bienvenida, sin modificar otros repositorios ni instalar SDKs automáticamente. Después explícame cómo usar `/aikya-init`.
+   > **Instala Aikya Harness** desde `https://github.com/jlema0590/aikya-harness.git`, rama `develop`, en **modo global**. Revisa la fuente antes de instalar y pide mi aprobación para cualquier descarga o cambio de configuración. Registra sus skills, hooks y bienvenida, sin modificar otros repositorios ni instalar SDKs automáticamente. Después explícame cómo usar `/aikya-init`.
 
 2. **Abre una sesión nueva** de Claude Code para que se carguen los comandos `/aikya-*` y el panel de bienvenida.
 3. Ejecuta `/aikya-init` en el repositorio que quieras inicializar.
