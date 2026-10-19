@@ -1,51 +1,51 @@
-# GitHub Actions y comunidad — Aikya Harness
+# GitHub Actions de Aikya Harness — corrección v5.9.1
 
-Estas plantillas se han adaptado al repositorio **`jlema0590/aikya-harness`** y su rama de integración **`develop`**.
+## Política de ramas y de publicación
 
-## Archivos y comportamiento
+```text
+feat/* o fix/* → PR develop → PR main → CI → tag vX.Y.Z + GitHub Release
+```
 
-| Archivo | Activación | Operación | Permisos |
-|---|---|---|---|
-| `workflows/tests.yml` | PR o push a `develop`/`main`, manual | Matriz Python 3.10–3.13; sintaxis y unit tests | Lectura |
-| `workflows/smoke-stacks.yml` | Cambios relevantes en ejemplos, perfil, catálogo o generadores; manual | Valida todos los `examples/*/answers.json`, selección de agentes, planificación de scaffolding e infraestructura **sin escribir ni desplegar** | Lectura |
-| `workflows/check-asset-sync.yml` | Cambios en agents/skills/código de registro; manual | Comprueba nombres, frontmatter, catálogo y los 18 comandos registrados | Lectura |
-| `workflows/refresh-catalogs.yml` | Cada lunes y manual | Inventario local de SHA-256, recuentos y recordatorios de licencias; genera artefacto de revisión **sin importar nada** | Lectura |
-| `workflows/bump-versions.yml` | **Sólo manual en `develop`** | Prepara un PR de `CHANGELOG.md` con la versión; no publica nada | Escritura sólo en este job |
-| `workflows/release.yml` | **Sólo manual en `main`** | Verifica pruebas y crea ZIP de código fuente y `SHA256SUMS`; **no crea release ni tag** | Lectura |
+- PR a `develop` y ramas `feat/*`/`fix/*`: pruebas y smoke sin publicar.
+- PR a `main`: `release-check.yml` comprueba SemVer, incremento frente a `origin/main`, `LICENSE`, `CHANGELOG.md` y ausencia de tags duplicados.
+- Push tras merge a `main`: `release.yml` publica automáticamente si vuelven a superar las pruebas los archivos exactos fusionados. `workflow_dispatch` sirve únicamente como recuperación manual tras una interrupción.
+- La versión se lee de `VERSION` como `5.9.1`; la etiqueta se llama `v5.9.1`. No se inventa una versión basada en fecha o SHA.
 
-### Rutas auxiliares obligatorias
+## Inventario de workflows
 
-Los workflows necesitan estos scripts en **la raíz del proyecto**:
+| Workflow | Triggers | Responsabilidad |
+| --- | --- | --- |
+| `tests.yml` | push develop/main/feat/fix/release, PR, manual | Sintaxis y unittest Python 3.10–3.13 |
+| `smoke-stacks.yml` | push/PR sobre rutas relevantes, manual | Simular 14 perfiles sin desplegar |
+| `check-asset-sync.yml` | push/PR sobre agentes, skills y bootstrap; manual | Catálogo, frontmatter y comandos |
+| `refresh-catalogs.yml` | lunes, manual | Inventario solo lectura; NO sincroniza contenido tercero |
+| `release-check.yml` | PR hacia main, push feature cuando cambia release, manual | Contrato SemVer y tests de release |
+| `bump-versions.yml` | manual en develop | Genera PR con VERSION y CHANGELOG; no publica |
+| `release.yml` | push main, recuperación manual | Verifica, ZIP/sha256, tag y GitHub Release |
 
-- `scripts/ci/check_assets.py`
-- `scripts/ci/smoke_profiles.py`
-- `scripts/ci/catalog_review.py`
-- `scripts/ci/prepare_release.py`
+## Archivos auxiliares
 
-No hay dependencias PyPI, herramientas cloud ni secretos nuevos para las pruebas.
+- `scripts/ci/release_contract.py`: validación estable de versión, notas, tags e incremento de PR.
+- `scripts/ci/prepare_release.py`: transforma las notas de `## Sin publicar` en changelog de nueva versión y actualiza VERSION. Requiere contenido real, falla si faltan notas.
+- `scripts/ci/check_assets.py`, `smoke_profiles.py`, `catalog_review.py`: no generan ni despliegan recursos.
+- `tests/test_release_workflows.py`: contratos de versión, fallos, recuperación, preparación del siguiente release.
 
-## Cómo instalar
+## Pasos de configuración de GitHub (mantenedor)
 
-1. Crea las carpetas `.github/workflows/`, `.github/ISSUE_TEMPLATE/` y `scripts/ci/` si no existen.
-2. Copia **todo el contenido de este paquete** en la raíz del repositorio.
-3. **Importante:** `.github/workflows/tests.yml` reemplaza el workflow de pruebas actual de Aikya. Guarda copia del anterior o revisa el diff antes del commit.
-4. Haz commit en una rama de trabajo y crea un PR dirigido a `develop`.
-5. Revisa que pasen las pruebas Python, smoke de perfiles y contratos de catálogo.
-6. Configura las reglas de protección de rama según los nombres de jobs visibles en GitHub Actions.
+1. En Settings → Branches o Rulesets, exige PRs para `main` (sin push directo ni bypass), revisiones y checks obligatorios. Incluye `Validate VERSION and changelog` y los jobs de tests de la matriz Python.
+2. Verifica que GitHub Actions no está deshabilitado. El job de publicación solicita `contents: write`; el resto usa lectura. No necesita personal access token, secretos cloud ni acceso a servidores.
+3. GitHub Actions debe permitir a la acción que prepara versiones crear Pull Requests; si la configuración de la organización no lo permite, el mantenedor puede abrir un PR con VERSION y CHANGELOG manualmente.
+4. Promueve `feat/adap_workflows` a `develop`, valida el CI, después abre PR a `main`. El merge dispara la primera publicación automática `v5.9.1`, siempre que ese tag no exista todavía.
 
-## Preparación manual de versiones
+**Nunca actives una Release automática antes de comprobar el derecho a distribuir agentes y skills terceros.** La licencia MIT del proyecto no sustituye las licencias de terceros.
 
-1. Documenta los cambios bajo `## Sin publicar` en `CHANGELOG.md`.
-2. Ejecuta **Aikya | Prepare changelog release PR (manual)** desde `develop`, con `version=vX.Y.Z`.
-3. Revisa y fusiona el PR hacia `develop`. La organización debe permitir a GitHub Actions crear PRs para este flujo; si no, realiza el cambio manualmente.
-4. Después de validar y promover cambios a `main`, ejecuta **Aikya | Release package (manual)** desde `main`, con la **misma versión**.
-5. Descarga el artefacto de CI, verifica el fichero `SHA256SUMS` y **publica la GitHub Release manualmente** cuando corresponda.
-6. Este paquete exige un `LICENSE` en la raíz para permitir el empaquetado público. Revisa además las licencias y atribuciones de terceros antes de distribuir agentes y skills.
+## Recuperación e idempotencia
 
-## Limitaciones deliberadas
+- Antes de crear un tag, el pipeline comprueba versión y assets. El tag apunta exactamente a `GITHUB_SHA` de main validado; no se mueve ni se fuerza.
+- Si el tag ya existe en otro commit, el job falla de forma segura.
+- Si existe en el mismo commit, el workflow puede recuperar la publicación sin recrearlo.
+- Si la Release existe, no se duplica: sólo añade artefactos faltantes. Release completa no se altera.
+- Si falla una verificación no se crea el tag ni se publica la Release.
+- Las ejecuciones se serializan con cola para minimizar carreras entre merges.
 
-- No se instalan SDKs ni se ejecutan `terraform apply/destroy`, playbooks Ansible, Docker push, Helm install/upgrade ni `kubectl apply`.
-- El smoke de DevOps analiza archivos **propuestos**, no despliega clústeres ni verifica conectividad cloud.
-- El catálogo es curado manualmente: `refresh-catalogs.yml` **no descarga material externo**, no sustituye skills y no audita jurídicamente las licencias.
-- No se publica a NPM ni se modifica automáticamente `main`.
-- Para producción, recomienda fijar las acciones de GitHub a SHA completos verificados y habilitar protecciones de rama, especialmente para release.
+**Límites:** este pipeline no despliega cloud, no actualiza SDKs, no publica NPM y no audita jurídicamente las licencias. `sha256sum` verifica integridad del ZIP, no procedencia del contenido.
