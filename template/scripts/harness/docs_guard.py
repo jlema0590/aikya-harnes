@@ -106,6 +106,12 @@ def is_source(path: str) -> bool:
 def kind_from_prompt(prompt: str) -> str:
     """Word-boundary classification; suggestions only, never sole proof of changed files."""
     p = prompt.lower()
+    # Read-only questions should not trigger an action category merely because
+    # they mention bugs, Docker or architecture.
+    interrogative = re.search(r'^\s*¿?\s*(qué|que|cuál|cual|cómo|como|por qué|why|what|how|explain)\b', p)
+    action = re.search(r'\b(corrige|corrigir|corregir|fix|implementa|añade|agrega|crea|despliega|refactoriza)\b', p)
+    if interrogative and not action:
+        return 'general'
     keywords = {
         'security': ('seguridad', 'vulnerabilidad', 'autenticación', 'autorización',
                      'security', 'cve', 'secrets'),
