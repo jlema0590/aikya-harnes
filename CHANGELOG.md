@@ -1,5 +1,14 @@
 # Changelog
 
+## v6.0.0 — Integración SDD (rama de desarrollo)
+
+- SDD opt-in mediante `methodology=sdd` para Development, Infrastructure y DevOps; `standard` por defecto para perfiles antiguos.
+- Motor portable Python de especificación, aclaraciones, aprobaciones por fase, plan, grafo de tareas, progreso y evidencias, sin ejecutar cambios remotos.
+- Nuevas skills: /aikya-specify, /aikya-clarify, /aikya-plan, /aikya-tasks, /aikya-implement y /aikya-sdd-status.
+- Documentos SDD en `aikya/docs/specs/<project_type>/SPEC-NNN/`, validación de rutas y no sobrescritura de documentos personalizados.
+- Ejemplos por modalidad, tests de regresión y quality gate estructural `sdd:traceability`.
+- Plan de interoperabilidad **únicamente documental** para Codex, GitHub Copilot y otros asistentes. No se integran adaptadores externos ni se publican releases.
+
 ## v5.9.0 — 2026-10-19
 
 - Corregido `/aikya-infra-project validate` con Helm cuando la raíz del proyecto llega por un symlink (p. ej. `/var` → `/private/var` en macOS): ya no falla con `ValueError`. Los charts enlazados fuera del proyecto se rechazan como NOT_CONFIGURED.

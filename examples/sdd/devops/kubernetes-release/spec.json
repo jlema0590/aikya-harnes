@@ -1,0 +1,20 @@
+{
+  "id": "SPEC-001",
+  "title": "Despliegue Helm de API",
+  "objective": "Desplegar una imagen existente con Helm de forma controlada.",
+  "requirements": [
+    {
+      "id": "DEVOPS-001",
+      "description": "Crear chart con recursos, seguridad y probes reales.",
+      "acceptance": [
+        "helm lint/template funciona, políticas revisadas y el rollback está documentado."
+      ]
+    }
+  ],
+  "nonfunctional": [
+    "No almacenar secretos en repositorios ni ejecutar cambios remotos sin autorización."
+  ],
+  "questions": [
+    "¿Cuál es el endpoint real de readiness?"
+  ]
+}

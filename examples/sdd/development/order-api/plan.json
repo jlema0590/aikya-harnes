@@ -1,0 +1,10 @@
+{
+  "design": "Clean Architecture con dominio Order, casos de uso y adaptadores REST/JPA.",
+  "decisions": [
+    "Separación de responsabilidades y revisión de seguridad antes de implementar."
+  ],
+  "risks": [
+    "Revisión de autorización por usuario y concurrencia."
+  ],
+  "testing": "Tests unitarios de dominio, integración REST y regresión de cancelación."
+}

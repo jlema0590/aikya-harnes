@@ -2,7 +2,7 @@ name: Aikya | Python tests
 
 on:
   push:
-    branches: [develop, main]
+    branches: [develop, main, 'feat/-integration_SDD']
   pull_request:
     branches: [develop, main]
   workflow_dispatch:
@@ -40,7 +40,7 @@ jobs:
             aikya_cli.py aikya_layout.py aikya_requirements.py \
             aikya_session.py aikya_setup.py doc_bootstrap.py \
             engineering_catalog.py external_skills.py \
-            infrastructure_profile.py install.py skills_registry.py \
+            infrastructure_profile.py install.py skills_registry.py sdd_engine.py \
             template/scripts/harness scripts/ci
 
       - name: Run Aikya regression tests

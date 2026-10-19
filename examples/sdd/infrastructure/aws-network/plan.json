@@ -1,0 +1,10 @@
+{
+  "design": "Módulo Terraform VPC con variables tipadas, entornos y backend separado.",
+  "decisions": [
+    "Separación de responsabilidades y revisión de seguridad antes de implementar."
+  ],
+  "risks": [
+    "Estado remoto, IAM, coste de NAT y riesgos de conectividad."
+  ],
+  "testing": "terraform fmt/validate, linter IaC, revisión autorizada de terraform plan."
+}

@@ -16,3 +16,8 @@ Petición: `$ARGUMENTS`.
 2. Sigue las instrucciones técnicas especializadas de esa skill y las reglas del proyecto; no te limites a invocarla, ejecuta el flujo dentro de Claude Code.
 3. Si la tarea cambia código, actualiza documentación afectada y verifica pruebas reales.
 4. Devuelve resultados realmente observados y pendientes. No uses herramientas externas automáticamente ni delegues sin motivo.
+
+## Modo SDD v6.0.0
+
+- Si `methodology=sdd`, exige `/aikya-tasks` aprobado y un ID SPEC-NNN antes de modificar archivos. Delegar a `/aikya-implement` y respetar las dependencias, criterios de aceptación y las evidencias de trabajo.
+- En `standard` conserva el flujo actual sin imponer pasos extra.

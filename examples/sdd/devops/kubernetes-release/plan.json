@@ -1,0 +1,10 @@
+{
+  "design": "Chart Helm propio con values por entorno e imagen con digest/tag aprobado.",
+  "decisions": [
+    "Separación de responsabilidades y revisión de seguridad antes de implementar."
+  ],
+  "risks": [
+    "Pérdida de disponibilidad, secretos y recursos del cluster."
+  ],
+  "testing": "helm lint, helm template, validación local de schema, rollback con cluster autorizado."
+}

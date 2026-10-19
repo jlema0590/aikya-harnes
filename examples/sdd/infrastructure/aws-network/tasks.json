@@ -1,0 +1,12 @@
+{
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "description": "Implementar el contrato INF-001 con pruebas y evidencia real.",
+      "requirements": [
+        "INF-001"
+      ],
+      "depends_on": []
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "description": "Implementar el contrato DEVOPS-001 con pruebas y evidencia real.",
+      "requirements": [
+        "DEVOPS-001"
+      ],
+      "depends_on": []
+    }
+  ]
+}

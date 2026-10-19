@@ -1,0 +1,20 @@
+{
+  "id": "SPEC-001",
+  "title": "Red AWS con Terraform",
+  "objective": "Diseñar una VPC con subredes privadas y públicas en dos zonas.",
+  "requirements": [
+    {
+      "id": "INF-001",
+      "description": "Provisionar subredes con rangos CIDR aprobados y aislamiento.",
+      "acceptance": [
+        "El plan autorizado contiene las subredes por zonas sin exposición pública inesperada."
+      ]
+    }
+  ],
+  "nonfunctional": [
+    "No almacenar secretos en repositorios ni ejecutar cambios remotos sin autorización."
+  ],
+  "questions": [
+    "¿Cuáles son los CIDR aprobados y la región?"
+  ]
+}

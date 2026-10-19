@@ -1,0 +1,5 @@
+{
+  "answers": {
+    "¿Cuál es el endpoint real de readiness?": "/ready; confirmar que existe antes de generar el chart."
+  }
+}

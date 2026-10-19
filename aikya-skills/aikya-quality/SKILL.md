@@ -23,3 +23,10 @@ Objetivo: evaluar calidad del repositorio actual, no instalar dependencias.
 
 - Si `infrastructure` está configurado y existen artefactos, ejecuta `python3 aikya/scripts/harness/infrastructure.py validate` además de los gates habituales. Distingue NOT_CONFIGURED de éxito. No accedas a clusters, cloud ni servidores durante checks locales.
 - Documenta las evidencias en `aikya/docs/operations/deployment.md` y `aikya/docs/infrastructure/`.
+
+## Comprobaciones SDD v6.0.0
+
+Si el perfil tiene `methodology=sdd`:
+- Ejecuta `python3 aikya/scripts/harness/sdd_engine.py lint --root .` para detectar evidencias no existentes y referencias inconsistentes.
+- Para SPEC-NNN, usa `/aikya-sdd-status` y registra sólo comandos ejecutados y archivos de evidencia reales. El estado EVIDENCE_RECORDED no equivale a un certificado independiente ni a despliegue exitoso.
+- Nunca declares todos los requisitos verificados si hay tareas incompletas, checks sin ejecutar o resultado failed.

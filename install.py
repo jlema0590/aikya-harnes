@@ -180,7 +180,7 @@ def specialized_interview(target: Path, detected: dict[str, Any], kind: str, mod
             infra['container_port']=int(port) if port.isdecimal() else (port or None)
     environments=ask('Entornos separados por coma','dev')
     infra['environments']=[v.strip() for v in environments.split(',') if v.strip()]
-    return {'project_type':kind,'mode':mode,'name':name,'repository_layout':'singlerepo',
+    return {'methodology':choice('Metodología de ingeniería', ['standard','sdd'], 'standard'), 'project_type':kind,'mode':mode,'name':name,'repository_layout':'singlerepo',
             'backend':'none','frontend':'none','mobile':'none','mobile_framework':'none',
             'backend_framework':'none','architecture':'undecided','database':'undecided',
             'api_style':'undecided','frontend_rendering':'undecided','auth':'undecided',
@@ -265,7 +265,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
             port = ask('Puerto interno de la aplicación (vacío si se desconoce)', '')
             infrastructure['container_port'] = int(port) if port.isdecimal() else (port or None)
     versions = ask('Versiones/SDKs que necesitas fijar (vacío = por decidir)', '')
-    return {'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Nombre del producto/proyecto', target.name),
+    return {'methodology':choice('Metodología de ingeniería', ['standard','sdd'], 'standard'), 'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Nombre del producto/proyecto', target.name),
             'backend': backend, 'frontend': frontend, 'mobile': mobile,
             'mobile_framework': framework, 'backend_framework':backend_framework, 'api_style':api_style,
             'frontend_rendering':frontend_rendering, 'auth':auth, 'observability':telemetry,
@@ -278,14 +278,14 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
 
 
 def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
-    choices = {'project_type': list(PROJECT_TYPES), 'mode': ['existing','new'], 'repository_layout': list(LAYOUTS), 'backend': BACKENDS, 'frontend': FRONTENDS,
+    choices = {'methodology':['standard','sdd'], 'project_type': list(PROJECT_TYPES), 'mode': ['existing','new'], 'repository_layout': list(LAYOUTS), 'backend': BACKENDS, 'frontend': FRONTENDS,
                'mobile': MOBILES, 'mobile_framework': ['none']+FRAMEWORKS,
                'android_language':['none','kotlin','java'], 'ios_ui':['none','swiftui','uikit'],
                'architecture': ARCHS, 'database':DATABASES, 'ci':CIS,
                'deployment':DEPLOYS, 'package_manager':['none']+PACKAGES,
                'api_style': API_STYLES, 'auth':AUTH, 'observability':OBSERVABILITY,
                'quality':TEST_STYLES, 'frontend_rendering':RENDERING}
-    defaults = {'project_type':'development', 'mode':'new', 'repository_layout':'monorepo', 'backend':'none', 'frontend':'none', 'mobile':'none',
+    defaults = {'methodology':'standard', 'project_type':'development', 'mode':'new', 'repository_layout':'monorepo', 'backend':'none', 'frontend':'none', 'mobile':'none',
                 'mobile_framework':'none', 'android_language':'none', 'ios_ui':'none',
                 'architecture':'undecided', 'database':'undecided', 'ci':'undecided',
                 'deployment':'undecided', 'package_manager':'npm',
@@ -507,6 +507,7 @@ def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> 
 | Aspecto | Decisión |
 |---|---|
 | Modalidad | {md_text(profile['mode'])} |
+| Metodología | {md_text(profile.get('methodology','standard'))} |
 | Tipo de proyecto | {md_text(profile.get('project_type','development'))} |
 | Topología del repositorio | {md_text(layout_of(profile))} |
 | Infraestructura (proveedor/IaC/configuración) | {md_text(profile['infrastructure']['provider'])} / {md_text(profile['infrastructure']['iac'])} / {md_text(profile['infrastructure']['configuration_management'])} |
@@ -685,7 +686,9 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     actions: list[str] = []
     validate_layout(profile)
     # También se admiten llamadas directas desde harnesses antiguos sin validated().
-    profile = {**profile, 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
+    profile = {**profile, 'methodology':profile.get('methodology','standard'), 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
+    if profile['methodology'] not in ('standard','sdd'):
+        raise ValueError('Metodología de proyecto no válida')
     if dry_run:
         return [f'PLAN: instalar harness en {target}', 'PLAN: crear aikya/docs/, aikya/test/, aikya/scripts/ según '+layout_of(profile)+' y CI/infra', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
     target.mkdir(parents=True, exist_ok=True)
@@ -808,6 +811,22 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                        'command':['python3','aikya/scripts/harness/infrastructure.py','validate'],
                        'cwd':'.','required':False})
     safe_write(target/'harness.json',json.dumps({'schema_version':2,'checks':checks},indent=2,ensure_ascii=False)+'\n',actions)
+    if profile.get('methodology')=='sdd':
+        engine=HERE/'sdd_engine.py'
+        if not engine.is_file():
+            raise ValueError('Falta el motor SDD 6.0.0 en la distribución')
+        safe_write(target/'aikya/scripts/harness/sdd_engine.py',
+                   engine.read_text(encoding='utf8'),actions)
+        checks.append({'name':'sdd:traceability',
+                       'command':['python3','aikya/scripts/harness/sdd_engine.py','lint','--root','.'],
+                       'cwd':'.','required':True})
+        # Actualizar sólo manifests Aikya; conservar harness.json personalizado.
+        harness=target/'harness.json'
+        obj=read_json_safe(harness)
+        if obj.get('schema_version')==2 and isinstance(obj.get('checks'),list) and not any(c.get('name')=='sdd:traceability' for c in obj['checks']):
+            obj['checks'].append(checks[-1])
+            if not harness.is_symlink():
+                harness.write_text(json.dumps(obj,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
     safe_write(target/'aikya/docs/harness/bootstrap.md',project_bootstrap(profile)+
         '\n## Bootstrap ejecutable, opcional\n\n'
         'Desde Claude Code utiliza `/aikya-scaffold plan` para revisar generadores soportados. '

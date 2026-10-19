@@ -17,3 +17,10 @@ Pruebas para el alcance `$ARGUMENTS`: unidad, integración, e2e, móvil u otro m
 3. Cuando corresponda, ejecuta la suite de regresión/quality gates con `python3 aikya/scripts/harness/run_checks.py`. Distingue `PASS`, `FAIL`, `SKIP`, `NOT_CONFIGURED`, timeout y pruebas que no se pudieron ejecutar.
 4. Actualiza documentación de pruebas y `aikya/docs/changes/REQ-*.md` con evidencias reales, sin afirmar cobertura porcentual no medida. Para validación integral utiliza `/aikya-quality`.
 5. Reporta los comandos reales, duración si está disponible, fallos reproducibles y riesgos pendientes.
+
+## Comprobaciones SDD v6.0.0
+
+Si el perfil tiene `methodology=sdd`:
+- Ejecuta `python3 aikya/scripts/harness/sdd_engine.py lint --root .` para detectar evidencias no existentes y referencias inconsistentes.
+- Para SPEC-NNN, usa `/aikya-sdd-status` y registra sólo comandos ejecutados y archivos de evidencia reales. El estado EVIDENCE_RECORDED no equivale a un certificado independiente ni a despliegue exitoso.
+- Nunca declares todos los requisitos verificados si hay tareas incompletas, checks sin ejecutar o resultado failed.

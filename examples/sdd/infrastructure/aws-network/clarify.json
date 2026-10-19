@@ -1,0 +1,5 @@
+{
+  "answers": {
+    "¿Cuáles son los CIDR aprobados y la región?": "Se concretarán con el equipo cloud antes de permitir terraform plan."
+  }
+}

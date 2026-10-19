@@ -51,6 +51,9 @@ La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`)
 | Inicialización | `/aikya-init` | Entrevista técnica para proyecto nuevo o existente. | `/aikya-init Quiero una API Java 21 con React` |
 | | `/aikya-answers` | Reutiliza un archivo de decisiones aprobado. | `/aikya-answers examples/next-react/answers.json` |
 | | `/aikya-doctor` | Diagnostica SDKs y herramientas sin modificarlos. | `/aikya-doctor Revisa si tengo el SDK .NET adecuado` |
+| SDD | `/aikya-specify`, `/aikya-clarify` | Requisitos y aclaraciones aprobadas. | `/aikya-specify SPEC-001 API de pedidos` |
+| SDD | `/aikya-plan`, `/aikya-tasks` | Diseño y tareas trazables. | `/aikya-tasks SPEC-001` |
+| SDD | `/aikya-implement`, `/aikya-sdd-status` | Ejecución autorizada y estado SDD. | `/aikya-sdd-status SPEC-001` |
 | | `/aikya-project-init` | Define alcance, estructura, roadmap y ADR inicial. | `/aikya-project-init Planifica una API de inventario` |
 | Generación | `/aikya-scaffold` | Previsualiza y, con aprobación, ejecuta generadores oficiales por módulo. | `/aikya-scaffold Planifica backend .NET y frontend Vue` |
 | | `/aikya-infra-project` | `plan`, `generate` y `validate` de contratos, infraestructura, CI y quality gates. | `/aikya-infra-project plan` |
@@ -67,6 +70,27 @@ La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`)
 | | `/aikya-skills-install` | Instala con aprobación especialistas del catálogo o skills de GitHub. | `/aikya-skills-install Sólo Ponytail y Graphify` |
 
 Los comandos se definen en `aikya-skills/` de este repositorio. Los proyectos inicializados incluyen también las skills originales sin prefijo por compatibilidad, y los comandos de desarrollo comprueban que el repositorio esté inicializado antes de actuar.
+
+## Aikya 6.0.0 — Spec-Driven Engineering (SDD)
+
+En `/aikya-init` selecciona `methodology=standard` (por defecto, compatible con proyectos actuales) o `methodology=sdd` para los tres modos: **Development, Infrastructure y DevOps**. SDD no es un cuarto tipo de proyecto.
+
+| Fase | Comando Claude Code | Control |
+| --- | --- | --- |
+| Specify | `/aikya-specify` | Requisitos y criterios de aceptación |
+| Clarify | `/aikya-clarify` | Preguntas cerradas, aprobación `spec` |
+| Plan | `/aikya-plan` | Diseño revisado, aprobación `plan` |
+| Tasks | `/aikya-tasks` | Cobertura de requisitos, dependencias sin ciclos, aprobación `tasks` |
+| Implement | `/aikya-implement` | Tareas autorizadas y evidencias reales |
+| Verify | `/aikya-sdd-status`, `/aikya-verify`, `/aikya-quality` | Verificación registrada sin falsos positivos |
+
+`sdd_engine.py` es un núcleo CLI de Python, sin dependencias de herramientas IA, y se instala en `aikya/scripts/harness/sdd_engine.py` sólo al habilitar SDD. No ejecuta scripts del usuario, pruebas, Terraform, Ansible ni despliegues. Guarda los artefactos de cada especificación en `aikya/docs/specs/<development|infrastructure|devops>/SPEC-NNN/`: `spec.md`, `clarifications.md`, `design.md`, `plan.md`, `tasks.md`, `verification.md` y `state.json`. Se crean progresivamente, no todos durante init.
+
+**Una evidencia declarada no equivale a una prueba ejecutada por el motor**. El estado `EVIDENCE_RECORDED` significa únicamente que hay referencias documentales y archivos presentes. La ejecución y revisión de tests corresponde a las herramientas y personas responsables.
+
+Ejemplos: `examples/sdd/development/order-api/`, `examples/sdd/infrastructure/aws-network/` y `examples/sdd/devops/kubernetes-release/`.
+
+Documentación técnica: [Plan de implementación v6.0.0](docs/plans/SDD_V6_0_0_IMPLEMENTATION.md) · [Roadmap para Codex, Copilot y otras IA](docs/plans/MULTIPLATFORM_CODEX_COPILOT.md). **Codex/Copilot/Gemini permanecen sólo como plan, sin integración funcional en v6.0.0.**
 
 ## 4. Estructura de un proyecto Aikya
 

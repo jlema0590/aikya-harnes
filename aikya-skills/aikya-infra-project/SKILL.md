@@ -23,3 +23,8 @@ Argumentos: `$ARGUMENTS` (`plan`, `generate`, `validate`). Si faltan, pregunta e
 - `infrastructure`: Terraform/OpenTofu y/o Ansible sin aplicación. Nunca exijas Node, Java ni monorepo; no generes `apps/`.
 - `devops`: origen código/imagen/chart/manifests. Compose puede basarse en una imagen existente sin Dockerfile. Kubernetes puede emplear YAML, Helm (nuevo o existente) o Kustomize. Para Helm existente comprueba `helm_chart_path` local, renderiza/lint sólo con la herramienta disponible y no sobrescribas el chart.
 - `mode=new/existing` se elige después del modo y no es una cuarta categoría.
+
+## Integración SDD v6.0.0
+
+- Si `methodology=sdd`, exige spec/plan/tasks aprobados antes de ejecutar `generate`. El plan de infraestructura sigue siendo de sólo lectura. La aprobación SDD nunca autoriza por sí sola apply, destroy, playbooks o despliegues reales.
+- Actualiza `aikya/docs/specs/infrastructure/` o `.../devops/` según project_type y guarda evidencia de `validate` sin afirmar que un cluster o cloud se verificó.

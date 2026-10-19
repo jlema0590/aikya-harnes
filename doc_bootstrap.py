@@ -344,6 +344,20 @@ Nunca versionar secretos, estados Terraform ni inventarios con credenciales.
         pages['aikya/docs/README.md'] += (
             '\n**Modo '+kind+'**: sin apps/, contracts/ ni packages/; '
             'usar /aikya-infra-project plan antes de generar infraestructura.\n')
+    if profile.get('methodology','standard')=='sdd':
+        kind=profile.get('project_type','development')
+        pages['aikya/docs/specs/README.md']=(
+            '# Aikya SDD 6.0.0 — Spec-Driven Engineering\n\n'
+            'Metodología activa. Tipo de proyecto: '+flat(kind)+'.\n\n'
+            '1. /aikya-specify — requisitos y criterios verificables.\n'
+            '2. /aikya-clarify — resolver ambigüedades.\n'
+            '3. /aikya-plan — diseño y plan aprobados.\n'
+            '4. /aikya-tasks — tareas trazables y dependencias.\n'
+            '5. /aikya-implement — implementación con consentimiento y agentes especializados.\n'
+            '6. /aikya-verify — evidencia real de cumplimiento y quality gates.\n\n'
+            'Los artefactos viven en specs/'+flat(kind)+'/SPEC-NNN/.\n'
+            'El SDD no sustituye la revisión humana ni ejecuta despliegues.\n')
+        pages['aikya/docs/README.md'] += '\n- [SDD: especificaciones y trazabilidad](specs/README.md)\n'
     return {key:MARK+value for key,value in pages.items()}
 
 

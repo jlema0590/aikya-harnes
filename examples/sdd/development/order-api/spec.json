@@ -1,0 +1,20 @@
+{
+  "id": "SPEC-001",
+  "title": "API de pedidos Java",
+  "objective": "Crear, consultar y cancelar pedidos con controles de negocio.",
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "description": "No cancelar pedidos enviados y devolver error de dominio.",
+      "acceptance": [
+        "Dado un pedido enviado, al cancelar se rechaza sin modificar el estado."
+      ]
+    }
+  ],
+  "nonfunctional": [
+    "No almacenar secretos en repositorios ni ejecutar cambios remotos sin autorización."
+  ],
+  "questions": [
+    "¿Qué política de cancelación se aplica a pedidos pagados?"
+  ]
+}
