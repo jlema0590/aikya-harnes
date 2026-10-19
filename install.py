@@ -810,6 +810,10 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         checks.append({'name':'infra:static',
                        'command':['python3','aikya/scripts/harness/infrastructure.py','validate'],
                        'cwd':'.','required':False})
+    if profile.get('methodology')=='sdd':
+        checks.append({'name':'sdd:traceability',
+                       'command':['python3','aikya/scripts/harness/sdd_engine.py','lint','--root','.'],
+                       'cwd':'.','required':True})
     safe_write(target/'harness.json',json.dumps({'schema_version':2,'checks':checks},indent=2,ensure_ascii=False)+'\n',actions)
     if profile.get('methodology')=='sdd':
         engine=HERE/'sdd_engine.py'
@@ -817,16 +821,6 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
             raise ValueError('Falta el motor SDD 6.0.0 en la distribución')
         safe_write(target/'aikya/scripts/harness/sdd_engine.py',
                    engine.read_text(encoding='utf8'),actions)
-        checks.append({'name':'sdd:traceability',
-                       'command':['python3','aikya/scripts/harness/sdd_engine.py','lint','--root','.'],
-                       'cwd':'.','required':True})
-        # Actualizar sólo manifests Aikya; conservar harness.json personalizado.
-        harness=target/'harness.json'
-        obj=read_json_safe(harness)
-        if obj.get('schema_version')==2 and isinstance(obj.get('checks'),list) and not any(c.get('name')=='sdd:traceability' for c in obj['checks']):
-            obj['checks'].append(checks[-1])
-            if not harness.is_symlink():
-                harness.write_text(json.dumps(obj,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
     safe_write(target/'aikya/docs/harness/bootstrap.md',project_bootstrap(profile)+
         '\n## Bootstrap ejecutable, opcional\n\n'
         'Desde Claude Code utiliza `/aikya-scaffold plan` para revisar generadores soportados. '
