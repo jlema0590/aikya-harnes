@@ -680,11 +680,13 @@ def migrate_v55_project_config(target: Path, actions: list[str]) -> None:
         actions.append('MIGRADOS quality gates anteriores sin alterar checks personalizados.')
 
 
-def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False, *, adopt_existing: bool=False) -> list[str]:
+def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False, *, adopt_existing: bool=False, docs_lang: str | None = None) -> list[str]:
     """Instala sin sobrescribir archivos de usuario. Para dry-run no muta."""
     actions: list[str] = []
     if adopt_existing and profile.get('mode') != 'existing':
         raise ValueError('adopt_existing requires a legacy-compatible existing profile')
+    from docs_language import resolve as resolve_docs_language
+    documentation_language = resolve_docs_language(target, docs_lang)
     validate_layout(profile)
     # También se admiten llamadas directas desde harnesses antiguos sin validated().
     profile = {**profile, 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
@@ -847,7 +849,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         'Java y proyectos móviles nativos pueden requerir sus generadores gráficos oficiales.\n',
         actions,replace_managed=False)
     copy_legacy_docs(target,actions)
-    for rel, content in doc_pages(profile,detected['modules']).items():
+    for rel, content in doc_pages(profile,detected['modules'],documentation_language).items():
         safe_write(target/rel,content,actions)
     # Catálogo técnico importado y curado: copia assets sin ejecutarlos y activa sólo
     # los agentes/skills adecuados a las decisiones confirmadas de la entrevista.
@@ -905,6 +907,10 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         'Quality gates: `harness.json` y `/aikya-quality` dentro de Claude Code.\n\n'
         'Si ya existía `CLAUDE.md`, se ha conservado. Si existía `harness.json`, se ha conservado: revisa los checks manualmente.\n',
         actions,replace_managed=True)
+    if not dry_run:
+        from docs_language import write_approved as save_docs_language
+        if save_docs_language(target, documentation_language):
+            actions.append('CREATED .aikya/docs-policy.json')
     return actions
 
 
@@ -954,6 +960,7 @@ def main(argv: list[str]|None=None) -> int:
     parser.add_argument('--dry-run',action='store_true',help='Mostrar plan sin escribir archivos')
     parser.add_argument('--allow-bootstrap',action='store_true',help='Permitir new sólo con bootstrap Aikya verificado')
     parser.add_argument('--display-name',default=None,help='Nombre local que se muestra en el saludo de Claude Code (no se versiona)')
+    parser.add_argument('--docs-lang',choices=['en','es'],default=None,help='Language of Aikya living documentation only')
     parser.add_argument('--external',choices=['ask','install','plan','skip'],default=None,help='Skills de terceros: pedir consentimiento (terminal), instalar con consentimiento explícito, plan o saltar')
     args=parser.parse_args(argv)
     target=args.target.expanduser().resolve()
@@ -972,6 +979,10 @@ def main(argv: list[str]|None=None) -> int:
             welcome_name = args.display_name if args.display_name is not None else answers.get('welcome_name', '')
         else:
             profile=validated(interview(target,detected),target)
+            if args.docs_lang is None and not args.dry_run:
+                from docs_language import read as read_docs_language
+                if read_docs_language(target) is None:
+                    args.docs_lang=choice('Select the language of Aikya living documentation', ['en','es'], 'en')
             welcome_name = args.display_name if args.display_name is not None else ask(
                 'Nombre para la bienvenida en Claude Code (vacío = git user.name)', '')
     except (ValueError,KeyboardInterrupt,EOFError) as exc:
@@ -993,7 +1004,7 @@ def main(argv: list[str]|None=None) -> int:
         print('Instalación cancelada. No se han creado archivos.')
         return 0
     try:
-        actions=install(target,profile,detected,dry_run=args.dry_run)
+        actions=install(target,profile,detected,dry_run=args.dry_run,docs_lang=args.docs_lang)
     except (OSError,UnicodeError,ValueError) as exc:
         print(f'ERROR durante la instalación: {exc}',file=sys.stderr)
         return 1
