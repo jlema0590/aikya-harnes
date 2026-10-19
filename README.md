@@ -134,6 +134,13 @@ Integración **optativa y supervisada** de [Ponytail](https://github.com/Dietric
 
 Nada se descarga ni se indexa automáticamente al iniciar Claude Code, y Graphify se consulta con preguntas concretas, nunca volcando el grafo completo.
 
+
+## Aikya v6.0.0 — Token Efficiency & Observability
+
+La versión 6 añade los comandos `/aikya-models` y `/aikya-tokens`. Los modelos de `planner` y `orchestrator` están reservados para planificación compleja (por defecto `opus`), mientras los demás agentes gestionados heredan el modelo activo del usuario. Haiku 4.5 se puede solicitar para tareas auxiliares de bajo riesgo, solamente después de confirmar su disponibilidad y con autorización expresa. Las decisiones se almacenan en `.aikya/model-policy.json`, separado de los perfiles de 5.9.1, y no cambian la selección global de Claude Code.
+
+`/aikya-tokens` procesa transcripciones JSONL locales de forma acotada para informar uso de entrada, salida y caché por modelo, sin almacenar prompts ni derivar un precio no confirmado. Las reglas de contexto recomiendan consultas filtradas y salidas limitadas de `Bash`, logs, diffs y GitHub CLI. La guía de migración y compatibilidad está en [docs/V6_TOKEN_COMPATIBILITY.md](docs/V6_TOKEN_COMPATIBILITY.md).
+
 ## Versionado y publicación automática (v5.9.1)
 
 Aikya distribuye tags y GitHub Releases automáticamente **tras fusionar una versión aprobada en `main`**. La rama `develop` y las ramas `feat/*` no publican nada.
