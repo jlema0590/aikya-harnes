@@ -13,6 +13,10 @@ def summarize(paths):
     models = defaultdict(lambda: defaultdict(int))
     sessions = set()
     calls = {}
+    contexts = []
+    tool_outputs = []
+    tool_events = set()
+    stop_blocks = 0
     for path in paths:
         try:
             with path.open(encoding="utf8") as fh:
@@ -24,7 +28,23 @@ def summarize(paths):
                     if not isinstance(event, dict):
                         continue
                     msg = event.get("message")
-                    if not isinstance(msg, dict) or msg.get("role") != "assistant":
+                    if not isinstance(msg, dict):
+                        continue
+                    if msg.get("role") == "user":
+                        content = msg.get("content", [])
+                        if isinstance(content, list):
+                            for block in content:
+                                if isinstance(block, dict) and block.get("type") == "tool_result":
+                                    size = len(str(block.get("content", "")).encode("utf8"))
+                                    tool_id = str(block.get("tool_use_id", "unknown"))
+                                    marker = (str(path), str(event.get("uuid") or ""), tool_id)
+                                    if marker not in tool_events:
+                                        tool_events.add(marker)
+                                        tool_outputs.append({"bytes": size, "tool_use_id": tool_id})
+                    # Count only explicitly recorded stop-hook decisions, never infer them.
+                    if event.get("hook_event_name") == "Stop" and event.get("decision") == "block":
+                        stop_blocks += 1
+                    if msg.get("role") != "assistant":
                         continue
                     usage = msg.get("usage")
                     if not isinstance(usage, dict):
@@ -52,11 +72,26 @@ def summarize(paths):
                             totals[key] += value
                             models[model][key] += value
                     sessions.add(str(path))
+                    if "input_tokens" in current:
+                        context = sum(current.get(k, 0) for k in (
+                            "input_tokens", "cache_creation_input_tokens", "cache_read_input_tokens"))
+                        contexts.append(context)
         except (OSError, UnicodeError):
             continue
-    return {"sessions_with_usage": len(sessions), "totals": dict(totals),
-            "models": {key: dict(value) for key, value in sorted(models.items())},
-            "note": "Reported usage may include cached and repeated transcript snapshots; no monetary cost inferred."}
+    return {
+        "sessions_with_usage": len(sessions),
+        "totals": dict(totals),
+        "models": {key: dict(value) for key, value in sorted(models.items())},
+        "context_observations": {
+            "first": contexts[0] if contexts else None,
+            "mean": round(sum(contexts) / len(contexts)) if contexts else None,
+            "max": max(contexts) if contexts else None,
+            "note": "Per transcript occurrence, not a distinct request or window-size guarantee."
+        },
+        "largest_tool_results": sorted(tool_outputs, key=lambda v: v["bytes"], reverse=True)[:10],
+        "stop_blocks_explicitly_recorded": stop_blocks,
+        "note": "Local usage estimates only. No content is printed; model/provider prices and actual invoice are not inferred."
+    }
 
 def main():
     p = argparse.ArgumentParser(description="Aikya tokens: local usage, read only")
