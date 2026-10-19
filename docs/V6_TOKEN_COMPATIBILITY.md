@@ -13,7 +13,7 @@ Source branch: `develop` (v5.9.1 at branch creation). Feature branch: `feat/toke
 - Installer/bootstrap preserve modified local files, and the new policy lives separately at `.aikya/model-policy.json`.
 - No modification to the global Claude Code model. The actual model available depends on the user's account, CLI and provider.
 - If no policy exists, planner/orchestrator default to `opus`; all other newly managed engineering agents resolve to `inherit`.
-- Auxiliary Haiku is disabled until explicitly approved. The pinned ID `claude-haiku-4-5-20251001` must be tested against the actual provider before use; fallback is the user model.
+- The v2 policy defaults to Haiku 5.5 (`claude-haiku-5-5`) with auxiliary delegation disabled. v1 policies, including explicitly approved Haiku 4.5 IDs, remain valid and are never migrated without renewed consent. The runtime must verify Claude Code >= 2.1.293 and user/provider access before selecting an auxiliary. Fallback remains the user's inherited model.
 
 ## Pre-release acceptance matrix
 
@@ -26,7 +26,9 @@ Source branch: `develop` (v5.9.1 at branch creation). Feature branch: `feat/toke
 | Model policy absent | v5.9.1 answers read unchanged and conservative defaults |
 | Model policy invalid | Validation fails visibly; no silent privilege or model change |
 | Auxiliary enabled without consent | Rejected |
-| Haiku 4.5 unavailable | Fail closed/fallback to inherit, report mismatch |
+| Legacy v1 Haiku 4.5 policy | Preserve schema, model, consent and behavior until explicit migration |
+| v2 Haiku 5.5 no CLI / disallowed provider | No auxiliary delegation; inherit and report what needs configuration |
+| v2 Haiku 5.5 approved | Only read-only tasks from allowed_tasks; max delegation depth 1 |
 | JSONL missing/malformed | Report gracefully; never transmit or save prompts |
 | CI and release flow | Existing 5.9.1 version/tag integrity checks must remain active |
 
@@ -36,4 +38,16 @@ Source branch: `develop` (v5.9.1 at branch creation). Feature branch: `feat/toke
 2. Managed legacy agents installed in 5.9.1 require a documented migration that distinguishes prior managed content from user customizations before applying the new default routing.
 3. Report attribution must handle repeated/streamed messages correctly and include tool-output sizes/Stop hook events in the final benchmark.
 4. Establish baseline A/B measurements and price configuration by model/provider, without implying monetary savings from token counts alone.
-5. Review compatibility and retirement status of Haiku 4.5 before enabling it on supported installations.
+5. Haiku 5.5 CLI and provider authorization require real-world verification; a stored access confirmation is not API evidence. On Bedrock, Foundry or Google Cloud, Claude Code model routing may require provider-specific deployment IDs/profiles that are not guessed by Aikya.
+6. Check semantically ambiguous requests against untrusted output validation, and test the legacy v1 policies unchanged.
+
+## Haiku 5.5: local migration procedure (no silent upgrade)
+
+1. Open the existing `.aikya/model-policy.json` and record its schema version without changing it.
+2. For v1 configs, keep Haiku 4.5 and `user_approved` unchanged; explicitly offer migration to v2.
+3. Before committing a new policy, verify that the actual Claude Code CLI is at least 2.1.293 and the user's account permits `claude-haiku-5-5` on the selected provider. A provider alias `haiku` alone is insufficient.
+4. Create v2 only after approval; use `auxiliary_enabled=false` until access has been confirmed. Limit approved tasks to extraction, classification, routing, documentation and log-summary, all read-only.
+5. Validate policy offline, generate only the selected auxiliary agent definitions; preserve customized files under `.claude/agents` and their manifest hashes.
+6. Confirm the subagent's effective model in `/tasks`. If the requested model was substituted by the organization/provider, fall back to `inherit` and notify the user before further delegation.
+
+Current model documentation: https://platform.claude.com/docs/es/models/overview and https://code.claude.com/docs/en/model-config.
