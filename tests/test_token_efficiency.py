@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from token_policy import validated, resolved_agent_model
-from token_report import summarize
+from token_report import summarize, estimate_cost
 
 class PolicyTests(unittest.TestCase):
     def test_v591_backwards_compatibility(self):
@@ -22,6 +22,19 @@ class PolicyTests(unittest.TestCase):
                        "auxiliary_model": "haiku"})
         self.assertEqual(resolved_agent_model("log-summarizer", p), "haiku")
         self.assertEqual(resolved_agent_model("security-reviewer", p), "inherit")
+
+    def test_missing_prices_not_reported_as_zero_bill(self):
+        data = {"models": {"sonnet": {"input_tokens": 1000000}}}
+        r = estimate_cost(data, {"models": {}})
+        self.assertIsNone(r["total_estimated"])
+        self.assertEqual(r["models_missing_prices"], ["sonnet"])
+
+    def test_user_supplied_prices(self):
+        data = {"models": {"sonnet": {"input_tokens": 1000000,
+                                       "output_tokens": 100000}}}
+        rates = {"models": {"sonnet": {"input": 2, "output": 10,
+                                        "cache_creation": 2.5, "cache_read": .2}}}
+        self.assertEqual(estimate_cost(data, rates)["total_estimated"], 3.0)
 
     def test_invalid_role_model(self):
         with self.assertRaises(ValueError):
