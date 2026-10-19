@@ -176,7 +176,7 @@ def render_tasks(data):
     return "\n".join(out)+"\n"
 
 def render_verification(data):
-    result=data.get("verification",{})
+    result=data.get("verification") or {}
     out=[MARK,"# Verificación SDD — "+data["id"],"",
          "**Estado:** "+result.get("status","NOT_VERIFIED"),"",
          "El motor verifica estructura y existencia de las evidencias; NO ejecuta ni certifica los checks.",""]
