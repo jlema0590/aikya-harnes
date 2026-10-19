@@ -14,13 +14,13 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent
 BOOTSTRAP_COMMANDS=(
-    'aikya-init', 'aikya-answers', 'aikya-doctor',
+    'aikya-init', 'aikya-analyze', 'aikya-answers', 'aikya-doctor',
     'aikya-project-init', 'aikya-infra-project', 'aikya-scaffold',
     'aikya-feature', 'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
     'aikya-skills-status', 'aikya-skills-plan', 'aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
     'aikya-documentation-sync', 'aikya-verify', 'aikya-models', 'aikya-tokens',
 )
-CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py','token_policy.py','token_report.py','model_capabilities.py','aikya_router.py')
+CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py','token_policy.py','token_report.py','model_capabilities.py','aikya_router.py','project_discovery.py','profile_builder.py','analysis_manifest.py','aikya_analyze.py')
 
 
 def files_to_copy(source:Path):
