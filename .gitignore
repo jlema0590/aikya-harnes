@@ -5,6 +5,7 @@ __pycache__/
 .venv/
 venv/
 
+
 # Local installation state
 .harness/state/
 .harness/external-skills-lock.json
