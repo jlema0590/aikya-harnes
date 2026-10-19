@@ -19,7 +19,7 @@ AGENTS = {
     'layered-architecture-architect', 'microservices-architect', 'monolith-architect',
     'angular-developer', 'dotnet-developer', 'java-developer', 'kotlin-developer',
     'python-developer', 'react-developer',
-    'terraform-engineer', 'ansible-engineer', 'kubernetes-engineer', 'helm-engineer',
+    'terraform-engineer', 'ansible-engineer', 'kubernetes-engineer', 'helm-engineer', 'log-summarizer',
 }
 SKILLS = {
     'astro-performance', 'cicd-pipelines', 'cloud-architecture', 'cloud-security',
@@ -140,6 +140,16 @@ def discover(root: Path, profile: dict, modules: list[dict] | None = None) -> di
         agents.add('cloud-architect');skills.add('cloud-architecture')
     if len(modules) > 1 or profile.get('architecture') in ('microservices', 'modular-monolith'):
         agents.add('orchestrator')
+    # Auxiliaries are opt-in and never installed merely because a stack uses AI.
+    try:
+        from token_policy import validated
+        policy_path = root / '.aikya/model-policy.json'
+        if policy_path.is_file() and not policy_path.is_symlink():
+            model_policy = validated(json.loads(policy_path.read_text(encoding='utf8')))
+            if model_policy['auxiliary_enabled'] and model_policy['user_approved']:
+                agents.add('log-summarizer')
+    except (ValueError, UnicodeError, OSError):
+        pass  # Invalid policy cannot enable additional agents.
     return {'agents': sorted(agents & AGENTS), 'skills': sorted(skills & SKILLS)}
 
 
