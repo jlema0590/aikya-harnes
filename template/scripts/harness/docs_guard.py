@@ -79,18 +79,23 @@ def is_source(path: str) -> bool:
 
 
 def kind_from_prompt(prompt: str) -> str:
-    """Clasificador heurístico; una petición puede abarcar varias categorías."""
+    """Word-boundary classification; suggestions only, never sole proof of changed files."""
     p = prompt.lower()
-    matches=[]
-    for kind, keys in {
-        'security': ('seguridad','vulnerab','autenticación','autorización','security','cve','secrets'),
-        'bug': ('bug','error','fix','corrige','corregir','fallo','regresión','defecto'),
-        'architecture': ('arquitectura','refactor','migración','architecture','refactoring'),
-        'operations': ('devops','deploy','pipeline','docker','kubernetes','terraform','ci/cd'),
-        'feature': ('feature','funcionalidad','implementa','crear','añade','agrega','endpoint','pantalla'),
-    }.items():
-        if any(k in p for k in keys):
-            matches.append(kind)
+    keywords = {
+        'security': ('seguridad', 'vulnerabilidad', 'autenticación', 'autorización',
+                     'security', 'cve', 'secrets'),
+        'bug': ('bug', 'error', 'fix', 'corrige', 'corregir', 'fallo',
+                'regresión', 'defecto'),
+        'architecture': ('arquitectura', 'refactor', 'migración',
+                         'architecture', 'refactoring'),
+        'operations': ('devops', 'deploy', 'pipeline', 'docker',
+                       'kubernetes', 'terraform', 'ci/cd'),
+        'feature': ('feature', 'funcionalidad', 'implementa', 'crear',
+                    'añade', 'agrega', 'endpoint', 'pantalla'),
+    }
+    matches = [kind for kind, terms in keywords.items()
+               if any(re.search(r'(?<!\w)' + re.escape(term) + r'(?!\w)', p)
+                      for term in terms)]
     return '+'.join(matches) if matches else 'general'
 
 
