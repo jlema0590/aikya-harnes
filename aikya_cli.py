@@ -71,7 +71,17 @@ def main(argv=None):
         print('ERROR: /aikya-init sólo admite proyectos nuevos. Para repositorios existentes usa /aikya-analyze; no se escribieron archivos.',file=sys.stderr)
         return 2
     if args.command=='answers' and profile['mode']=='existing':
-        print('AVISO: ruta declarativa legacy; para adopción automática y segura usa /aikya-analyze.',file=sys.stderr)
+        print('AVISO: ruta declarativa existente; para descubrimiento automatico usa /aikya-analyze.',file=sys.stderr)
+        # Compatibility shim: existing profiles remain valid but no user IaC, CI or Docker files change.
+        detected=installer.detect_project(target)
+        try:
+            actions=installer.install(target,profile,detected,dry_run=args.dry_run,adopt_existing=True)
+        except (ValueError,OSError,UnicodeError) as exc:
+            print('ERROR de adopcion:',exc,file=sys.stderr)
+            return 2
+        print(json.dumps({'mode':'existing','dry_run':args.dry_run,'actions':actions},
+                         ensure_ascii=False,indent=2))
+        return 0
     report=check(profile,target)
     print('\n=== AIKYA · REQUISITOS DEL ENTORNO ===')
     print(json.dumps(report,ensure_ascii=False,indent=2))
