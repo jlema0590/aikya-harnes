@@ -14,7 +14,7 @@ Entrada: `$ARGUMENTS` (ruta opcional a JSON). No hagas una entrevista completa s
 4. Ejecuta `python3 <cli> requirements --target . --answers <archivo>`; informa estados `ok`, `missing`, `version_mismatch` y `unsupported_host`. Propón versiones oficiales sólo si hace falta; no actualices automáticamente.
 5. Ejecuta `python3 <cli> answers --target . --answers <archivo> --dry-run` para previsualizar y, tras consentimiento, `python3 <cli> answers --target . --answers <archivo> --external plan`.
 6. No uses `--external install` sin aprobación expresa de ejecutar instaladores de terceros. No generes aplicaciones hasta disponer de SDK compatibles y aprobación del usuario.
-7. Confirma resumen de instalación, documentación y requisitos pendientes. Para cambiar decisiones, invita a `/aikya-init`.
+7. Confirma resumen de instalación, documentación y requisitos pendientes. Para crear un proyecto desde cero utiliza `/aikya-init`; para revisar y actualizar el perfil de un repositorio existente utiliza `/aikya-analyze --refresh`. Mantén `mode: existing` como dato compatible en flujos declarativos heredados.
 
 ## Perfil v5.8
 
