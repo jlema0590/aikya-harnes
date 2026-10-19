@@ -1,5 +1,11 @@
 # Changelog
 
+## Sin publicar
+
+- README reorganizado: inicio rápido, referencia única de comandos, catálogo completo de 27 agentes y 29 skills, y un solo apartado de seguridad.
+- `INSTALL_FROM_CLAUDE.md` integrado en el README; auditorías movidas a `docs/audits/`.
+- Eliminadas copias obsoletas de `/aikya-init`, `/aikya-answers` y `/aikya-doctor` en `.claude/skills/` del repositorio y el ejemplo sin uso `examples/existing-api.json`.
+
 ## v5.8 — 2026-10-18
 
 - `/aikya-init`: primera selección `project_type` development, infrastructure o devops; luego nuevo/existente.
@@ -99,5 +105,5 @@
 - Revisados 19 agentes y 21 skills del ZIP externo del usuario. Excluidos 6 agentes jurídicos, 6 skills jurídicas y todos los componentes de LinkedIn.
 - Integrados 12 agentes nuevos y 15 skills técnicas; se conserva el agente de seguridad ya presente en Aikya.
 - Activación progresiva según stack y gestión mediante `/aikya-skills-plan`, `/aikya-skills-install` y `/aikya-skills-status` dentro de Claude Code.
-- Nuevo `aikya/docs/agents.md` junto al inventario existente `aikya/docs/skills.md`, y auditoría en `ENGINEERING_AUDIT.md`.
+- Nuevo `aikya/docs/agents.md` junto al inventario existente `aikya/docs/skills.md`, y auditoría en `docs/audits/ENGINEERING_AUDIT.md`.
 - Integración idempotente que evita sobrescrituras y no ejecuta contenido ajeno.
