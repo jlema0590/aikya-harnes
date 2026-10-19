@@ -12,7 +12,7 @@ def summarize(paths):
     totals = defaultdict(int)
     models = defaultdict(lambda: defaultdict(int))
     sessions = set()
-    calls = set()
+    calls = {}
     for path in paths:
         try:
             with path.open(encoding="utf8") as fh:
@@ -31,18 +31,27 @@ def summarize(paths):
                         continue
                     identity = msg.get("id") or event.get("uuid")
                     dedup = (str(path), str(identity)) if identity else None
-                    if dedup and dedup in calls:
-                        continue
-                    if dedup:
-                        calls.add(dedup)
-                    sessions.add(str(path))
                     model = str(msg.get("model") or "unknown")
-                    totals["calls"] += 1
-                    for key in KEYS:
-                        value = usage.get(key, 0)
-                        if type(value) is int and value >= 0:
+                    # Streamed transcript snapshots reuse the same message id.
+                    # Keep the largest cumulative usage per category.
+                    current = {k: v for k in KEYS
+                               if type(v := usage.get(k, 0)) is int and v >= 0}
+                    if dedup:
+                        old = calls.get(dedup, {})
+                        for key, value in current.items():
+                            delta = max(0, value - old.get(key, 0))
+                            totals[key] += delta
+                            models[model][key] += delta
+                        if not old:
+                            totals["calls"] += 1
+                        calls[dedup] = {key: max(current.get(key, 0), old.get(key, 0))
+                                        for key in KEYS}
+                    else:
+                        totals["calls"] += 1
+                        for key, value in current.items():
                             totals[key] += value
                             models[model][key] += value
+                    sessions.add(str(path))
         except (OSError, UnicodeError):
             continue
     return {"sessions_with_usage": len(sessions), "totals": dict(totals),
