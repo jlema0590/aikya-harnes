@@ -22,15 +22,31 @@ def resolved_answers(args, target:Path) -> Path:
 
 def main(argv=None):
     parser=argparse.ArgumentParser(description='Aikya Harness · acciones ejecutadas por Claude Code')
-    parser.add_argument('command',choices=['probe','requirements','init','answers','status'])
+    parser.add_argument('command',choices=['probe','requirements','init','answers','status','analyze'])
     parser.add_argument('--target',type=Path,default=Path.cwd())
     parser.add_argument('--answers',type=Path)
     parser.add_argument('--dry-run',action='store_true')
     parser.add_argument('--strict',action='store_true',help='Requisitos incompletos generan exit 4')
     parser.add_argument('--external',choices=['skip','plan','install'],default='plan')
     parser.add_argument('--display-name')
+    parser.add_argument('--scope',default='.')
+    parser.add_argument('--focus',choices=['general','security','architecture','infrastructure','operations'],default='general')
+    parser.add_argument('--refresh',action='store_true')
+    parser.add_argument('--report-only',action='store_true')
+    parser.add_argument('--approved',action='store_true',help='Explicit approval to create Aikya-owned files')
     args=parser.parse_args(argv)
     target=args.target.expanduser().resolve()
+    if args.command=='analyze':
+        from aikya_analyze import execute
+        try:
+            result=execute(target,scope=args.scope,focus=args.focus,
+                           approved=args.approved,refresh=args.refresh,
+                           dry_run=args.dry_run,report_only=args.report_only)
+        except (ValueError,OSError,UnicodeError,TypeError) as exc:
+            print('ERROR en análisis:',exc,file=sys.stderr)
+            return 2
+        print(json.dumps(result,ensure_ascii=False,indent=2))
+        return 0 if result['status']=='READY' else 4
     if args.command=='probe':
         detected=installer.detect_project(target) if target.exists() else {'modules':[],'findings':['Nuevo directorio']}
         print(json.dumps({'target':str(target),'detected':detected,
@@ -49,6 +65,11 @@ def main(argv=None):
     except (ValueError,OSError,UnicodeError,TypeError) as exc:
         print('ERROR en respuestas:',exc,file=sys.stderr)
         return 2
+    if args.command=='init' and profile['mode']!='new':
+        print('ERROR: /aikya-init sólo admite proyectos nuevos. Para repositorios existentes usa /aikya-analyze; no se escribieron archivos.',file=sys.stderr)
+        return 2
+    if args.command=='answers' and profile['mode']=='existing':
+        print('AVISO: ruta declarativa legacy; para adopción automática y segura usa /aikya-analyze.',file=sys.stderr)
     report=check(profile,target)
     print('\n=== AIKYA · REQUISITOS DEL ENTORNO ===')
     print(json.dumps(report,ensure_ascii=False,indent=2))
