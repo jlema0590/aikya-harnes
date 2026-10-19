@@ -120,8 +120,16 @@ def validate(
     if base_ref:
         previous = compare_base_version(root, base_ref)
         if previous:
-            if parse_version(previous) >= parsed:
-                raise ReleaseError("El PR hacia main debe incrementar VERSION frente a " + base_ref + ".")
+            previous_ver = parse_version(previous)
+            if previous_ver > parsed:
+                raise ReleaseError("El PR hacia main no puede reducir VERSION frente a " + base_ref + ".")
+            if previous_ver == parsed and existing:
+                raise ReleaseError(
+                    "La misma VERSION sólo puede promocionarse para recuperar una "
+                    "release aún sin tag; el tag de la versión ya existe."
+                )
+            # Recovery: VERSION is on main, but the release tag does not exist.
+            # A repair PR can keep the unpublished version; after tagging, bump.
     return {"version": version, "tag": tag, "head_sha": current_head,
             "tag_exists": existing, "notes": notes}
 

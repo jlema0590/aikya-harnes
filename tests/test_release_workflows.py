@@ -88,14 +88,25 @@ class VersionContractTests(unittest.TestCase):
             result=contract.validate(self.root,head_sha="a"*40)
         self.assertTrue(result["tag_exists"])
 
-    def test_pull_request_must_increment_main_version(self):
+    def test_pull_request_allows_same_version_only_if_tag_missing(self):
         with patch.object(contract,"compare_base_version",return_value="5.9.1"):
-            with self.assertRaisesRegex(contract.ReleaseError,"incrementar"):
+            result=self.valid(base_ref="origin/main")
+            self.assertEqual("v5.9.1",result["tag"])
+            self.assertFalse(result["tag_exists"])
+        with patch.object(contract,"compare_base_version",return_value="5.9.2"):
+            with self.assertRaisesRegex(contract.ReleaseError,"reducir"):
                 self.valid(base_ref="origin/main")
         with patch.object(contract,"compare_base_version",return_value="5.9.0"):
             self.assertEqual("v5.9.1",self.valid(base_ref="origin/main")["tag"])
         with patch.object(contract,"compare_base_version",return_value=None):
             self.assertEqual("v5.9.1",self.valid(base_ref="origin/main")["tag"])
+
+    def test_same_version_pr_blocked_when_tag_is_already_published(self):
+        with patch.object(contract,"compare_base_version",return_value="5.9.1"), \
+             patch.object(contract,"known_tags",return_value=["v5.9.0","v5.9.1"]), \
+             patch.object(contract,"tagged_commit",return_value="a"*40):
+            with self.assertRaisesRegex(contract.ReleaseError,"aún sin tag"):
+                contract.validate(self.root,head_sha="a"*40,base_ref="origin/main")
 
     def test_prepare_next_version_updates_changelog_and_version(self):
         f=self.root/"CHANGELOG.md"
@@ -126,6 +137,9 @@ class VersionContractTests(unittest.TestCase):
         self.assertIn("needs: [verify, package]",yaml)
         self.assertIn("gh release create",yaml)
         self.assertIn("--verify-tag",yaml)
+        self.assertIn("github_tag.py",yaml)
+        self.assertIn("--target",yaml)
+        self.assertNotIn("2>/dev/null || true",yaml)
         self.assertIn("SHA256SUMS",yaml)
         self.assertNotIn("terraform apply",yaml)
 
