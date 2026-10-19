@@ -93,16 +93,44 @@ def summarize(paths):
         "note": "Local usage estimates only. No content is printed; model/provider prices and actual invoice are not inferred."
     }
 
+def estimate_cost(report: dict, price_catalog: dict) -> dict:
+    """Opt-in USD estimates from explicitly provided per-million-token rates."""
+    if not isinstance(price_catalog, dict) or not isinstance(price_catalog.get("models"), dict):
+        raise ValueError("price catalog must contain a models mapping")
+    rates = {"input_tokens": "input", "output_tokens": "output",
+             "cache_creation_input_tokens": "cache_creation",
+             "cache_read_input_tokens": "cache_read"}
+    values = {}
+    missing = []
+    for model, usage in report["models"].items():
+        price = price_catalog["models"].get(model)
+        if not isinstance(price, dict) or any(
+            not isinstance(price.get(k), (int, float)) or price[k] < 0 for k in rates.values()
+        ):
+            missing.append(model)
+            continue
+        values[model] = round(sum(usage.get(key, 0) * price[label] / 1_000_000
+                                  for key, label in rates.items()), 8)
+    return {"currency": "USD", "by_model_estimated": values,
+            "total_estimated": round(sum(values.values()), 8) if not missing else None,
+            "models_missing_prices": missing,
+            "note": "Not a provider bill; assumes supplied rates and transcript usage are comparable."}
+
+
 def main():
     p = argparse.ArgumentParser(description="Aikya tokens: local usage, read only")
     p.add_argument("--path", type=Path, help="Explicit project transcript directory; never scans unrelated projects")
+    p.add_argument("--prices", type=Path, help="Optional user-provided USD/MTok JSON rate catalog")
     args = p.parse_args()
     if args.path is None:
         p.error("--path is required to avoid reading unrelated projects")
     if not args.path.exists():
         p.error("transcript path not found")
     files = sorted(args.path.rglob("*.jsonl")) if args.path.is_dir() else [args.path]
-    print(json.dumps(summarize(files), indent=2))
+    report = summarize(files)
+    if args.prices:
+        report["cost"] = estimate_cost(report, json.loads(args.prices.read_text(encoding="utf8")))
+    print(json.dumps(report, indent=2))
     return 0
 
 if __name__ == "__main__":
