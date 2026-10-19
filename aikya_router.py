@@ -34,14 +34,15 @@ def classify(request: str) -> str:
         return "security"
     if re.search(r'\b(arquitectura|refactorizaci[oó]n|architecture)\b', p):
         return "architecture"
-    if re.search(r'\b(test(?:s|ing)?|pruebas)\b', p) and ACTION.search(p):
-        return "testing"
-    if re.search(r'\b(documenta|documentaci[oó]n|runbook|readme)\b', p) and ACTION.search(p):
-        return "documentation"
     if re.search(r'\b(corrige|corregir|bug|fallo|repara|fix)\b', p) and ACTION.search(p):
         return "bug"
+    # A feature with tests/documentation is still a feature, not a test-only task.
     if re.search(r'\b(api|endpoint|flutter|java|react|feature|funcionalidad)\b', p) and ACTION.search(p):
         return "feature"
+    if re.search(r'\b(documenta|documentaci[oó]n|runbook|readme)\b', p) and ACTION.search(p):
+        return "documentation"
+    if re.search(r'\b(test(?:s|ing)?|pruebas)\b', p) and ACTION.search(p):
+        return "testing"
     return "general"
 
 def _specialist(category: str, request: str) -> str:
@@ -85,14 +86,21 @@ def route(request: str, policy: dict | None = None, *,
         raise ValueError("affected_components must be positive")
     p = validated(policy)
     category = classify(request)
-    dangerous = bool(RISK.search(request))
+    dangerous = bool(RISK.search(request)) and bool(ACTION.search(request) or
+                re.search(r'\b(terraform\s+(?:apply|destroy)|deploy|desplegar)\b', request, re.I))
+    approved_aux = False
+    if p["schema_version"] == 2 and auxiliary_ready(p):
+        from model_capabilities import capability_status, inspect_cli
+        approved_aux = capability_status(p, inspect_cli().get("version"))["ready_for_cli_delegation"]
     advice = None
-    if semantic is not None and p["schema_version"] == 2 and auxiliary_ready(p, "routing"):
+    known_category = category
+    if semantic is not None and approved_aux and auxiliary_ready(p, "routing"):
         advice = semantic_advice(semantic, p["confidence_threshold"])
-    if advice and category == "general":
+    if advice and category == "general" and not dangerous:
         category = advice["category"]
     specialist = _specialist(category, request)
-    if advice and category not in ("infrastructure", "devops", "security") and advice["suggested_role"]:
+    # Never let an untrusted semantic model override a deterministic specialist.
+    if advice and known_category == "general" and not dangerous and advice["suggested_role"]:
         specialist = advice["suggested_role"]
     complex_work = (affected_components >= 3 or category == "architecture" or
                     bool(advice and advice["requires_planning"]))
@@ -105,8 +113,8 @@ def route(request: str, policy: dict | None = None, *,
     # A semantic suggestion may increase complexity, never bypass risk approval.
     uncertain = category == "general" and not advice
     aux_task = "classification" if uncertain else None
-    use_auxiliary = bool(aux_task and p["schema_version"] == 2 and auxiliary_ready(p, aux_task))
-    if category == "documentation" and not dangerous and auxiliary_ready(p, "documentation"):
+    use_auxiliary = bool(aux_task and approved_aux and auxiliary_ready(p, aux_task))
+    if category == "documentation" and not dangerous and approved_aux and auxiliary_ready(p, "documentation"):
         use_auxiliary = True
         aux_task = "documentation"
     if dangerous:
