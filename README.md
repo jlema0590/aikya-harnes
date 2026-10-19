@@ -134,6 +134,22 @@ Integración **optativa y supervisada** de [Ponytail](https://github.com/Dietric
 
 Nada se descarga ni se indexa automáticamente al iniciar Claude Code, y Graphify se consulta con preguntas concretas, nunca volcando el grafo completo.
 
+## Versionado y publicación automática (v5.9.1)
+
+Aikya distribuye tags y GitHub Releases automáticamente **tras fusionar una versión aprobada en `main`**. La rama `develop` y las ramas `feat/*` no publican nada.
+
+1. Prepara un incremento SemVer estable en `VERSION` (`X.Y.Z`, sin prefijo `v`) y un apartado con cambios reales `## vX.Y.Z` en `CHANGELOG.md`.
+2. Abre un PR hacia `develop` para el desarrollo normal. La preparación de versiones futuras puede iniciarse desde `.github/workflows/bump-versions.yml`, que creará un PR revisable con `VERSION` y `CHANGELOG.md`.
+3. Cuando la versión esté lista, abre un PR desde `develop` hacia `main`. El check `Aikya | Release version contract` exige que el número aumente respecto a main y a tags existentes, que exista la licencia y que haya notas de release completas.
+4. Un merge en `main` ejecuta `Aikya | Automatic GitHub Release`: vuelve a correr unittest, catálogo y smoke; crea ZIP, comprueba `SHA256SUMS` y publica el tag `vX.Y.Z` y la GitHub Release con los archivos descargables.
+5. Si falla la publicación tras crear el tag, permite **reintentar** el workflow desde `main` sin mover tags ni duplicar la Release. Un tag de la misma versión sobre otro commit siempre se rechaza.
+
+**Imprescindible:** proteger `main` con PR obligatorios y checks de CI. Un `push` directo sobre main también dispara el workflow: la protección es la que garantiza que esos cambios proceden de una revisión. Configura permisos GitHub Actions para que `GITHUB_TOKEN` pueda crear tags y releases; sólo el job `publish` necesita `contents: write`.
+
+Las releases representan artefactos verificados por CI, pero eso no sustituye la revisión de licencias y atribuciones de agentes/skills externos. No hay deploy cloud, Terraform apply, push Docker ni publicación NPM automática.
+
+Detalles: [GitHub Actions y release](.github/workflows.md).
+
 ## 7. Seguridad y garantías
 
 - **Sin acciones remotas sin aprobación específica:** ni instalación de SDKs o dependencias, ni Terraform apply/destroy, ni playbooks contra servidores, ni push de imágenes, ni `helm`/`kubectl` contra clústeres, ni despliegues.
