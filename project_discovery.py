@@ -25,7 +25,7 @@ def safe_scope(root: Path, scope: str = ".") -> Path:
     if root.is_symlink() or not root.is_dir():
         raise ValueError("project root must be an existing non-symlink directory")
     raw = Path(scope)
-    if raw.is_absolute() or not raw.parts or any(p in ("..", "") for p in raw.parts):
+    if raw.is_absolute() or any(p in ("..", "") for p in raw.parts):
         raise ValueError("scope must be an existing relative project path")
     path = root
     for part in raw.parts:
