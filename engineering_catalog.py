@@ -282,7 +282,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.error('Nombres fuera del catálogo: '+', '.join(sorted(unknown)))
     if not choices:
         profile_path=root/'.harness/project-profile.json'
-        if not profile_path.is_file():parser.error('Falta perfil del proyecto; ejecuta /aikya-init')
+        if not profile_path.is_file():parser.error('Falta perfil del proyecto; usa /aikya-init para nuevo o /aikya-analyze para existente')
         profile=json.loads(profile_path.read_text(encoding='utf8'))
         selected=discover(root,profile.get('decisions',{}),profile.get('detected',{}).get('modules',[]))
     if args.action=='plan':
