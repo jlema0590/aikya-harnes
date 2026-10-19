@@ -150,7 +150,7 @@ class VersionContractTests(unittest.TestCase):
         self.assertNotIn("contents: write",yaml)
 
     def test_version_and_release_notes_in_repo(self):
-        self.assertEqual("5.9.1",(ROOT/"VERSION").read_text().strip())
+        self.assertEqual("6.0.0",(ROOT/"VERSION").read_text().strip())
         changelog=(ROOT/"CHANGELOG.md").read_text()
         self.assertIn("## v5.9.1",changelog)
         self.assertIn("Corrección y automatización",changelog)
