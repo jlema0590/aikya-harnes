@@ -14,7 +14,7 @@ Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**.
    > **Instala Aikya Harness** desde `https://github.com/jlema0590/aikya-harness.git`, rama `develop`, en **modo global**. Revisa la fuente antes de instalar y pide mi aprobación para cualquier descarga o cambio de configuración. Registra sus skills, hooks y bienvenida, sin modificar otros repositorios ni instalar SDKs automáticamente. Después explícame cómo usar `/aikya-init`.
 
 2. **Abre una sesión nueva** de Claude Code para que se carguen los comandos `/aikya-*` y el panel de bienvenida.
-3. Ejecuta `/aikya-init` en el repositorio que quieras inicializar.
+3. Ejecuta `/aikya-init` en una carpeta nueva sin código, o `/aikya-analyze` en un repositorio existente para detectar su stack e incorporar Aikya sin entrevista.
 
 | Modo de instalación | Efecto |
 |---|---|
@@ -23,9 +23,12 @@ Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**.
 
 En ambos casos no se sobrescriben skills ni configuraciones personalizadas.
 
+
+**Proyectos existentes:** abre el repositorio en Claude Code y ejecuta `/aikya-analyze --dry-run` para previsualizar el descubrimiento. El comando `/aikya-analyze` primero presenta el plan; la incorporación real exige autorización explícita. `--report-only` no escribe; `--refresh` actualiza exclusivamente documentos gestionados cuyo hash previo coincide; `--scope` limita la exploración y `--focus security|architecture|infrastructure|operations` prioriza el informe. Si el proyecto es ambiguo devuelve `PARTIAL`/`NEEDS_REVIEW` y nunca inventa tecnología. No ejecuta builds, Terraform, Docker ni scripts del usuario. Para directorios vacíos utiliza `/aikya-init`.
+
 ## 2. Tipos de proyecto
 
-La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`); después, si el repositorio es nuevo o existente (`mode`). Un perfil antiguo sin `project_type` se trata como `development`.
+La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`); siempre crea `mode: new` y no ofrece modalidad de proyecto existente. Para adoptar repositorios con código se utiliza `/aikya-analyze`, que detecta automáticamente el stack, prepara el perfil `mode: existing` y propone los archivos del harness antes de pedir aprobación. Los perfiles legados sin `project_type` continúan tratándose como `development`.
 
 | Tipo | Qué pregunta | Qué genera |
 |---|---|---|
@@ -48,7 +51,8 @@ La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`)
 
 | Grupo | Comando | Qué hace | Ejemplo |
 |---|---|---|---|
-| Inicialización | `/aikya-init` | Entrevista técnica para proyecto nuevo o existente. | `/aikya-init Quiero una API Java 21 con React` |
+| Inicialización nueva | `/aikya-init` | Entrevista técnica solo para proyectos desde cero. | `/aikya-init Quiero una API Java 21 con React` |
+| Adopción existente | `/aikya-analyze` | Detecta el repositorio, genera un plan y, con consentimiento, instala Aikya sin reescribir código. | `/aikya-analyze --focus architecture` |
 | | `/aikya-answers` | Reutiliza un archivo de decisiones aprobado. | `/aikya-answers examples/next-react/answers.json` |
 | | `/aikya-doctor` | Diagnostica SDKs y herramientas sin modificarlos. | `/aikya-doctor Revisa si tengo el SDK .NET adecuado` |
 | | `/aikya-project-init` | Define alcance, estructura, roadmap y ADR inicial. | `/aikya-project-init Planifica una API de inventario` |
