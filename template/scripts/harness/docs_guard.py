@@ -205,7 +205,7 @@ def nonplaceholder(path: Path) -> bool:
         s = path.read_text(encoding='utf8')
     except (OSError,UnicodeError):
         return False
-    return len(s.strip()) >= 80 and 'TODO: completar' not in s and 'PENDIENTE_DE_COMPLETAR' not in s
+    return len(s.strip()) >= 80 and 'TODO: completar' not in s and 'PENDIENTE_DE_COMPLETAR' not in s and 'TODO: complete' not in s and 'PENDING_COMPLETION' not in s
 
 
 def validate_request(state: dict, now: dict|None=None) -> tuple[bool,list[str]]:
@@ -223,9 +223,12 @@ def validate_request(state: dict, now: dict|None=None) -> tuple[bool,list[str]]:
         errors.append(f'Falta bitácora sustantiva de la petición: {change_path}.')
     else:
         content = (ROOT/change_path).read_text(encoding='utf8')
-        for heading in ('## Cambios', '## Evidencias', '## Documentos actualizados'):
-            if heading not in content:
-                errors.append(f'La bitácora debe contener {heading}.')
+        # Accept a complete ES or EN heading set. Historical Spanish logs remain valid.
+        expected_sets = (('## Changes', '## Evidence', '## Updated documents'),
+                         ('## Cambios', '## Evidencias', '## Documentos actualizados'))
+        if not any(all(heading in content for heading in headings)
+                   for headings in expected_sets):
+            errors.append('Change logs require a complete, consistent EN or ES heading set.')
         if not any(p in content for p in changed):
             errors.append('La bitácora no referencia ninguno de los archivos de código modificados.')
         if not any(doc in content for doc in required):
