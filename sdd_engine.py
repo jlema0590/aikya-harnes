@@ -375,7 +375,7 @@ def validate(root):
             if data.get("verification"):
                 for item in data["verification"]["requirements"]:
                     rel_file(root,item["evidence"],must_exist=True)
-        except (OSError,ValueError) as exc:
+        except (OSError,ValueError,KeyError,TypeError) as exc:
             errors.append(str(file)+": "+str(exc))
     return {"valid":not errors,"specifications":count,"errors":errors}
 
@@ -428,7 +428,7 @@ def main(argv=None):
                     result=status_data(data)
         print(json.dumps(result,ensure_ascii=False,indent=2))
         return 0 if not (args.action=="lint" and not result["valid"]) else 1
-    except (SddError,OSError,UnicodeError,TypeError,ValueError) as exc:
+    except (SddError,OSError,UnicodeError,TypeError,ValueError,KeyError) as exc:
         print("ERROR SDD: "+str(exc),file=sys.stderr)
         return 2
 

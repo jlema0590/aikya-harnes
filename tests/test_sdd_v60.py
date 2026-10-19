@@ -181,6 +181,16 @@ class Sdd60Tests(unittest.TestCase):
         with self.assertRaisesRegex(sdd.SddError,"repetido"):
             sdd.fields_spec(f)
 
+    def test_lint_reports_corrupted_state_instead_of_crashing(self):
+        self.configured()
+        sdd.initialize(self.root,self.fixture("development")["spec"])
+        state=self.root/"aikya/docs/specs/development/SPEC-001/state.json"
+        state.write_text('{"id":"SPEC-001","kind":"development","schema":1}')
+        result=sdd.validate(self.root)
+        self.assertFalse(result["valid"])
+        self.assertTrue(result["errors"])
+        self.assertEqual(1,sdd.main(["lint","--root",str(self.root)]))
+
     def test_status_list_and_lint_cli(self):
         self.configured()
         self.assertEqual(0,sdd.main(["lint","--root",str(self.root)]))
