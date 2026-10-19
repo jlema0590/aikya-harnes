@@ -1,5 +1,7 @@
 # Auditoría de skills y estrategia de consumo de tokens — Harness v4
 
+> **Documento histórico.** Auditoría original de la integración de skills externas (v4), ampliada en v5.2. Los comandos y el catálogo vigentes se describen en el [README](../../README.md).
+
 Fecha de revisión: 2026-10-18. Fuentes: documentación publicada en GitHub por los mantenedores y [Agent Skills Specification](https://agentskills.io/specification). Revisión del harness local y pruebas sintácticas incluidas. No se han ejecutado los instaladores upstream por no disponer de conectividad saliente en el entorno donde se preparó este ZIP.
 
 ## 1. Comparativa con la especificación
@@ -31,7 +33,7 @@ En v3 las ocho skills son: `architecture-review`, `bugfix`, `documentation-sync`
 ## 3. Política operativa para reducir tokens
 
 - **Evita cargas completas**: Graphify se consulta con una pregunta acotada y se comprueba el código fuente; nunca se vuelca `graph.json` a la conversación.
-- **No reindexar por prompt**: indexar código una vez y actualizar cuando haya cambios relevantes. Generar aikya/docs/PDFs semánticos puede usar el modelo y no es «gratis».
+- **No reindexar por prompt**: indexar código una vez y actualizar cuando haya cambios relevantes. Generar documentos o PDFs semánticos puede usar el modelo y no es «gratis».
 - **No invocar las tres skills siempre**: sus descripciones breves pueden estar disponibles, pero el contenido completo sólo cuando una tarea las necesita.
 - **Evitar especialización innecesaria**: subagentes sólo si hay un análisis complejo o revisión independiente que justifica coste adicional.
 - **Mantener pruebas y seguridad**: un menor número de líneas o tokens no equivale a mejor calidad sin evidencia.
@@ -54,7 +56,7 @@ Cualquier skill externa puede introducir instrucciones adversas o depender de so
 
 - [Agent Skills: specification](https://agentskills.io/specification)
 - [Agent Skills: source and documentation](https://github.com/agentskills/agentskills)
-- [Claude Code: skills](https://code.claude.com/aikya/docs/en/skills)
+- [Claude Code: skills](https://code.claude.com/docs/en/skills)
 - [Ponytail](https://github.com/DietrichGebert/ponytail)
 - [Graphify](https://github.com/Graphify-Labs/graphify)
 - [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
