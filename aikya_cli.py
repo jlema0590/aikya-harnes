@@ -33,6 +33,7 @@ def main(argv=None):
     parser.add_argument('--display-name')
     parser.add_argument('--scope',default='.')
     parser.add_argument('--focus',choices=['general','security','architecture','infrastructure','operations'],default='general')
+    parser.add_argument('--docs-lang',choices=['en','es'],default=None,help='Aikya living documentation language')
     parser.add_argument('--refresh',action='store_true')
     parser.add_argument('--report-only',action='store_true')
     parser.add_argument('--approved',action='store_true',help='Explicit approval to create Aikya-owned files')
@@ -43,7 +44,7 @@ def main(argv=None):
         try:
             result=execute(target,scope=args.scope,focus=args.focus,
                            approved=args.approved,refresh=args.refresh,
-                           dry_run=args.dry_run,report_only=args.report_only)
+                           dry_run=args.dry_run,report_only=args.report_only,docs_lang=args.docs_lang)
         except (ValueError,OSError,UnicodeError,TypeError) as exc:
             print('ERROR en análisis:',exc,file=sys.stderr)
             return 2
@@ -75,7 +76,7 @@ def main(argv=None):
         # Compatibility shim: existing profiles remain valid but no user IaC, CI or Docker files change.
         detected=installer.detect_project(target)
         try:
-            actions=installer.install(target,profile,detected,dry_run=args.dry_run,adopt_existing=True)
+            actions=installer.install(target,profile,detected,dry_run=args.dry_run,adopt_existing=True,docs_lang=args.docs_lang)
         except (ValueError,OSError,UnicodeError) as exc:
             print('ERROR de adopcion:',exc,file=sys.stderr)
             return 2
@@ -94,6 +95,7 @@ def main(argv=None):
     flags=['--target',str(target),'--answers',str(source),'--external',args.external]
     if args.dry_run: flags.append('--dry-run')
     if args.display_name: flags+=['--display-name',args.display_name]
+    if args.docs_lang: flags+=['--docs-lang',args.docs_lang]
     if (target/'.aikya/bootstrap.json').exists() or (target/'.aikya/answers.json').exists(): flags.append('--allow-bootstrap')
     result=installer.main(flags)
     if result==0 and not args.dry_run:
