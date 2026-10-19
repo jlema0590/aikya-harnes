@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from token_policy import validated, resolved_agent_model
-from token_report import summarize, estimate_cost
+from token_report import summarize, estimate_cost, estimate_haiku_55_request
 
 class PolicyTests(unittest.TestCase):
     def test_v591_backwards_compatibility(self):
@@ -61,6 +61,19 @@ class PolicyTests(unittest.TestCase):
             self.assertEqual(data["largest_tool_results"][0]["tool_use_id"], "tool1")
             self.assertEqual(data["largest_tool_results"][0]["bytes"], len("SECRET_SUPPRESSED"))
             self.assertNotIn("SECRET_SUPPRESSED", json.dumps(data))
+
+    def test_haiku_55_price_threshold_is_per_request(self):
+        small = estimate_haiku_55_request({"input_tokens": 100000})
+        large = estimate_haiku_55_request({"input_tokens": 100001})
+        self.assertEqual("up_to_100k", small["pricing_tier"])
+        self.assertEqual("over_100k", large["pricing_tier"])
+        self.assertEqual(.01, small["minimum_usd"])
+        self.assertGreater(large["minimum_usd"], .05)
+
+    def test_haiku_55_cache_ttl_is_reported_as_bounds(self):
+        estimate = estimate_haiku_55_request({"cache_creation_input_tokens": 100000})
+        self.assertEqual(.0125, estimate["minimum_usd"])
+        self.assertEqual(.02, estimate["maximum_usd"])
 
     def test_usage_streaming_cumulative_max(self):
         with tempfile.TemporaryDirectory() as d:
