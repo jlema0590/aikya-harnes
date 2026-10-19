@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.0.0 — Token Efficiency & Observability (en desarrollo)
+
+- Política de modelos por rol conservadora y validada: Opus para planificación y orquestación, herencia para tareas habituales y Haiku opcional con consentimiento.
+- Comandos `/aikya-models` y `/aikya-tokens` para selección explícita y métricas de sesiones locales; sin modificar la configuración global.
+- Compatibilidad con perfiles 5.9.1, conservación de personalizaciones y pruebas de regresión.
+- Reglas de higiene de contexto para salidas de CLI, diffs y logs.
+
+
 ## v5.9.1 — Corrección y automatización de GitHub Actions
 
 - Publicación automática de tags y GitHub Releases tras integrar una versión aprobada en `main`.
