@@ -43,3 +43,8 @@ La bienvenida mediante SessionStart aparece al comenzar una NUEVA sesión de Cla
 ## Selección de modelos (Aikya v6)
 
 Después de confirmar el tipo de proyecto y antes de instalar, ofrece configurar modelos con `/aikya-models`: recomienda Opus para planner/orchestrator y `inherit` para desarrolladores y revisores. Si la sesión usa Opus, recomienda Sonnet para tareas rutinarias, pero no la cambies sin autorización. Haiku solo como auxiliar opt-in y tras validar disponibilidad. Guarda la política por separado en `.aikya/model-policy.json`; para respuestas 5.9.1 sin política, preserva el comportamiento existente sin añadir preguntas obligatorias ni alterar el esquema de `answers.json`.
+
+
+## Routing híbrido opcional v6 — Haiku 5.5
+
+Después de identificar project_type y mode (sin alterar el orden de la entrevista v5.9.1), ofrece opcionalmente /aikya-models. La selección predeterminada es Opus en planner/orchestrator, inherit para ingeniería y auxiliares desactivados. Haiku 5.5 solo mediante consentimiento, CLI compatible y acceso confirmado. No hagas preguntas de modelos obligatorias a los perfiles v5.9.1 ni reescribas su answers.json. Si la configuración de modelos v1 ya existe, muéstrala y solicita una migración expresa por separado. No uses Haiku si el proveedor real no es compatible.
