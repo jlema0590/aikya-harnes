@@ -214,6 +214,50 @@ class Sdd60Tests(unittest.TestCase):
             self.assertFalse((root/"aikya/scripts/harness/sdd_engine.py").exists())
             self.assertFalse((root/"aikya/docs/specs/README.md").exists())
 
+    def test_sdd_blocks_infrastructure_without_approved_tasks(self):
+        import importlib.util
+        spec=importlib.util.spec_from_file_location("sdd_infra_gate",
+             ROOT/"template/scripts/harness/infrastructure.py")
+        module=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        p=self.profile("infrastructure")
+        self.assertFalse(module.sdd_approved(self.root,p))
+        status,notes=module.generate(self.root,p,approved=True)
+        self.assertEqual(2,status)
+        self.assertTrue(any("SDD" in n for n in notes))
+        f=self.fixture("infrastructure")
+        self.configured("infrastructure")
+        sdd.initialize(self.root,f["spec"])
+        sdd.clarify(self.root,"SPEC-001",f["clarify"])
+        sdd.approve(self.root,"SPEC-001","spec","reviewer")
+        sdd.create_plan(self.root,"SPEC-001",f["plan"])
+        sdd.approve(self.root,"SPEC-001","plan","reviewer")
+        sdd.create_tasks(self.root,"SPEC-001",f["tasks"])
+        sdd.approve(self.root,"SPEC-001","tasks","reviewer")
+        self.assertTrue(module.sdd_approved(self.root,p))
+        result,_=module.generate(self.root,p,approved=True)
+        self.assertEqual(0,result)
+
+    def test_sdd_blocks_scaffold_until_tasks_approved(self):
+        import importlib.util
+        spec=importlib.util.spec_from_file_location("sdd_scaffold_gate",
+             ROOT/"template/scripts/harness/scaffold.py")
+        module=importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        p=self.profile("development")
+        self.assertFalse(module.sdd_approved(self.root,p))
+        f=self.fixture("development")
+        self.configured()
+        sdd.initialize(self.root,f["spec"])
+        sdd.clarify(self.root,"SPEC-001",f["clarify"])
+        sdd.approve(self.root,"SPEC-001","spec","reviewer")
+        sdd.create_plan(self.root,"SPEC-001",f["plan"])
+        sdd.approve(self.root,"SPEC-001","plan","reviewer")
+        sdd.create_tasks(self.root,"SPEC-001",f["tasks"])
+        self.assertFalse(module.sdd_approved(self.root,p))
+        sdd.approve(self.root,"SPEC-001","tasks","reviewer")
+        self.assertTrue(module.sdd_approved(self.root,p))
+
     def test_catalog_of_sdd_commands_exists(self):
         for name in ("aikya-specify","aikya-clarify","aikya-plan",
                      "aikya-tasks","aikya-implement","aikya-sdd-status"):

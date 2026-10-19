@@ -287,9 +287,38 @@ def plan(root: Path, profile: dict) -> str:
     return '\n'.join(result)
 
 
+def sdd_approved(root: Path, profile: dict) -> bool:
+    """Comprobación defensiva sin depender del runtime global ni ejecutar código."""
+    if profile.get("methodology","standard")!="sdd":
+        return True
+    kind=profile.get("project_type","development")
+    if kind not in ("development","infrastructure","devops"):
+        return False
+    folder=root/"aikya/docs/specs"/kind
+    if not folder.is_dir() or folder.is_symlink():
+        return False
+    for candidate in folder.glob("SPEC-*/state.json"):
+        if candidate.is_symlink() or candidate.parent.is_symlink():
+            continue
+        try:
+            info=json.loads(candidate.read_text(encoding="utf-8"))
+        except (OSError,ValueError,UnicodeError):
+            continue
+        approved=info.get("approvals",{})
+        if (info.get("schema")==1 and info.get("kind")==kind
+                and info.get("id")==candidate.parent.name
+                and isinstance(approved,dict)
+                and all(approved.get(step,{}).get("approved") is True
+                        for step in ("spec","plan","tasks"))
+                and info.get("tasks")):
+            return True
+    return False
+
 def generate(root: Path, profile: dict, approved: bool=False) -> tuple[int,list[str]]:
     if not approved:
         return 2,['Aprobación explícita requerida. Usa generate --approved sólo tras mostrar el plan.']
+    if not sdd_approved(root,profile):
+        return 2,['SDD sin especificación, diseño y tareas aprobadas: ejecuta /aikya-specify y /aikya-tasks.']
     specs_map,pending=specs(root,profile)
     existing=[str(path) for rel in specs_map if (path:=root/rel).exists() and path.is_symlink()]
     existing += [str(path) for rel in specs_map for path in (root/rel).parents if root in (path,*path.parents) and path.is_symlink()]

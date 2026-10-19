@@ -165,6 +165,28 @@ def _single_scaffold(p: dict, root: Path, item: dict, runner) -> int:
     return 0
 
 
+def sdd_approved(root: Path, profile: dict) -> bool:
+    """No ejecutar generadores de código sin SPEC-NNN con tareas aprobadas."""
+    if profile.get("methodology","standard")!="sdd":
+        return True
+    kind=profile.get("project_type","development")
+    base=root/"aikya/docs/specs"/kind
+    if not base.is_dir() or base.is_symlink():
+        return False
+    for f in base.glob("SPEC-*/state.json"):
+        if f.is_symlink() or f.parent.is_symlink():
+            continue
+        try:
+            obj=json.loads(f.read_text(encoding="utf-8"))
+        except (ValueError,OSError,UnicodeError):
+            continue
+        gates=obj.get("approvals",{})
+        if (obj.get("schema")==1 and obj.get("kind")==kind and obj.get("id")==f.parent.name
+                and isinstance(gates,dict) and obj.get("tasks")
+                and all(gates.get(x,{}).get("approved") is True for x in ("spec","plan","tasks"))):
+            return True
+    return False
+
 def apply(p:dict, root:Path, assume_yes:bool=False, runner=subprocess.run) -> int:
     cmds,manual=command_plans(p)
     root=root.resolve()
@@ -173,6 +195,9 @@ def apply(p:dict, root:Path, assume_yes:bool=False, runner=subprocess.run) -> in
         return 2
     if p.get('mode')!='new':
         print('No ejecutar scaffold sobre proyecto existente.',file=sys.stderr)
+        return 2
+    if not sdd_approved(root,p):
+        print('SDD requiere SPEC-NNN con requisitos, diseño y tareas aprobadas antes de scaffold.',file=sys.stderr)
         return 2
     if not cmds:
         print(plan(p))
