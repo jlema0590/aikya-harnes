@@ -120,7 +120,8 @@ class RouterTests(unittest.TestCase):
 
     def test_haiku_only_advises_under_approved_policy(self):
         self.assertIsNone(route("Ayúdame a revisar esto")["auxiliary_agent"])
-        enabled = route("Ayúdame a revisar esto", enabled_policy())
+        with patch("model_capabilities.inspect_cli", return_value={"version":"2.1.293"}):
+            enabled = route("Ayúdame a revisar esto", enabled_policy())
         self.assertEqual(enabled["auxiliary_agent"], "aikya-auxiliary-analyzer")
         self.assertEqual(enabled["auxiliary_task"], "classification")
         self.assertIn("no LLM invoked", enabled["note"])
@@ -128,7 +129,8 @@ class RouterTests(unittest.TestCase):
     def test_ambiguous_low_risk_semantic_advice(self):
         advice = {"category": "testing", "confidence": .94,
                   "suggested_role": "test-engineer", "requires_planning": False}
-        r = route("Ayúdame con esto", enabled_policy(), semantic=advice)
+        with patch("model_capabilities.inspect_cli", return_value={"version":"2.1.293"}):
+            r = route("Ayúdame con esto", enabled_policy(), semantic=advice)
         self.assertEqual(r["recommended_role"], "test-engineer")
         self.assertTrue(r["semantic_advice_accepted"])
 
