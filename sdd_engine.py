@@ -363,8 +363,10 @@ def validate(root):
         try:
             ident=file.parent.name
             kind=file.parent.parent.name
-            folder,data=load(root,ident)
-            require(data["kind"]==kind,"Tipo incoherente")
+            folder=location(root,kind,ident)
+            data=read_json(file)
+            require(data.get("id")==ident and data.get("kind")==kind and data.get("schema")==1,
+                    "Identificador, tipo o schema incoherente")
             require((folder/"spec.md").is_file(),"Falta spec.md")
             if data["plan"] is not None:require((folder/"plan.md").is_file(),"Falta plan.md")
             if data["tasks"]:require((folder/"tasks.md").is_file(),"Falta tasks.md")

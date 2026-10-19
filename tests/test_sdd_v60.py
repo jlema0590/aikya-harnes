@@ -69,9 +69,8 @@ class Sdd60Tests(unittest.TestCase):
                 status=sdd.status_data(sdd.load(self.root,"SPEC-001")[1])
                 self.assertEqual(kind,status["project_type"])
                 # Reinicialización, siempre con root temporal nuevo entre modos.
-                if kind!="devops":
-                    for path in (self.root/".harness").rglob("*"):
-                        pass
+                self.assertTrue(sdd.validate(self.root)["valid"])
+        self.assertEqual(3,sdd.validate(self.root)["specifications"])
 
     def test_spec_gating_clarifications_and_approval(self):
         self.configured()
