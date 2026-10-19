@@ -46,7 +46,7 @@ def build(root: Path, inventory: dict) -> dict:
                     unresolved.append("Unrecognized mobile platform " + tech)
             else:
                 profile[role] = tech
-        root_paths = {m.get("path") for m in modules if m.get("path") not in (".", "")}
+        root_paths = {m.get("path", ".") for m in modules}
         profile["repository_layout"] = "monorepo" if len(root_paths) > 1 else "singlerepo"
         # Cannot infer the application's framework or API style from a language alone.
         if profile["backend"] == "next" and profile["frontend"] == "none":
@@ -54,14 +54,15 @@ def build(root: Path, inventory: dict) -> dict:
         if not any(profile[k] != "none" for k in ("backend", "frontend", "mobile")):
             unresolved.append("No unambiguous application technology for the legacy profile.")
     evidence = set(inventory.get("evidence_paths", []))
-    if any(p.endswith(".github/workflows") or "/.github/workflows/" in p for p in evidence):
+    if any(p.startswith(".github/workflows/") or "/.github/workflows/" in p for p in evidence):
         profile["ci"] = "github-actions"
     if "kubernetes" in infra:
         profile["deployment"] = "kubernetes"
     elif "docker" in infra:
         profile["deployment"] = "docker"
     profile["infrastructure"] = {
-        "provider": "none", "iac": "terraform" if "terraform" in infra else "none",
+        "provider": (next((x for x in ("azure", "aws", "gcp") if x in infra), "none")),
+        "iac": "terraform" if "terraform" in infra else "none",
         "configuration_management": "ansible" if "ansible" in infra else "none",
         "containers": {"enabled": "docker" in infra or "kubernetes" in infra,
                        "compose": "compose" in infra},
