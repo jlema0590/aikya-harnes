@@ -323,18 +323,24 @@ def validate(root: Path, profile: dict, executor=subprocess.run) -> tuple[int,li
     if infra['orchestration']=='kubernetes':
         method=infra['deployment_method']
         if method=='helm':
+            # Comparar siempre rutas resueltas: root puede llegar por un symlink (p. ej. /var -> /private/var en macOS).
+            base=root.resolve()
             existing=infra.get('helm_chart_mode')=='existing'
             if existing:
                 relative=infra.get('helm_chart_path','')
                 chartdir=(root/relative).resolve()
-                if not chartdir.is_relative_to(root.resolve()) or not (chartdir/'Chart.yaml').is_file():
+                if not chartdir.is_relative_to(base) or not (chartdir/'Chart.yaml').is_file():
                     return 2,['NOT_CONFIGURED: chart Helm no encontrado o fuera del proyecto.']
                 charts=[chartdir/'Chart.yaml']
             else:
                 charts=list((root/'infra/helm/charts').glob('*/Chart.yaml')) if (root/'infra/helm/charts').exists() else []
             for chart in charts:
-                checks.append(('Helm lint',['helm','lint',str(chart.parent.relative_to(root))]))
-                checks.append(('Helm template',['helm','template','aikya-check',str(chart.parent.relative_to(root))]))
+                chartdir=chart.parent.resolve()
+                if not chartdir.is_relative_to(base):
+                    return 2,['NOT_CONFIGURED: chart Helm no encontrado o fuera del proyecto.']
+                chart_rel=chartdir.relative_to(base).as_posix()
+                checks.append(('Helm lint',['helm','lint',chart_rel]))
+                checks.append(('Helm template',['helm','template','aikya-check',chart_rel]))
         if method=='kustomize' and (root/'infra/kubernetes/base/kustomization.yaml').exists():
             checks.append(('Kustomize build',['kustomize','build','infra/kubernetes/base']))
     results=[]

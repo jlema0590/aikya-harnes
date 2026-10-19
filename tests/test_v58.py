@@ -163,6 +163,47 @@ class AutonomousModeTests(unittest.TestCase):
             self.assertEqual('helm',calls[0][0])
             self.assertEqual((chart/'Chart.yaml').read_text(),'apiVersion: v2\nname: company\nversion: 0.1.0\n')
 
+    def test_helm_charts_validate_when_root_is_a_symlink(self):
+        with tempfile.TemporaryDirectory() as d:
+            real=Path(d)/'real'
+            (real/'charts/company').mkdir(parents=True)
+            (real/'charts/company/Chart.yaml').write_text('apiVersion: v2\nname: company\nversion: 0.1.0\n')
+            (real/'infra/helm/charts/web').mkdir(parents=True)
+            (real/'infra/helm/charts/web/Chart.yaml').write_text('apiVersion: v2\nname: web\nversion: 0.1.0\n')
+            root=Path(d)/'link'
+            root.symlink_to(real,target_is_directory=True)
+            for mode,expected in (('existing','charts/company'),('create','infra/helm/charts/web')):
+                with self.subTest(mode=mode):
+                    info=self.infra(iac='none',provider='none',orchestration='kubernetes',
+                         deployment_method='helm',source_kind='chart',
+                         helm_chart_mode=mode,helm_chart_path='charts/company' if mode=='existing' else '')
+                    calls=[]
+                    def runner(command,**kwargs):
+                        calls.append(command)
+                        return SimpleNamespace(returncode=0,stdout='',stderr='')
+                    with patch.object(GEN.shutil,'which',return_value='/fake/helm'):
+                        status,_=GEN.validate(root,self.profile(root,'devops',infrastructure=info),executor=runner)
+                    self.assertEqual(0,status)
+                    self.assertEqual([expected,expected],[c[-1] for c in calls])
+
+    def test_generated_chart_symlinked_outside_project_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            outside=Path(d)/'outside'
+            outside.mkdir()
+            (outside/'Chart.yaml').write_text('apiVersion: v2\nname: evil\nversion: 0.1.0\n')
+            root=Path(d)/'project'
+            (root/'infra/helm/charts').mkdir(parents=True)
+            (root/'infra/helm/charts/evil').symlink_to(outside,target_is_directory=True)
+            info=self.infra(iac='none',provider='none',orchestration='kubernetes',
+                 deployment_method='helm',source_kind='chart',helm_chart_mode='create')
+            calls=[]
+            with patch.object(GEN.shutil,'which',return_value='/fake/helm'):
+                status,rows=GEN.validate(root,self.profile(root,'devops',infrastructure=info),
+                                         executor=lambda c,**k: calls.append(c))
+            self.assertEqual(2,status)
+            self.assertIn('fuera del proyecto',rows[0])
+            self.assertEqual([],calls)
+
     def test_existing_helm_path_traversal_rejected(self):
         with tempfile.TemporaryDirectory() as d:
             info=self.infra(iac='none',provider='none',orchestration='kubernetes',
