@@ -127,6 +127,18 @@ def scan(root: Path, scope: str = ".") -> dict:
                     infra.add("compose")
             elif entry.suffix in (".tf", ".tfvars") or entry.name in ("terragrunt.hcl", "terraform.tf"):
                 infra.add("terraform")
+                # Inspect limited declarative provider blocks; never read tfvars/secrets.
+                if entry.suffix == ".tf":
+                    try:
+                        excerpt = entry.open(encoding="utf8").read(12000)
+                        if re.search(r'\b(?:provider\s*["\']azurerm["\']|azurerm_\w+)', excerpt):
+                            infra.add("azure")
+                        elif re.search(r'\b(?:provider\s*["\']aws["\']|aws_\w+)', excerpt):
+                            infra.add("aws")
+                        elif re.search(r'\b(?:provider\s*["\']google["\']|google_\w+)', excerpt):
+                            infra.add("gcp")
+                    except (OSError, UnicodeError):
+                        pass
             elif entry.name in ("Chart.yaml", "kustomization.yaml"):
                 infra.add("kubernetes")
                 if entry.name == "Chart.yaml":
