@@ -6,6 +6,9 @@
 - Comandos `/aikya-models` y `/aikya-tokens` para selección explícita y métricas de sesiones locales; sin modificar la configuración global.
 - Compatibilidad con perfiles 5.9.1, conservación de personalizaciones y pruebas de regresión.
 - Reglas de higiene de contexto para salidas de CLI, diffs y logs.
+- Haiku 5.5 opcional para extracción, clasificación, routing y borradores documentales mediante agentes read-only; compatibilidad preservada con políticas v1 de Haiku 4.5.
+- Router híbrido determinista con validación de sugerencias, escalado a Planner/Orchestrator solo para tareas complejas y comprobación de CLI/proveedor.
+- Estimación transparente de coste API para Haiku 5.5 según tramo de contexto y duración incierta de caché, sin atribuir ahorro no medido.
 
 
 ## v5.9.1 — Corrección y automatización de GitHub Actions
