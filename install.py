@@ -680,9 +680,11 @@ def migrate_v55_project_config(target: Path, actions: list[str]) -> None:
         actions.append('MIGRADOS quality gates anteriores sin alterar checks personalizados.')
 
 
-def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False) -> list[str]:
+def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False, *, adopt_existing: bool=False) -> list[str]:
     """Instala sin sobrescribir archivos de usuario. Para dry-run no muta."""
     actions: list[str] = []
+    if adopt_existing and profile.get('mode') != 'existing':
+        raise ValueError('adopt_existing requires a legacy-compatible existing profile')
     validate_layout(profile)
     # También se admiten llamadas directas desde harnesses antiguos sin validated().
     profile = {**profile, 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
@@ -695,7 +697,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                'decisions':profile, 'detected':detected}
     if profile_path.exists():
         old = read_json_safe(profile_path)
-        if old.get('_generated_by') != 'claude-dev-harness-interactive':
+        if adopt_existing or old.get('_generated_by') != 'claude-dev-harness-interactive': 
             actions.append('CONSERVADO perfil ajeno: '+str(profile_path))
         else:
             profile_path.write_text(json.dumps(payload,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
@@ -706,7 +708,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         if not source.is_file() or '__pycache__' in source.parts or source.suffix == '.pyc':
             continue
         rel = source.relative_to(TEMPLATE)
-        if rel.as_posix() in ('CLAUDE.md','harness.json','.claude/settings.json'):
+        if rel.as_posix() in ('CLAUDE.md','harness.json','.claude/settings.json') or (adopt_existing and rel.parts[0] in ('.github', 'infra')):
             continue
         dest = target / (Path('aikya/scripts') / Path(*rel.parts[1:]) if rel.parts[0]=='scripts' else Path('aikya/test') / Path(*rel.parts[1:]) if rel.parts[0]=='tests' else rel)
         if dest.exists():
@@ -820,7 +822,10 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         from token_policy import DEFAULT
         safe_write(model_policy, json.dumps(DEFAULT,ensure_ascii=False,indent=2)+'\n', actions)
 
-    merge_settings(target, actions)
+    if not adopt_existing or not (target/'.claude/settings.json').exists():
+        merge_settings(target, actions)
+    else:
+        actions.append('CONSERVADO settings.json existente (adopcion)')
     claude = target / 'CLAUDE.md'
     if not claude.exists():
         safe_write(claude, (TEMPLATE/'CLAUDE.md').read_text(encoding='utf8') + '\n' +
@@ -863,7 +868,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     from skills_registry import write_inventory
     ok, note = write_inventory(target,profile)
     actions.append(('INVENTARIO ' if ok else 'AVISO ') + note)
-    for rel, content in infra_files(profile).items():
+    for rel, content in ({} if adopt_existing else infra_files(profile)).items():
         if rel == '.gitignore':
             ignore = target/'.gitignore'
             if not ignore.exists():
@@ -881,7 +886,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         else:
             safe_write(target/rel,content,actions)
     from infrastructure_profile import selected
-    if selected(profile['infrastructure']):
+    if selected(profile['infrastructure']) and not adopt_existing:
         from importlib.util import spec_from_file_location, module_from_spec
         infra_module = TEMPLATE/'scripts/harness/infrastructure.py'
         if infra_module.is_file():
