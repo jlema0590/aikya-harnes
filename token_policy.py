@@ -100,10 +100,9 @@ def resolved_agent_model(role: str, policy: dict) -> str:
             if role == "log-summarizer" and auxiliary_ready(p):
                 return p["auxiliary_model"]
             return p["routine_model"]
-        task = {"aikya-auxiliary-analyzer": "classification",
-                "aikya-docs-assistant": "documentation",
-                "log-summarizer": "log-summary"}[role]
-        if auxiliary_ready(p, task):
+        tasks = ({"extraction", "classification", "routing"} if role == "aikya-auxiliary-analyzer"
+                 else {"documentation"} if role == "aikya-docs-assistant" else {"log-summary"})
+        if any(auxiliary_ready(p, task) for task in tasks):
             return p["auxiliary_model"]
     return p["routine_model"]
 
