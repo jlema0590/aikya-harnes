@@ -258,6 +258,29 @@ class Sdd60Tests(unittest.TestCase):
         sdd.approve(self.root,"SPEC-001","tasks","reviewer")
         self.assertTrue(module.sdd_approved(self.root,p))
 
+    def test_upgrade_standard_project_adds_only_sdd_gate_and_backup(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            raw=json.loads((ROOT/"examples/next-react/answers.json").read_text())
+            standard=install.validated(raw,root)
+            install.install(root,standard,{"modules":[],"findings":[]})
+            original=root/"harness.json"
+            old=json.loads(original.read_text())
+            old["checks"].append({"name":"custom:lint","command":["echo","lint"],"cwd":".","required":False})
+            original.write_text(json.dumps(old,indent=2)+"\n")
+            sdd_profile=install.validated({**raw,"methodology":"sdd"},root)
+            install.install(root,sdd_profile,{"modules":[],"findings":[]})
+            new=json.loads(original.read_text())
+            names=[item["name"] for item in new["checks"]]
+            self.assertEqual(1,names.count("sdd:traceability"))
+            self.assertIn("custom:lint",names)
+            backup=root/".harness/backup-v60/harness.json"
+            self.assertTrue(backup.is_file())
+            self.assertNotIn("sdd:traceability",backup.read_text())
+            install.install(root,sdd_profile,{"modules":[],"findings":[]})
+            final=json.loads(original.read_text())
+            self.assertEqual(1,sum(i["name"]=="sdd:traceability" for i in final["checks"]))
+
     def test_catalog_of_sdd_commands_exists(self):
         for name in ("aikya-specify","aikya-clarify","aikya-plan",
                      "aikya-tasks","aikya-implement","aikya-sdd-status"):

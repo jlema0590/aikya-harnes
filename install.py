@@ -815,6 +815,25 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                        'command':['python3','aikya/scripts/harness/sdd_engine.py','lint','--root','.'],
                        'cwd':'.','required':True})
     safe_write(target/'harness.json',json.dumps({'schema_version':2,'checks':checks},indent=2,ensure_ascii=False)+'\n',actions)
+    # Activación incremental de SDD sobre proyectos Aikya ya existentes.
+    # Añade SOLO el nuevo check, con copia de seguridad, preservando otros checks.
+    manifest=target/'harness.json'
+    if profile.get('methodology')=='sdd' and manifest.is_file() and not manifest.is_symlink():
+        existing=read_json_safe(manifest)
+        if (existing.get('schema_version')==2 and isinstance(existing.get('checks'),list)):
+            already=any(isinstance(check,dict) and check.get('name')=='sdd:traceability'
+                        for check in existing['checks'])
+            if not already:
+                backup=target/'.harness/backup-v60/harness.json'
+                backup.parent.mkdir(parents=True,exist_ok=True)
+                if not backup.exists():
+                    shutil.copy2(manifest,backup)
+                existing['checks'].append(checks[-1])
+                manifest.write_text(json.dumps(existing,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
+                actions.append('AMPLIADO quality gate SDD (backup v6.0) '+str(manifest))
+        else:
+            actions.append('AVISO harness.json con esquema no gestionado: integrar gate SDD manualmente')
+
     if profile.get('methodology')=='sdd':
         engine=HERE/'sdd_engine.py'
         if not engine.is_file():
