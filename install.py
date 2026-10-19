@@ -809,7 +809,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                        local_profile.read_text(encoding='utf8'),actions)
 
     # v6: instalar utilidades de modelos/tokens sin cambiar configuración global.
-    for utility in ('token_policy.py', 'token_report.py'):
+    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py'):
         source = HERE / utility
         if source.is_file():
             safe_write(target/'aikya/scripts/harness'/utility,
