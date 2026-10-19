@@ -197,17 +197,17 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
     for finding in detected['findings']:
         print(' -', finding)
     kind=choice('Tipo de proyecto Aikya',list(PROJECT_TYPES),'development')
-    nonempty = target.exists() and any(target.iterdir())
-    mode = choice('Repositorio nuevo o existente', ['existing', 'new'], 'existing' if nonempty else 'new')
+    # Greenfield interview only; legacy existing data remains valid for analyze.
+    mode = 'new'
     if kind!='development':
         return specialized_interview(target,detected,kind,mode)
     technologies = {role: next((m['technology'] for m in detected['modules'] if m['role'] == role), 'none')
                     for role in ('backend', 'frontend', 'mobile')}
     mobile_detected = technologies['mobile']
     mobile_default = 'both' if mobile_detected in ('flutter', 'react-native') else ('android' if mobile_detected == 'android' else ('ios' if mobile_detected == 'ios' else 'none'))
-    backend = choice('Backend principal', BACKENDS, technologies['backend'] if mode == 'existing' else 'none')
-    frontend = choice('Frontend web', FRONTENDS, technologies['frontend'] if mode == 'existing' else ('react' if backend == 'next' else 'none'))
-    mobile = choice('Plataformas móviles', MOBILES, mobile_default if mode == 'existing' else 'none')
+    backend = choice('Backend principal', BACKENDS, 'none')
+    frontend = choice('Frontend web', FRONTENDS, 'react' if backend == 'next' else 'none')
+    mobile = choice('Plataformas móviles', MOBILES, 'none')
     framework = 'none'
     android_language = 'none'
     ios_ui = 'none'
@@ -233,8 +233,8 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
     frontend_rendering = choice('Estrategia de renderizado web', RENDERING, 'hybrid' if backend=='next' and frontend=='react' else 'spa') if frontend != 'none' else 'undecided'
     layout = choice('Topología del repositorio', list(LAYOUTS),
                     'monorepo' if app_count({'backend':backend, 'frontend':frontend, 'mobile':mobile, 'mobile_framework':framework}) > 1 or (target/'apps').is_dir() else 'singlerepo')
-    arch = choice('Arquitectura preferida (en existing, se respeta la observada)', ARCHS,
-                  'existing' if mode == 'existing' else 'modular-monolith')
+    arch = choice('Arquitectura preferida', [a for a in ARCHS if a != 'existing'],
+                  'modular-monolith')
     event_driven = yesno('¿El proyecto necesita eventos asíncronos como estilo complementario?', False)
     database = choice('Base de datos', DATABASES, 'undecided')
     ci = choice('Integración continua', CIS, 'undecided')
@@ -959,6 +959,9 @@ def main(argv: list[str]|None=None) -> int:
     if target.exists() and not target.is_dir():
         parser.error('--target debe ser un directorio')
     detected=detect_project(target) if target.exists() else {'modules':[],'findings':['Directorio nuevo.']}
+    if not args.answers and target.exists() and any(target.iterdir()) and not (args.allow_bootstrap and only_aikya_bootstrap(target)):
+        print('ERROR: el init interactivo es sólo para proyectos nuevos; usa /aikya-analyze.',file=sys.stderr)
+        return 2
     try:
         if args.answers:
             answers=read_json_safe(args.answers)
