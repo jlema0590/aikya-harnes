@@ -206,7 +206,8 @@ def install_selected(root: Path, selection: dict[str, list[str]], source: Path |
                     policy_path = root / '.aikya/model-policy.json'
                     policy = validated(json.loads(policy_path.read_text(encoding='utf8'))
                                        if policy_path.is_file() and not policy_path.is_symlink() else None)
-                    if policy['schema_version'] == 2:
+                    if (policy['schema_version'] == 2 and policy['auxiliary_enabled'] and
+                            name in {'aikya-auxiliary-analyzer','aikya-docs-assistant','log-summarizer'}):
                         from model_capabilities import inspect_cli, capability_status
                         if not capability_status(policy, inspect_cli().get('version'))['ready_for_cli_delegation']:
                             policy = {**policy, 'model_access_confirmed': False}
