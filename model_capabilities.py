@@ -3,6 +3,7 @@
 from __future__ import annotations
 import re
 import subprocess
+from functools import lru_cache
 
 MIN_HAIKU_55_CLAUDE_CODE = (2, 1, 293)
 HAIKU_55_ID = "claude-haiku-5-5"
@@ -11,6 +12,7 @@ def parse_cli_version(output: str) -> tuple[int, int, int] | None:
     match = re.search(r'(?<!\d)(\d+)\.(\d+)\.(\d+)(?!\d)', output)
     return tuple(map(int, match.groups())) if match else None
 
+@lru_cache(maxsize=1)
 def inspect_cli() -> dict:
     """Read-only, user-triggered version probe; does not call the Claude API."""
     try:
