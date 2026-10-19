@@ -1,6 +1,6 @@
 # Changelog
 
-## Sin publicar
+## v5.9.0 — 2026-10-19
 
 - Corregido `/aikya-infra-project validate` con Helm cuando la raíz del proyecto llega por un symlink (p. ej. `/var` → `/private/var` en macOS): ya no falla con `ValueError`. Los charts enlazados fuera del proyecto se rechazan como NOT_CONFIGURED.
 
@@ -8,7 +8,7 @@
 - `INSTALL_FROM_CLAUDE.md` integrado en el README; auditorías movidas a `docs/audits/`.
 - Eliminadas copias obsoletas de `/aikya-init`, `/aikya-answers` y `/aikya-doctor` en `.claude/skills/` del repositorio y el ejemplo sin uso `examples/existing-api.json`.
 
-## v5.8 — 2026-10-18
+## v5.8.0 — 2026-10-18
 
 - `/aikya-init`: primera selección `project_type` development, infrastructure o devops; luego nuevo/existente.
 - Modo infrastructure sin SDKs de aplicación; Terraform/OpenTofu/Ansible individuales o combinados.
@@ -19,7 +19,7 @@
 - Nuevos ejemplos y regresiones de los tres modos.
 
 
-## v5.7 — 2026-10-18
+## v5.7.0 — 2026-10-18
 
 - Solucionado el parser de Node: detecta correctamente `v25.9.0` y otras versiones con prefijo `v`.
 - Actualización segura de requisitos en runtime: copias gestionadas se migran; se conserva backup v5.6 y contenido personalizado.
@@ -30,7 +30,7 @@
 - Documentación viva, quality gates y ejemplos con Terraform/Helm y Ansible/Kustomize; pruebas automatizadas ampliadas.
 
 
-## v5.6 — 2026-10-18
+## v5.6.0 — 2026-10-18
 
 - Selección explícita de monorepo/singlerepo en entrevista y respuestas JSON.
 - Sólo monorepo crea apps/, packages/ y contracts/. Singlerepo genera una aplicación en raíz mediante staging.
@@ -39,7 +39,7 @@
 - Migración conservadora de documentación previa y actualización de quality gates.
 
 
-## v5.5 — 2026-10-18
+## v5.5.0 — 2026-10-18
 
 - Se integran 11 agentes y 11 Agent Skills adicionales de lenguajes y arquitecturas dentro de `engineering/`.
 - El catálogo tiene 23 agentes y 26 skills, selección por backend/frontend/Android y arquitectura/patrones explícitos.
@@ -48,14 +48,14 @@
 - Documentación de responsabilidades, activación selectiva, trazabilidad y auditoría ampliada.
 
 
-## v5.4 — Organización de comandos Aikya
+## v5.4.0 — 2026-10-18 — Organización de comandos Aikya
 
 - Renombrada la carpeta fuente `bootstrap_skills/` a `aikya-skills/`; sin cambios en los nombres de los comandos `/aikya-*`.
 - Actualizados el bootstrap global/proyecto, el instalador y la documentación para usar la nueva ruta.
 - Migración conservadora de runtimes existentes: se retiran sólo archivos legacy previamente gestionados y verificados; se conserva contenido personalizado.
 - Pruebas de instalación limpia, actualización en ambos alcances y protección de contenido ajeno.
 
-## v5.2 — 2026-10-18
+## v5.2.0 — 2026-10-18
 
 - Renombrados comandos: `/aikya-infra-project`, `/aikya-skills-status`, `/aikya-skills-plan`, `/aikya-skills-install`.
 - `/aikya-skills-install` admite skills GitHub adicionales con verificación de origen, ruta, nombre y commit opcional; sin sobrescribir.
@@ -63,7 +63,7 @@
 - Migración conservadora de comandos renombrados; se preservan personalizaciones.
 
 
-## v5.1 — comandos Claude-native
+## v5.1.0 — 2026-10-18 — comandos Claude-native
 
 - Comandos `/aikya-scaffold`, `/aikya-skills-status`, `/aikya-quality`, `/aikya-docs` y `/aikya-tests`, además de los comandos de desarrollo ya disponibles, invocables desde Claude Code.
 - El bootstrap global/proyecto expone 16 skills de Aikya, todas con ejecución conversacional y autorización para acciones externas; conserva las skills personalizadas.
@@ -71,7 +71,7 @@
 - Se preservan scripts internos y documentación viva obligatoria; validación de SDK antes de generar aplicaciones.
 
 
-## v5 — 2026-10-18
+## v5.0.0 — 2026-10-18
 
 - Instalación conversacional en Claude Code con scopes global/proyecto y comandos /aikya-init, /aikya-answers, /aikya-doctor.
 - Prefijos Aikya para los ocho workflows existentes sin eliminar aliases antiguos.
@@ -80,7 +80,7 @@
 - Reutilización de perfiles JSON, onboarding global sin modificar proyectos, y referencia de instalación desde URL GitHub.
 - Suite de pruebas de bootstrap y diagnóstico técnico.
 
-## v4.1 — 2026-10-18
+## v4.1.0 — 2026-10-18
 
 - Bienvenida al iniciar Claude Code con panel de texto, nombre local configurable, repositorio detectado y URL de Aikya.
 - Hook `SessionStart` no intrusivo: mensaje visible al usuario sin añadir contexto al modelo, sin red y sin avisos en compactación.
@@ -88,7 +88,7 @@
 - README: referencia completa de comandos CLI y las ocho skills propias, cada una con ejemplo; vista previa del saludo.
 - Hooks de bienvenida tanto para el propio repositorio Aikya como para proyectos instalados.
 
-## v4 — 2026-10-18
+## v4.0.0 — 2026-10-18
 
 - Entrevista y bootstrap v3 conservados: Java, .NET, Node, Next, Vue, React, Android, iOS y multiplataforma.
 - Integración autorizada por el usuario de Ponytail, Graphify CLI sin MCP y UI UX Pro Max condicional por stack.
@@ -98,14 +98,6 @@
 - Migración segura de archivos v3 originales con respaldo; archivos personalizados preservados.
 - Suite de 32 pruebas automatizadas locales; se requieren pruebas externas en equipo con red.
 
-## v3
+## v3.0.0 — 2026-10-18
 
 - Engineering Bootstrap, entrevista, scaffold asistido, infraestructura y documentación viva con hooks de trazabilidad.
-
-## v5.3 — Integración de catálogo técnico
-
-- Revisados 19 agentes y 21 skills del ZIP externo del usuario. Excluidos 6 agentes jurídicos, 6 skills jurídicas y todos los componentes de LinkedIn.
-- Integrados 12 agentes nuevos y 15 skills técnicas; se conserva el agente de seguridad ya presente en Aikya.
-- Activación progresiva según stack y gestión mediante `/aikya-skills-plan`, `/aikya-skills-install` y `/aikya-skills-status` dentro de Claude Code.
-- Nuevo `aikya/docs/agents.md` junto al inventario existente `aikya/docs/skills.md`, y auditoría en `docs/audits/ENGINEERING_AUDIT.md`.
-- Integración idempotente que evita sobrescrituras y no ejecuta contenido ajeno.
