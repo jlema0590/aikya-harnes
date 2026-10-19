@@ -45,7 +45,19 @@ La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`)
 - Claude pregunta sólo por las decisiones que faltan, guarda el perfil en `.aikya/answers.json` y muestra un resumen antes de aplicar cambios.
 - `/aikya-doctor` valida JDK, .NET, Node.js, gestores de paquetes, Android SDK, Xcode, Flutter o las herramientas de infraestructura elegidas. **Si falta un requisito, el scaffold se detiene**; nunca se actualizan SDKs en silencio.
 - Los modos Infraestructura y DevOps no ejecutan `/aikya-scaffold` ni generan tests de aplicación ficticios.
-- En proyectos existentes Aikya amplía de forma incremental: no mueve aplicaciones ni ejecuta scaffolds destructivos.
+- Para proyectos existentes utiliza `/aikya-analyze`: adopta el repositorio sin entrevista, no mueve aplicaciones ni ejecuta scaffolds destructivos.
+
+
+### Separación de comandos (v6.0.0)
+
+| Ruta | Entrada | Modo de perfil | Escrituras |
+|---|---|---|---|
+| `/aikya-init` | Carpeta vacía o solo bootstrap Aikya | `new` | Entrevista y autorización antes de generar |
+| `/aikya-analyze` | Proyecto con manifiestos/código | `existing` | Primero plan; solo instala harness con `--approved` y permiso |
+| `/aikya-analyze --report-only` | Proyecto existente | Sin modificar perfil | Ninguna |
+| `/aikya-analyze --refresh` | Proyecto con análisis anterior | `existing` | Solo documentos gestionados no personalizados |
+
+El CLI v6 admite `aikya_cli.py analyze --target . --dry-run` para vista previa y `--approved` después de consentimiento. Los perfiles con `mode: existing` siguen siendo aceptados por el núcleo, validadores y workflows declarativos antiguos, pero el comando público `init` ya no los acepta. Revisa [la guía de separación](docs/INIT_ANALYZE_SEPARATION.md).
 
 ## 3. Comandos de Claude Code
 
@@ -108,7 +120,7 @@ Disponible como modo propio o como bloque opcional del modo Desarrollo: proveedo
 
 ## 6. Catálogo de agentes y skills técnicas
 
-`engineering/agents/` contiene **27 subagentes** especializados y `engineering/skills/` **29 Agent Skills** con métodos y checklists. Al confirmar la entrevista, `engineering_catalog.py` copia sólo los que encajan con el stack y la arquitectura a `.claude/agents/` y `.claude/skills/` del proyecto. El resto queda en el catálogo local para activarlo más tarde con `/aikya-skills-install`, siempre con aprobación y sin descargas.
+`engineering/agents/` contiene **27 especialistas históricos y 3 agentes auxiliares opcionales en v6** y `engineering/skills/` **29 Agent Skills** con métodos y checklists. Al completar `/aikya-init` o al autorizar `/aikya-analyze`, `engineering_catalog.py` selecciona solo los que encajan con el stack y la arquitectura a `.claude/agents/` y `.claude/skills/` del proyecto. El resto queda en el catálogo local para activarlo más tarde con `/aikya-skills-install`, siempre con aprobación y sin descargas.
 
 | Dominio | Agentes | Skills |
 |---|---|---|
