@@ -1,0 +1,58 @@
+name: Aikya | Prepare changelog release PR (manual)
+
+# The upstream workflow modified skill.json and .claude-plugin metadata,
+# neither of which is part of Aikya's current release contract.
+# This creates a reviewable PR against develop instead.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to prepare (e.g. v5.8.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aikya-prepare-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/develop' && github.repository == 'jlema0590/aikya-harness'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare changelog entry (no modifications to main)
+        run: python scripts/ci/prepare_release.py --version "$RELEASE_VERSION"
+      - name: Test proposed release change
+        run: python -m unittest discover -s tests -p 'test_*.py' -q
+      - name: Create review branch and PR
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH="release/prepare-${RELEASE_VERSION}"
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BRANCH"
+          git add CHANGELOG.md
+          git diff --cached --quiet && { echo '::error::No changelog changes'; exit 1; }
+          git commit -m "docs: prepare ${RELEASE_VERSION} release notes"
+          git push --set-upstream origin "$BRANCH"
+          gh pr create --base develop --head "$BRANCH" \
+            --title "docs: prepare ${RELEASE_VERSION} release notes" \
+            --body "Review and merge the ${RELEASE_VERSION} changelog before merging develop to main and manually packaging the release. No publication or infrastructure deployment occurs."

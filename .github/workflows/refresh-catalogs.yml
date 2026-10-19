@@ -1,0 +1,41 @@
+name: Aikya | Catalog review (read-only)
+
+# Review-only: Aikya catalogs are curated. No upstream downloads, automatic
+# changes, untrusted scripts, commits, pull requests or secret requirements.
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aikya-catalog-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    name: Inventory, hashes and license review reminders
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Generate local catalog inventory
+        env:
+          REVIEW_DIR: ${{ runner.temp }}/aikya-catalog-review
+        run: |
+          python scripts/ci/check_assets.py
+          python scripts/ci/catalog_review.py --output "$REVIEW_DIR"
+      - name: Upload review-only inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: aikya-catalog-review
+          path: ${{ runner.temp }}/aikya-catalog-review/
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,66 @@
+name: Reportar un error en Aikya
+description: Describir problemas del harness, sus agentes, skills o generadores
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar un error. No incluyas contraseñas, tokens, secretos cloud ni datos personales.
+        Si es una vulnerabilidad, utiliza `SECURITY.md` y un reporte privado.
+  - type: dropdown
+    id: project_type
+    attributes:
+      label: Modo de Aikya
+      options:
+        - Development
+        - Infrastructure (Terraform/OpenTofu/Ansible)
+        - DevOps (Docker/Compose/Kubernetes)
+        - Instalación global o del proyecto
+        - Engineering Agents / Skills
+        - Otro
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versión o commit de Aikya
+      description: Rama y commit o versión utilizada (sin credenciales).
+      placeholder: 'develop @ <SHA>'
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Sistema operativo / Python / Claude Code
+      placeholder: Ubuntu 24.04 / Python 3.11 / Claude Code
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      description: Incluye el comando `/aikya-*` o el procedimiento y un perfil mínimo sin secretos.
+      placeholder: |
+        1. Seleccioné project_type=...
+        2. Ejecuté /aikya-...
+        3. Se produjo el error ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamiento esperado
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportamiento observado
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs anonimizados
+      description: Elimina rutas privadas, credenciales, accesos a clouds y datos personales.
+      render: shell
