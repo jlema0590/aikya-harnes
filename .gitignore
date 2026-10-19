@@ -4,7 +4,7 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
-.claude/
+
 
 # Local installation state
 .harness/state/
