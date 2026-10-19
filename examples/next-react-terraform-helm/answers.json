@@ -1,0 +1,34 @@
+{
+  "mode": "new",
+  "name": "portal-next-terraform-helm",
+  "backend": "next",
+  "backend_framework": "next-app-router",
+  "frontend": "react",
+  "mobile": "none",
+  "architecture": "layered",
+  "database": "postgresql",
+  "ci": "github-actions",
+  "deployment": "cloud-managed",
+  "package_manager": "pnpm",
+  "notes": "Next.js App Router y React en una sola aplicación; revisar Server Components y Route Handlers.",
+  "repository_layout": "singlerepo",
+  "infrastructure": {
+    "provider": "aws",
+    "iac": "terraform",
+    "configuration_management": "none",
+    "containers": {
+      "enabled": true,
+      "compose": true
+    },
+    "orchestration": "kubernetes",
+    "deployment_method": "helm",
+    "environments": [
+      "dev",
+      "staging",
+      "prod"
+    ],
+    "image_repository": "ghcr.io/example/portal:1.0.0",
+    "container_port": 3000
+  },
+  "runtime_versions": "Node 24.11.0"
+}

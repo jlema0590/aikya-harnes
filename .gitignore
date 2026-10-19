@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local installation state
+.harness/state/
+.harness/external-skills-lock.json
+.harness/welcome.json
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!*.env.example
+
+# Generated output
+graphify-out/
+node_modules/
+dist/
+build/
+.coverage
+coverage/
+.DS_Store
+
+# Aikya local setup artifacts
+.aikya/runtime/
+.aikya/answers.json
+.aikya/bootstrap.json

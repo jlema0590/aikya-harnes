@@ -1,0 +1,17 @@
+{
+  "mode": "new",
+  "name": "plataforma-comercial",
+  "backend": "dotnet",
+  "frontend": "vue",
+  "mobile": "both",
+  "mobile_framework": "native",
+  "android_language": "kotlin",
+  "ios_ui": "swiftui",
+  "architecture": "modular-monolith",
+  "database": "postgresql",
+  "ci": "github-actions",
+  "deployment": "docker",
+  "package_manager": "npm",
+  "quality": "unit+integration",
+  "notes": "REST versionada, OpenTelemetry, sin microservicios inicialmente"
+}

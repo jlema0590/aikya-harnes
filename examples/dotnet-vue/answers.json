@@ -1,0 +1,15 @@
+{
+  "mode": "new",
+  "name": "portal-dotnet-vue",
+  "backend": "dotnet",
+  "backend_framework": "aspnet-core",
+  "frontend": "vue",
+  "mobile": "none",
+  "architecture": "modular-monolith",
+  "database": "sqlserver",
+  "ci": "azure-pipelines",
+  "deployment": "docker",
+  "package_manager": "npm",
+  "notes": "Modular monolith ASP.NET Core, SPA Vue; no separar microservicios por defecto.",
+  "repository_layout": "monorepo"
+}

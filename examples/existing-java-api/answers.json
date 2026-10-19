@@ -1,0 +1,15 @@
+{
+  "mode": "existing",
+  "name": "api-java-existente",
+  "backend": "java",
+  "backend_framework": "spring-boot",
+  "frontend": "none",
+  "mobile": "none",
+  "architecture": "existing",
+  "database": "postgresql",
+  "ci": "gitlab-ci",
+  "deployment": "kubernetes",
+  "package_manager": "none",
+  "notes": "Ejemplo de entrevista sobre repositorio existente: detectar módulos y preservar código y configuración.",
+  "repository_layout": "singlerepo"
+}

@@ -1,0 +1,35 @@
+{
+  "mode": "new",
+  "repository_layout": "singlerepo",
+  "backend": "none",
+  "frontend": "none",
+  "mobile": "none",
+  "backend_framework": "none",
+  "mobile_framework": "none",
+  "package_manager": "none",
+  "deployment": "none",
+  "ci": "none",
+  "name": "kustomize-service",
+  "project_type": "devops",
+  "infrastructure": {
+    "provider": "none",
+    "iac": "none",
+    "configuration_management": "none",
+    "containers": {
+      "enabled": false,
+      "compose": false
+    },
+    "orchestration": "kubernetes",
+    "deployment_method": "kustomize",
+    "environments": [
+      "dev",
+      "staging",
+      "prod"
+    ],
+    "image_repository": "registry.example.test/service:1.0.0",
+    "container_port": 8080,
+    "source_kind": "image",
+    "helm_chart_mode": "create",
+    "helm_chart_path": ""
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "mode": "new",
+  "name": "portal-next",
+  "backend": "next",
+  "frontend": "react",
+  "mobile": "none",
+  "architecture": "layered",
+  "database": "postgresql",
+  "ci": "github-actions",
+  "deployment": "cloud-managed",
+  "package_manager": "pnpm"
+}

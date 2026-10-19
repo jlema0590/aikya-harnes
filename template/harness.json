@@ -1,0 +1,8 @@
+{
+  "checks": [
+    {"name": "lint", "command": null, "required": false},
+    {"name": "typecheck", "command": null, "required": false},
+    {"name": "test", "command": null, "required": true},
+    {"name": "build", "command": null, "required": false}
+  ]
+}
