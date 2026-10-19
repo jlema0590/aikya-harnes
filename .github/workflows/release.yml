@@ -1,0 +1,68 @@
+name: Aikya | Release package (manual)
+
+# Deliberately does NOT create tags, GitHub Releases or npm packages.
+# A maintainer must review and publish artifacts separately.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to package (e.g. v5.8.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aikya-release-package
+  cancel-in-progress: false
+
+jobs:
+  package:
+    name: Verify and create source archive
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate release request
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9][A-Za-z0-9.-]*)?$ ]] || {
+            echo '::error::Expected a semantic version such as v5.8.0'; exit 1;
+          }
+          test -f LICENSE || {
+            echo '::error::Add and review LICENSE before distributing a public release'; exit 1;
+          }
+          if ! grep -Fq "## ${RELEASE_VERSION}" CHANGELOG.md; then
+            echo '::error::Add the release heading to CHANGELOG.md before packaging'; exit 1;
+          fi
+      - name: Verify unit tests and catalog
+        run: |
+          python -m unittest discover -s tests -p 'test_*.py' -q
+          python scripts/ci/check_assets.py
+          python scripts/ci/smoke_profiles.py
+      - name: Package tracked source and compute SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          git archive --format=zip --prefix=aikya-harness/ \
+            --output="dist/aikya-harness-${RELEASE_VERSION}.zip" HEAD
+          (cd dist && sha256sum "aikya-harness-${RELEASE_VERSION}.zip" > SHA256SUMS)
+      - name: Upload versioned source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: aikya-harness-${{ inputs.version }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 90

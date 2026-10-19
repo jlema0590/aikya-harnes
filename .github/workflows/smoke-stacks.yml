@@ -1,0 +1,56 @@
+name: Aikya | Example profiles smoke
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - 'examples/**'
+      - 'install.py'
+      - 'aikya_layout.py'
+      - 'infrastructure_profile.py'
+      - 'engineering_catalog.py'
+      - 'aikya_requirements.py'
+      - 'doc_bootstrap.py'
+      - 'template/scripts/harness/scaffold.py'
+      - 'template/scripts/harness/infrastructure.py'
+      - 'scripts/ci/smoke_profiles.py'
+      - '.github/workflows/smoke-stacks.yml'
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - 'examples/**'
+      - 'install.py'
+      - 'aikya_layout.py'
+      - 'infrastructure_profile.py'
+      - 'engineering_catalog.py'
+      - 'aikya_requirements.py'
+      - 'doc_bootstrap.py'
+      - 'template/scripts/harness/scaffold.py'
+      - 'template/scripts/harness/infrastructure.py'
+      - 'scripts/ci/smoke_profiles.py'
+      - '.github/workflows/smoke-stacks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aikya-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  profile-smoke:
+    name: Profiles | offline, no generation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check all Development / Infrastructure / DevOps profiles
+        run: python scripts/ci/smoke_profiles.py

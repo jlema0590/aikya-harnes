@@ -1,6 +1,7 @@
 # Aikya Harness
-
 **One engineering workflow. Multiple AI agents. Consistent quality.**
+
+![Aikya-Harness](./Aikya-Harness.png)
 
 Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**. Reúne entrevista técnica, scaffolding de aplicaciones, infraestructura como código, agentes especializados, Agent Skills, quality gates y documentación viva. Cubre backend Java, .NET, Node.js, Next.js y Python; frontend React, Vue, Angular y Astro; móvil Android, iOS, Flutter y React Native; y proyectos de infraestructura o DevOps sin aplicación.
 

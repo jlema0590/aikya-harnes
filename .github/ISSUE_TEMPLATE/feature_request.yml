@@ -1,0 +1,47 @@
+name: Proponer una funcionalidad en Aikya
+description: Nuevas capacidades para Desarrollo, Infraestructura, DevOps o agentes
+labels: []
+body:
+  - type: dropdown
+    id: category
+    attributes:
+      label: Área
+      options:
+        - Development (backend / frontend / móvil)
+        - Infrastructure (Terraform / OpenTofu / Ansible)
+        - DevOps (Docker / Compose / Kubernetes / Helm / Kustomize)
+        - Arquitecturas de software
+        - Agentes o Engineering Skills
+        - Instalación / inicialización / runtime
+        - Pruebas y calidad
+        - CI/CD y releases
+        - Documentación / experiencia de usuario
+        - Otro
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema o necesidad
+      description: ¿Qué problema concreto resolvería esta funcionalidad?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Solución propuesta
+      description: Incluye opciones de entrevista, comandos `/aikya-*`, agentes, skills y artefactos esperados.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación
+      description: ¿Qué pruebas o resultados demostrarían que la solución funciona?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas y compatibilidad
+      description: Impacto en perfiles anteriores, seguridad y otros enfoques posibles.
