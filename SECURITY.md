@@ -162,11 +162,3 @@ Las configuraciones generadas no garantizan por sí mismas la seguridad del ento
 Los usuarios deben revisar los permisos, dependencias, políticas, credenciales e infraestructura antes de ejecutar operaciones reales.
 
 La licencia del proyecto establece las condiciones aplicables al software, incluyendo las limitaciones de garantía y responsabilidad.
-
-## 10. Contacto
-
-Para cuestiones relacionadas con seguridad:
-
-**[EMAIL_SEGURIDAD]**
-
-Gracias por contribuir a mantener Aikya Harness y su comunidad más seguros.
