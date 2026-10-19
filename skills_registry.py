@@ -32,6 +32,9 @@ def _metadata(file: Path) -> tuple[str, str]:
 def render(root: Path, profile: dict|None=None) -> str:
     """Enumera skills locales y estados de integraciones con traza de procedencia."""
     root=root.resolve()
+    from docs_language import resolve as documentation_language
+    if documentation_language(root) == "en":
+        return _render_english(root)
     profile=profile or {}
     skill_root=root/'.claude/skills'
     discovered: dict[str,tuple[str,str]] = {}
@@ -103,6 +106,32 @@ Este inventario describe las **skills registradas en el proyecto** y su disponib
 - Registrar el uso **real** sólo si existen evidencias de ejecución; nunca inferirlo por la mera presencia de un archivo.
 '''
 
+
+def _render_english(root: Path) -> str:
+    """Render only Aikya living-documentation content from installed skill metadata."""
+    root = root.resolve()
+    skill_root = root / ".claude/skills"
+    rows = []
+    if skill_root.is_dir() and not skill_root.is_symlink():
+        for folder in sorted(skill_root.iterdir()):
+            if folder.is_symlink() or not folder.is_dir():
+                continue
+            path = folder / "SKILL.md"
+            if path.is_file() and not path.is_symlink():
+                _, description = _metadata(path)
+                description = str(description).replace("|", "/").replace("\n", " ")
+                rows.append("| /" + folder.name + " | Available | " + description + " |")
+    table = "\n".join(rows) or "| — | No skills available | — |"
+    return (MARKER + "\n# Installed and available Agent Skills\n\n"
+            "This lists registered project skills, not a history of model invocations. "
+            "A present skill may never have been invoked.\n\n"
+            "## Project skills\n\n| Command | Status | Description |\n|---|---|---|\n"
+            + table + "\n\n## Governance\n\n"
+            "- /aikya-skills-status: inspect registrations.\n"
+            "- /aikya-skills-plan: review provenance and permissions.\n"
+            "- /aikya-skills-install: install only after explicit authorization.\n"
+            "- Verify licenses and source integrity for external skills.\n"
+            "- Never infer actual execution from installation alone.\n")
 
 def write_inventory(root: Path, profile: dict|None=None) -> tuple[bool,str]:
     target=root/'aikya/docs/skills.md'
