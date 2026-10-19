@@ -1,68 +1,139 @@
-name: Aikya | Release package (manual)
+name: Aikya | Automatic GitHub Release
 
-# Deliberately does NOT create tags, GitHub Releases or npm packages.
-# A maintainer must review and publish artifacts separately.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to package (e.g. v5.8.0)'
-        required: true
-        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: aikya-release-package
+  group: aikya-release-publication
   cancel-in-progress: false
+  queue: max
 
 jobs:
-  package:
-    name: Verify and create source archive
-    if: github.ref == 'refs/heads/main'
+  verify:
+    name: Verify release contract, tests and catalog
+    if: github.repository == 'jlema0590/aikya-harness' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      RELEASE_VERSION: ${{ inputs.version }}
+    timeout-minutes: 20
+    outputs:
+      release_tag: ${{ steps.contract.outputs.release_tag }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Validate release request
-        shell: bash
+      - name: Validate VERSION, changelog and tags
+        id: contract
+        run: python scripts/ci/release_contract.py check --github-output "$GITHUB_OUTPUT"
+      - name: Check Python syntax
         run: |
-          set -euo pipefail
-          [[ "$RELEASE_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9][A-Za-z0-9.-]*)?$ ]] || {
-            echo '::error::Expected a semantic version such as v5.8.0'; exit 1;
-          }
-          test -f LICENSE || {
-            echo '::error::Add and review LICENSE before distributing a public release'; exit 1;
-          }
-          if ! grep -Fq "## ${RELEASE_VERSION}" CHANGELOG.md; then
-            echo '::error::Add the release heading to CHANGELOG.md before packaging'; exit 1;
-          fi
-      - name: Verify unit tests and catalog
+          python -m compileall -q aikya_cli.py aikya_layout.py aikya_requirements.py \
+            aikya_session.py aikya_setup.py doc_bootstrap.py engineering_catalog.py \
+            external_skills.py infrastructure_profile.py install.py skills_registry.py \
+            template/scripts/harness scripts/ci
+      - name: Run unit and regression tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -q
+      - name: Check curated catalog and example profiles
         run: |
-          python -m unittest discover -s tests -p 'test_*.py' -q
           python scripts/ci/check_assets.py
           python scripts/ci/smoke_profiles.py
-      - name: Package tracked source and compute SHA-256
+
+  package:
+    name: Build source archive and checksum
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Create source ZIP and notes
         shell: bash
+        env:
+          RELEASE_TAG: ${{ needs.verify.outputs.release_tag }}
         run: |
           set -euo pipefail
           mkdir -p dist
+          python scripts/ci/release_contract.py notes --output dist/RELEASE_NOTES.md
           git archive --format=zip --prefix=aikya-harness/ \
-            --output="dist/aikya-harness-${RELEASE_VERSION}.zip" HEAD
-          (cd dist && sha256sum "aikya-harness-${RELEASE_VERSION}.zip" > SHA256SUMS)
-      - name: Upload versioned source package
-        uses: actions/upload-artifact@v4
+            --output="dist/aikya-harness-$RELEASE_TAG.zip" "$GITHUB_SHA"
+          (cd dist && sha256sum "aikya-harness-$RELEASE_TAG.zip" > SHA256SUMS)
+          (cd dist && sha256sum --check SHA256SUMS)
+      - uses: actions/upload-artifact@v4
         with:
-          name: aikya-harness-${{ inputs.version }}
+          name: aikya-release-${{ github.sha }}
           path: dist/
           if-no-files-found: error
           retention-days: 90
+
+  publish:
+    name: Create tag and publish GitHub Release
+    needs: [verify, package]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ needs.verify.outputs.release_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: aikya-release-${{ github.sha }}
+          path: dist
+      - name: Validate archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "dist/aikya-harness-$RELEASE_TAG.zip"
+          test -s dist/SHA256SUMS
+          test -s dist/RELEASE_NOTES.md
+          (cd dist && sha256sum --check SHA256SUMS)
+      - name: Create tag and release with safe recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          REF="repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG"
+          TAG_SHA="$(gh api "$REF" --jq '.object.sha' 2>/dev/null || true)"
+          if [[ -n "$TAG_SHA" && "$TAG_SHA" != "$GITHUB_SHA" ]]; then
+            echo "::error::Tag $RELEASE_TAG exists on a different commit."
+            exit 1
+          fi
+          if [[ -z "$TAG_SHA" ]]; then
+            if ! gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f "ref=refs/tags/$RELEASE_TAG" -f "sha=$GITHUB_SHA"; then
+              TAG_SHA="$(gh api "$REF" --jq '.object.sha')"
+              [[ "$TAG_SHA" == "$GITHUB_SHA" ]] || exit 1
+            fi
+          fi
+          ZIP="aikya-harness-$RELEASE_TAG.zip"
+          if gh release view "$RELEASE_TAG" --json tagName >/dev/null 2>&1; then
+            echo "Release exists; attach only missing assets."
+            for ASSET in "$ZIP" SHA256SUMS; do
+              if ! gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name' \
+                | grep -Fxq "$ASSET"; then
+                gh release upload "$RELEASE_TAG" "dist/$ASSET"
+              fi
+            done
+          else
+            gh release create "$RELEASE_TAG" "dist/$ZIP" dist/SHA256SUMS \
+              --verify-tag --title "Aikya Harness $RELEASE_TAG" \
+              --notes-file dist/RELEASE_NOTES.md --latest
+          fi
+          gh release view "$RELEASE_TAG" --json url --jq '.url'
