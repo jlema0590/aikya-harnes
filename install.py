@@ -794,6 +794,18 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
             safe_write(target/'aikya/scripts/harness/infrastructure_profile.py',
                        local_profile.read_text(encoding='utf8'),actions)
 
+    # v6: instalar utilidades de modelos/tokens sin cambiar configuración global.
+    for utility in ('token_policy.py', 'token_report.py'):
+        source = HERE / utility
+        if source.is_file():
+            safe_write(target/'aikya/scripts/harness'/utility,
+                       source.read_text(encoding='utf8'), actions)
+    # El perfil v5.9.1 permanece intacto. La política v6 es opcional y externa a answers.json.
+    model_policy = target/'.aikya/model-policy.json'
+    if not model_policy.exists():
+        from token_policy import DEFAULT
+        safe_write(model_policy, json.dumps(DEFAULT,ensure_ascii=False,indent=2)+'\\n', actions)
+
     merge_settings(target, actions)
     claude = target / 'CLAUDE.md'
     if not claude.exists():
