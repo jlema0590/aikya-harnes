@@ -2,7 +2,7 @@ name: Aikya | Catalog and skills contracts
 
 on:
   push:
-    branches: [develop, main, 'feat/**', 'fix/**', 'release/**']
+    branches: [develop, main]
     paths:
       - 'engineering/**'
       - 'aikya-skills/**'

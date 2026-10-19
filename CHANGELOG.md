@@ -1,14 +1,5 @@
 # Changelog
 
-## v5.9.1 — Corrección y automatización de GitHub Actions
-
-- Publicación automática de tags y GitHub Releases tras integrar una versión aprobada en `main`.
-- Contrato SemVer mediante `VERSION`, changelog con notas verificables y comprobación del tag contra el commit fusionado.
-- Pipeline separado de pruebas, empaquetado ZIP reproducible, checksums SHA-256 y publicación idempotente.
-- Validación de versión para Pull Requests hacia `main` y actualización de la preparación manual de versiones en `develop`.
-- Ampliación de CI y pruebas de regresión para los workflows y scripts de publicación.
-- Los workflows de catálogo y perfiles continúan siendo de sólo lectura, sin despliegues remotos.
-
 ## v5.9.0 — 2026-10-19
 
 - Corregido `/aikya-infra-project validate` con Helm cuando la raíz del proyecto llega por un symlink (p. ej. `/var` → `/private/var` en macOS): ya no falla con `ValueError`. Los charts enlazados fuera del proyecto se rechazan como NOT_CONFIGURED.

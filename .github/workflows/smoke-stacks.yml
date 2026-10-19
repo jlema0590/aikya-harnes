@@ -2,7 +2,7 @@ name: Aikya | Example profiles smoke
 
 on:
   push:
-    branches: [develop, main, 'feat/**', 'fix/**', 'release/**']
+    branches: [develop, main]
     paths:
       - 'examples/**'
       - 'install.py'

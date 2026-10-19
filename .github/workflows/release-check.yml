@@ -4,11 +4,13 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: ['feat/**']
+    branches: ['feat/**', 'fix/**', 'release/**']
     paths:
       - 'VERSION'
       - 'CHANGELOG.md'
       - 'scripts/ci/release_contract.py'
+      - 'scripts/ci/github_tag.py'
+      - 'tests/test_github_tag.py'
       - 'tests/test_release_workflows.py'
       - '.github/workflows/release-check.yml'
       - '.github/workflows/release.yml'
