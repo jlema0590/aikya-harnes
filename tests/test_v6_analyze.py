@@ -11,8 +11,36 @@ from aikya_analyze import execute
 from project_discovery import scan, safe_scope
 from profile_builder import build
 from token_policy import HAIKU_45
+from aikya_router import route
 
 class AnalyzeV6Tests(unittest.TestCase):
+    def test_analysis_only_router_suggests_frontend_security_and_docker(self):
+        vue = route("Analiza la estructura Vue", analysis_only=True)
+        angular = route("Revisa arquitectura Angular", analysis_only=True)
+        security = route("Analiza la seguridad Node Python", analysis_only=True)
+        java = route("Explica como funciona Java con Docker", analysis_only=True)
+        self.assertEqual(vue["recommended_roles"][0], "vue-developer")
+        self.assertEqual(angular["recommended_roles"][0], "angular-developer")
+        self.assertIn("security-audit", security["recommended_skills"])
+        self.assertIn("docker-developer", java["recommended_roles"])
+        self.assertTrue(all(x["read_only"] and not x["writes"]
+                            for x in (vue, angular, security, java)))
+
+    def test_existing_answers_uses_safe_legacy_adoption(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root/"pom.xml").write_text("<project/>")
+            (root/".gitignore").write_text("precise-custom-ignore")
+            answers = root/"legacy.json"
+            answers.write_text(json.dumps({"mode":"existing","backend":"java",
+                                           "repository_layout":"singlerepo"}))
+            self.assertEqual(aikya_cli.main(["answers","--target",str(root),
+                                              "--answers",str(answers),
+                                              "--external","skip"]),0)
+            self.assertEqual((root/".gitignore").read_text(),"precise-custom-ignore")
+            self.assertEqual(json.loads((root/".harness/project-profile.json").read_text())
+                             ["decisions"]["mode"],"existing")
+
     def test_empty_repository_redirects_to_init_without_writes(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d)
