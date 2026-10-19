@@ -804,7 +804,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     model_policy = target/'.aikya/model-policy.json'
     if not model_policy.exists():
         from token_policy import DEFAULT
-        safe_write(model_policy, json.dumps(DEFAULT,ensure_ascii=False,indent=2)+'\\n', actions)
+        safe_write(model_policy, json.dumps(DEFAULT,ensure_ascii=False,indent=2)+'\n', actions)
 
     merge_settings(target, actions)
     claude = target / 'CLAUDE.md'
