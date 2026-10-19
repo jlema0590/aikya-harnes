@@ -38,3 +38,8 @@ La bienvenida mediante SessionStart aparece al comenzar una NUEVA sesión de Cla
 - Si el perfil seleccionó infraestructura, enseña `aikya/docs/infrastructure/plan.md` y ejecuta `/aikya-infra-project plan`. Sólo tras la aprobación específica del plan ejecuta `/aikya-infra-project generate`.
 - El scaffolding de la aplicación precede a la generación de Dockerfile: confirmar runtime, manifiestos, lockfiles y comando de arranque reales.
 - Nunca realices Terraform apply/destroy, Ansible contra hosts, push de imágenes ni deploy/helm/kubectl contra clústeres sin permiso separado.
+
+
+## Selección de modelos (Aikya v6)
+
+Después de confirmar el tipo de proyecto y antes de instalar, ofrece configurar modelos con `/aikya-models`: recomienda Opus para planner/orchestrator y `inherit` para desarrolladores y revisores. Si la sesión usa Opus, recomienda Sonnet para tareas rutinarias, pero no la cambies sin autorización. Haiku solo como auxiliar opt-in y tras validar disponibilidad. Guarda la política por separado en `.aikya/model-policy.json`; para respuestas 5.9.1 sin política, preserva el comportamiento existente sin añadir preguntas obligatorias ni alterar el esquema de `answers.json`.
