@@ -175,6 +175,97 @@ def install_selected(root: Path, selection: dict[str, list[str]], source: Path |
                 logs.append(f'CONSERVADO enlace simbólico: {dest}')
                 continue
             raw = original.read_bytes()
+            if kind == 'agents':
+                # v6 routes only managed files; preserve custom agent definitions.
+                try:
+                    from token_policy import validated, resolved_agent_model
+                    policy_file = root / '.aikya/model-policy.json'
+                    policy = validated(json.loads(policy_file.read_text(encoding='utf8'))
+                                       if policy_file.is_file() and not policy_file.is_symlink() else None)
+                    selected_model = resolved_agent_model(name, policy)
+                    import re
+                    body = raw.decode('utf8')
+                    body = re.sub(r'(?m)^model:\s*[^\n]+            key = dest.relative_to(root).as_posix()
+            if dest.exists():
+                if not dest.is_file():
+                    logs.append(f'CONSERVADO objeto existente: {dest}'); continue
+                current = dest.read_bytes()
+                if current != raw and _digest(current) != previous.get(key):
+                    logs.append(f'CONSERVADO personalizado: {dest}'); continue
+                if current == raw:
+                    new[key] = _digest(current)
+                    logs.append(f'DISPONIBLE {kind}/{name}')
+                    continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(raw)
+            new[key] = _digest(raw)
+            logs.append(f'INSTALADO {kind}/{name}')
+    manifest = _manifest(root)
+    if manifest.is_symlink() or manifest.parent.is_symlink():
+        raise ValueError('Manifest o carpeta simbólica no permitida')
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    manifest.write_text(json.dumps({'_generated_by':'aikya-engineering-catalog', 'files':new, 'source':'Aikya curated technical bundle; no network'}, indent=2, ensure_ascii=False)+'\n',encoding='utf8')
+    write_agents_doc(root)
+    # Synchronize skills registry only if installed. Do not overwrite user docs.
+    try:
+        from skills_registry import write_inventory
+    except ImportError:
+        write_inventory = None
+    if write_inventory:
+        ok, msg = write_inventory(root)
+        logs.append(('INVENTARIO ' if ok else 'AVISO ') + msg)
+    return logs
+
+
+def write_agents_doc(root: Path) -> None:
+    target = root / 'aikya/docs/agents.md'
+    if target.is_symlink() or target.parent.is_symlink():
+        return
+    if target.exists() and not target.read_text(encoding='utf8').startswith(MARKER):
+        return
+    rows = []
+    for name in sorted(AGENTS):
+        path = _destination(root, 'agents', name)
+        if path.is_file() and not path.is_symlink():
+            rows.append(f'| `{name}` | Disponible | Aikya Engineering |')
+    rows.append('| `security-reviewer` | Agente Aikya existente | Se conserva, no se duplica |')
+    target.parent.mkdir(parents=True,exist_ok=True)
+    target.write_text(MARKER+'\n# Agentes técnicos disponibles\n\nCatálogo seleccionado por stack; disponible no equivale a invocado.\n\n| Agente | Estado | Procedencia |\n|---|---|---|\n'+'\n'.join(rows)+'\n',encoding='utf8')
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description='Catálogo técnico local Aikya (invocado desde Claude Code)')
+    parser.add_argument('action', choices=('list','plan','install'))
+    parser.add_argument('--root', type=Path, default=Path.cwd())
+    parser.add_argument('--names', default='', help='Nombres de skills/agentes separados por coma')
+    parser.add_argument('--approved', action='store_true')
+    args = parser.parse_args(argv)
+    root = args.root.resolve()
+    if args.action == 'list':
+        print(json.dumps({'agents':sorted(AGENTS), 'skills':sorted(SKILLS)},ensure_ascii=False,indent=2));return 0
+    choices = [x.strip() for x in args.names.split(',') if x.strip()]
+    selected = {'agents': [x for x in choices if x in AGENTS], 'skills':[x for x in choices if x in SKILLS]}
+    unknown = set(choices) - AGENTS - SKILLS
+    if unknown:
+        parser.error('Nombres fuera del catálogo: '+', '.join(sorted(unknown)))
+    if not choices:
+        profile_path=root/'.harness/project-profile.json'
+        if not profile_path.is_file():parser.error('Falta perfil del proyecto; ejecuta /aikya-init')
+        profile=json.loads(profile_path.read_text(encoding='utf8'))
+        selected=discover(root,profile.get('decisions',{}),profile.get('detected',{}).get('modules',[]))
+    if args.action=='plan':
+        print(json.dumps(selected,ensure_ascii=False,indent=2));return 0
+    if not args.approved:
+        parser.error('Instalación necesita autorización explícita desde Claude Code (--approved)')
+    for line in install_selected(root,selected):print(line)
+    return 0
+
+if __name__=='__main__':
+    raise SystemExit(main())
+, 'model: ' + selected_model, body, count=1)
+                    raw = body.encode('utf8')
+                except (OSError, UnicodeError, ValueError) as exc:
+                    logs.append(f'AVISO politica de modelos no aplicada: {exc}')
             key = dest.relative_to(root).as_posix()
             if dest.exists():
                 if not dest.is_file():
