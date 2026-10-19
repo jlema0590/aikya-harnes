@@ -136,8 +136,12 @@ Nada se descarga ni se indexa automáticamente al iniciar Claude Code, y Graphif
 
 
 ## Aikya v6.0.0 — Token Efficiency & Observability
+**Routing híbrido:** una clasificación Python intenta resolver la petición sin llamada adicional. Si permanece ambigua y Haiku 5.5 está habilitado, un agente auxiliar de solo lectura puede sugerir una clasificación; su JSON se valida y nunca autoriza cambios. Planner y Orchestrator con Opus intervienen únicamente cuando hay complejidad significativa. La comprobación de modelos es conservadora: un alias publicado no garantiza acceso; en otros proveedores el despliegue puede exigir un identificador específico.
 
-La versión 6 añade los comandos `/aikya-models` y `/aikya-tokens`. Los modelos de `planner` y `orchestrator` están reservados para planificación compleja (por defecto `opus`), mientras los demás agentes gestionados heredan el modelo activo del usuario. Haiku 4.5 se puede solicitar para tareas auxiliares de bajo riesgo, solamente después de confirmar su disponibilidad y con autorización expresa. Las decisiones se almacenan en `.aikya/model-policy.json`, separado de los perfiles de 5.9.1, y no cambian la selección global de Claude Code.
+**Coste:** /aikya-tokens informa estadísticas por modelo y calcula una estimación de tarifa pública de Haiku 5.5 por petición (<=100K o >100K tokens de prompt), dando un rango cuando desconoce si la escritura de caché fue de 5 minutos o una hora. No equivale a una factura.
+
+
+La versión 6 añade los comandos `/aikya-models` y `/aikya-tokens`. Los modelos de `planner` y `orchestrator` están reservados para planificación compleja (por defecto `opus`), mientras los demás agentes gestionados heredan el modelo activo del usuario. Haiku 5.5 se puede activar de forma opcional para extracción, clasificación, routing sugerido, borradores documentales y resumen de logs, solo tras autorización y validación de Claude Code 2.1.293+ y del proveedor. Las políticas v1 con Haiku 4.5 siguen intactas hasta que el usuario apruebe una migración. Las decisiones se almacenan en `.aikya/model-policy.json`, separado de los perfiles de 5.9.1, y no cambian la selección global de Claude Code.
 
 `/aikya-tokens` procesa transcripciones JSONL locales de forma acotada para informar uso de entrada, salida y caché por modelo, sin almacenar prompts ni derivar un precio no confirmado. Las reglas de contexto recomiendan consultas filtradas y salidas limitadas de `Bash`, logs, diffs y GitHub CLI. La guía de migración y compatibilidad está en [docs/V6_TOKEN_COMPATIBILITY.md](docs/V6_TOKEN_COMPATIBILITY.md).
 
