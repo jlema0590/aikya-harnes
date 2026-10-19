@@ -18,7 +18,7 @@ def resolved_answers(args, target:Path) -> Path:
         candidates=[target/'.aikya/answers.json',target/'.harness/project-profile.json']
         path=next((p for p in candidates if p.is_file()),candidates[0])
     if not path.is_file():
-        raise ValueError(f'No hay respuestas en {path}; realiza /aikya-init o indica --answers.')
+        raise ValueError(f'No hay respuestas en {path}; usa /aikya-init para nuevo, /aikya-analyze para existente, o indica --answers.')
     return path
 
 
