@@ -80,6 +80,58 @@ def documents(inventory: dict, projection: dict, focus: str) -> dict[str, str]:
         ".aikya/analysis/report.md": "\n".join(report)
     }
 
+
+def installation_preview(target: Path, profile: dict, inventory: dict) -> list[dict]:
+    """Non-mutating, file-level preview of Aikya-owned installation paths."""
+    import install
+    import engineering_catalog
+    from doc_bootstrap import pages
+    from aikya_setup import BOOTSTRAP_COMMANDS
+    candidates = {
+        ".aikya/answers.json", ".aikya/model-policy.json",
+        ".harness/project-profile.json", ".harness/engineering-catalog.json",
+        ".claude/settings.json", ".claude/rules/00-project-profile.md",
+        "CLAUDE.md", "harness.json", "aikya/docs/harness/bootstrap.md",
+        "aikya/docs/harness/installer-readme.md",
+        "aikya/docs/agents.md", "aikya/docs/skills.md"
+    }
+    candidates.update(pages(profile, inventory["modules"]).keys())
+    candidates.update(".claude/skills/" + n + "/SKILL.md" for n in BOOTSTRAP_COMMANDS)
+    for file in install.TEMPLATE.rglob("*"):
+        if not file.is_file() or file.is_symlink() or file.suffix == ".pyc":
+            continue
+        rel = file.relative_to(install.TEMPLATE)
+        if rel.as_posix() in ("CLAUDE.md", "harness.json", ".claude/settings.json"):
+            continue
+        if rel.parts[0] in (".github", "infra") or rel.name in (
+                ".gitignore", "Dockerfile", "docker-compose.yml", "compose.yaml") or rel.suffix in (".tf", ".tfvars"):
+            continue
+        target_rel = (Path("aikya/scripts") / Path(*rel.parts[1:]) if rel.parts[0] == "scripts" else
+                      Path("aikya/test") / Path(*rel.parts[1:]) if rel.parts[0] == "tests" else rel)
+        candidates.add(target_rel.as_posix())
+    for file in (install.HERE / "engineering").rglob("*"):
+        if file.is_file() and not file.is_symlink():
+            rel = file.relative_to(install.HERE / "engineering")
+            candidates.add((Path("aikya/scripts/harness/engineering") / rel).as_posix())
+    for name in ("engineering_catalog.py", "infrastructure_profile.py",
+                 "token_policy.py", "token_report.py", "model_capabilities.py",
+                 "aikya_router.py", "project_discovery.py", "profile_builder.py",
+                 "analysis_manifest.py", "aikya_analyze.py"):
+        candidates.add("aikya/scripts/harness/" + name)
+    selected = engineering_catalog.discover(target, profile, inventory["modules"])
+    for agent in selected["agents"]:
+        candidates.add(".claude/agents/" + agent + ".md")
+    for skill in selected["skills"]:
+        candidates.add(".claude/skills/" + skill + "/SKILL.md")
+    # Never label existing user files as safe to update without their managed hashes.
+    results = []
+    for relative in sorted(candidates):
+        path = target / relative
+        action = "BLOCKED" if path.is_symlink() else "KEEP_EXISTING" if path.exists() else "CREATE_MANAGED"
+        results.append({"path": relative, "action": action})
+    return results
+
+
 def execute(target: Path, *, scope: str = ".", focus: str = "general",
             approved: bool = False, dry_run: bool = False, report_only: bool = False,
             refresh: bool = False) -> dict:
@@ -96,16 +148,19 @@ def execute(target: Path, *, scope: str = ".", focus: str = "general",
     projection = build(target, inventory)
     docs = documents(inventory, projection, focus)
     plan = apply_assets(target, docs, refresh=refresh, dry_run=True)
+    installation = installation_preview(target, projection["profile"], inventory) if projection["profile"] else []
     conflicts = [o for o in plan["operations"]
                  if o["action"] in ("BLOCKED", "CONFLICT_REQUIRES_REVIEW")]
     if (target / ".aikya/analysis/manifest.json").exists() and not owned_state(target):
         conflicts.append({"path": ".aikya/analysis/manifest.json",
                           "action": "CONFLICT_REQUIRES_REVIEW"})
     status = "NEEDS_REVIEW" if conflicts else projection["status"]
+    if any(op["action"] == "BLOCKED" for op in installation):
+        status = "NEEDS_REVIEW"
     if report_only or dry_run or not approved or status != "READY":
         return {"status": status, "writes": False, "scope": inventory["scope"],
                 "focus": focus, "inventory": inventory,
-                "unresolved": projection["unresolved"], "plan": plan["operations"],
+                "unresolved": projection["unresolved"], "plan": plan["operations"] + installation,
                 "conflicts": conflicts, "approval_required": status == "READY" and not approved,
                 "recommended_command": "/aikya-init" if inventory["project_type"] == "unknown"
                                        else "/aikya-analyze --approved"}
