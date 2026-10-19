@@ -3,6 +3,7 @@
 from __future__ import annotations
 import hashlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 MARKER = "aikya-analyze"
@@ -74,6 +75,9 @@ def apply_assets(root: Path, contents: dict[str, str], *, refresh: bool = False,
         manifest = {
             "_generated_by": MARKER, "schema_version": 1,
             "analysis_version": "6.0.0",
+            "created_at": previous.get("created_at") or datetime.now(timezone.utc).isoformat(),
+            "scope": json.loads(contents[".aikya/analysis/inventory.json"]).get("scope", "."),
+            "scanner_versions": {"project_discovery": 1, "profile_builder": 1},
             "source_revision": source_revision,
             "status": status,
             "managed_paths": dict(sorted(owned.items())),
