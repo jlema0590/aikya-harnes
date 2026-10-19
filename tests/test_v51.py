@@ -16,6 +16,8 @@ REQUIRED={
     'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
     'aikya-skills-status','aikya-skills-plan','aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
     'aikya-documentation-sync', 'aikya-verify',
+    'aikya-specify', 'aikya-clarify', 'aikya-plan', 'aikya-tasks',
+    'aikya-implement', 'aikya-sdd-status',
 }
 
 class V51Commands(unittest.TestCase):
