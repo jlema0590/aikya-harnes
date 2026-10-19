@@ -57,6 +57,16 @@ class AnalyzeV6Tests(unittest.TestCase):
                 self.assertIn(tech, {m["technology"] for m in inv["modules"]})
                 self.assertEqual(build(root,inv)["profile"]["frontend"],tech)
 
+    def test_monorepo_java_and_vue_are_distinct(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            (root/"pom.xml").write_text("<project/>")
+            (root/"frontend").mkdir()
+            (root/"frontend/package.json").write_text(json.dumps({"dependencies":{"vue":"1"}}))
+            result=build(root,scan(root))
+            self.assertEqual(result["status"],"READY")
+            self.assertEqual(result["profile"]["repository_layout"],"monorepo")
+
     def test_fluttter_is_recognized(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)
@@ -76,6 +86,7 @@ class AnalyzeV6Tests(unittest.TestCase):
             projection=build(root,inv)
             self.assertEqual(projection["status"],"READY")
             self.assertEqual(projection["profile"]["infrastructure"]["iac"], "terraform")
+            self.assertEqual(projection["profile"]["infrastructure"]["provider"], "azure")
             self.assertFalse((root/".aikya").exists())
 
     def test_multistack_keeps_evidence_without_inventing_main_backend(self):
