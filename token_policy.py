@@ -8,7 +8,7 @@ from pathlib import Path
 DEFAULT = {"schema_version": 1, "planning_model": "opus", "orchestration_model": "opus",
            "routine_model": "inherit", "auxiliary_model": "inherit",
            "auxiliary_enabled": False, "user_approved": False}
-ALLOWED = {"opus", "sonnet", "haiku", "inherit"}
+ALLOWED = {"opus", "sonnet", "haiku", "inherit", "claude-haiku-4-5-20251001"}
 
 def validated(raw: dict | None) -> dict:
     if raw is None:
@@ -28,6 +28,8 @@ def validated(raw: dict | None) -> dict:
     for key in ("auxiliary_enabled", "user_approved"):
         if type(result[key]) is not bool:
             raise ValueError(key + " must be boolean")
+    if result["routine_model"] == "claude-haiku-4-5-20251001":
+        raise ValueError("Haiku 4.5 is restricted to explicitly approved auxiliary tasks")
     if result["auxiliary_enabled"] and not result["user_approved"]:
         raise ValueError("auxiliary delegation requires explicit user approval")
     return result
