@@ -693,6 +693,9 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     if dry_run:
         return [f'PLAN: instalar harness en {target}', 'PLAN: crear aikya/docs/, aikya/test/, aikya/scripts/ según '+layout_of(profile)+' y CI/infra', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
     target.mkdir(parents=True, exist_ok=True)
+    from docs_language import write_approved as save_docs_language
+    if save_docs_language(target, documentation_language):
+        actions.append('CREATED .aikya/docs-policy.json')
     # Guardar un perfil estructurado: en reruns sólo actualizar si es del instalador.
     profile_path = target / '.harness/project-profile.json'
     payload = {'_generated_by':'claude-dev-harness-interactive', 'schema_version':1,
@@ -907,10 +910,6 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         'Quality gates: `harness.json` y `/aikya-quality` dentro de Claude Code.\n\n'
         'Si ya existía `CLAUDE.md`, se ha conservado. Si existía `harness.json`, se ha conservado: revisa los checks manualmente.\n',
         actions,replace_managed=True)
-    if not dry_run:
-        from docs_language import write_approved as save_docs_language
-        if save_docs_language(target, documentation_language):
-            actions.append('CREATED .aikya/docs-policy.json')
     return actions
 
 
