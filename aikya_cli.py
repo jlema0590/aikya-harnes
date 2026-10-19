@@ -5,6 +5,8 @@ import argparse
 import json
 import sys
 from pathlib import Path
+# Dry-run and report-only must not leave bytecode in a project-local Aikya runtime.
+sys.dont_write_bytecode = True
 import install as installer
 from aikya_requirements import check, markdown
 
