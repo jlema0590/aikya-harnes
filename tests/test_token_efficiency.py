@@ -43,7 +43,7 @@ class PolicyTests(unittest.TestCase):
             path = Path(d) / "session.jsonl"
             record = {"uuid": "event1", "message": {"role": "user", "content": [
                 {"type": "tool_result", "tool_use_id": "tool1", "content": "SECRET_SUPPRESSED"}]}}
-            path.write_text(json.dumps(record) + "\\n", encoding="utf8")
+            path.write_text(json.dumps(record) + "\n", encoding="utf8")
             data = summarize([path])
             self.assertEqual(data["largest_tool_results"][0]["tool_use_id"], "tool1")
             self.assertEqual(data["largest_tool_results"][0]["bytes"], len("SECRET_SUPPRESSED"))
@@ -56,7 +56,7 @@ class PolicyTests(unittest.TestCase):
                 {"message":{"id":"m1","role":"assistant","model":"sonnet","usage":{"output_tokens":3}}},
                 {"message":{"id":"m1","role":"assistant","model":"sonnet","usage":{"output_tokens":11}}}
             ]
-            path.write_text("\\n".join(json.dumps(e) for e in events)+"\\n", encoding="utf8")
+            path.write_text("\n".join(json.dumps(e) for e in events)+"\n", encoding="utf8")
             data = summarize([path])
             self.assertEqual(data["totals"]["output_tokens"],11)
             self.assertEqual(data["totals"]["calls"],1)
