@@ -11,7 +11,7 @@ import aikya_setup
 import install
 
 REQUIRED={
-    'aikya-init', 'aikya-answers', 'aikya-doctor', 'aikya-project-init',
+    'aikya-init', 'aikya-analyze', 'aikya-answers', 'aikya-doctor', 'aikya-project-init',
     'aikya-infra-project', 'aikya-scaffold', 'aikya-feature',
     'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
     'aikya-skills-status','aikya-skills-plan','aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
