@@ -51,3 +51,16 @@ Source branch: `develop` (v5.9.1 at branch creation). Feature branch: `feat/toke
 6. Confirm the subagent's effective model in `/tasks`. If the requested model was substituted by the organization/provider, fall back to `inherit` and notify the user before further delegation.
 
 Current model documentation: https://platform.claude.com/docs/es/models/overview and https://code.claude.com/docs/en/model-config.
+
+## New-project vs existing-project entry contract (v6.0.0)
+
+- /aikya-init always uses new projects and requests the technical interview.
+- /aikya-analyze is the new existing-repository entry: discovery, inventory, compatible profile and approved Aikya-only adoption without an interview.
+- The shared validator/installer keeps mode=existing for backward compatibility. Existing architecture, Terraform/OpenTofu, Helm chart and Docker source-kind options remain valid.
+- aikya_cli.py init refuses mode=existing without writing. Declarative answers with mode=existing continue on their legacy route with deprecation guidance.
+- Existing v5.9.1 profiles and Haiku 4.5 policies are preserved, not overwritten or silently migrated.
+- The brownfield installer skips user .gitignore, CI workflows, Terraform, Docker, operational scripts and pre-existing Claude settings; analysis state is maintained under .aikya/analysis/ with managed hashes.
+- --dry-run and --report-only never install; --refresh only updates analysis-owned assets with hashes matching their previous managed version.
+- Ambiguous monorepos are PARTIAL and require inspection rather than an invented backend.
+
+Full ADR and user guidance: docs/INIT_ANALYZE_SEPARATION.md.
