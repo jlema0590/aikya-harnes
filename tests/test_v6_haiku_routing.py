@@ -84,7 +84,7 @@ class NewPolicyTests(unittest.TestCase):
         self.assertFalse(capability_status(enabled_policy(), "2.1.292")["ready_for_cli_delegation"])
         status = capability_status(enabled_policy(), "2.1.293")
         self.assertTrue(status["ready_for_cli_delegation"])
-        self.assertIn("does not prove", status["note"])
+        self.assertIn("do not prove", status["note"])
 
 class RouterTests(unittest.TestCase):
     def test_new_java_api_uses_planner_if_multicomponent(self):
