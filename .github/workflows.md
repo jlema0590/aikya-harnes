@@ -49,3 +49,9 @@ feat/* o fix/* → PR develop → PR main → CI → tag vX.Y.Z + GitHub Release
 - Las ejecuciones se serializan con cola para minimizar carreras entre merges.
 
 **Límites:** este pipeline no despliega cloud, no actualiza SDKs, no publica NPM y no audita jurídicamente las licencias. `sha256sum` verifica integridad del ZIP, no procedencia del contenido.
+
+## Recuperación de v5.9.1 si la publicación todavía no existe
+
+`github_tag.py` consulta GitHub con estado HTTP explícito: 404 significa tag ausente, 401/403/5xx detienen la operación, y los tags anotados se resuelven hasta el commit real. La publicación crea el tag con `gh release create --target "$GITHUB_SHA"` únicamente si la referencia no existe.
+
+Si `main` contiene VERSION=5.9.1 pero el tag aún no existe, se permite un PR de reparación sin incremento de versión; luego el merge a main publicará `v5.9.1` sobre el **nuevo commit**. Después de publicar ese tag, la siguiente versión debe aumentar. No utilices `Re-run failed jobs` del workflow antiguo: GitHub Actions reejecuta la definición anterior; hay que integrar el fix en main para usarla.
