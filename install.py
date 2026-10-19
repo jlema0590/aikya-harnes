@@ -725,16 +725,30 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
             shutil.copy2(source, dest)
             actions.append('CREADO '+str(dest))
     migrate_v55_project_config(target,actions)
-    # Alias prefijados: se conservan los comandos heredados para compatibilidad.
+    # v6: retain legacy commands with lightweight aliases.
+    from aikya_setup import BOOTSTRAP_COMMANDS
     for original in sorted((TEMPLATE/'.claude/skills').glob('*/SKILL.md')):
-        old_name=original.parent.name
-        if old_name == 'project-bootstrap':
-            continue  # Comando público renombrado a aikya-infra-project.
-        if old_name.startswith('aikya-'):
+        old_name = original.parent.name
+        if old_name == 'project-bootstrap' or old_name.startswith('aikya-'):
             continue
-        alias='aikya-'+old_name
-        content=original.read_text(encoding='utf8').replace('name: '+old_name+'\n','name: '+alias+'\n',1)
-        safe_write(target/'.claude/skills'/alias/'SKILL.md',content,actions)
+        alias = 'aikya-' + old_name
+        # Public wrappers are registered below. Never shadow them with copied skills.
+        if alias in BOOTSTRAP_COMMANDS:
+            continue
+        destination = target/'.claude/skills'/alias/'SKILL.md'
+        body = ('---\nname: '+alias+'\ndescription: Alias de compatibilidad para /'+old_name+
+                '.\ndisable-model-invocation: true\n---\n'
+                '<!-- AIKYA BOOTSTRAP MANAGED -->\n'
+                '# /'+alias+'\nConsulta la skill de proyecto /'+old_name+
+                ' y aplica el procedimiento original con los mismos permisos.\n')
+        if destination.is_file() and not destination.is_symlink():
+            legacy = original.read_text(encoding='utf8').replace(
+                'name: '+old_name+'\n','name: '+alias+'\n',1)
+            if destination.read_text(encoding='utf8') == legacy:
+                destination.write_text(body,encoding='utf8')
+                actions.append('MIGRADO alias gestionado '+str(destination))
+                continue
+        safe_write(destination,body,actions)
     # Registrar todos los comandos gestionados Aikya cuando el proyecto se inicializa.
     # Los wrappers tienen la marca AIKYA BOOTSTRAP MANAGED y no sustituyen skills personalizadas.
     from aikya_setup import BOOTSTRAP_COMMANDS
