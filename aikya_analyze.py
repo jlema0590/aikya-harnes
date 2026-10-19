@@ -151,7 +151,12 @@ def execute(target: Path, *, scope: str = ".", focus: str = "general",
     installation = installation_preview(target, projection["profile"], inventory) if projection["profile"] else []
     conflicts = [o for o in plan["operations"]
                  if o["action"] in ("BLOCKED", "CONFLICT_REQUIRES_REVIEW")]
-    if (target / ".aikya/analysis/manifest.json").exists() and not owned_state(target):
+    manifest_file = target / ".aikya/analysis/manifest.json"
+    manifest_action = ("CONFLICT_REQUIRES_REVIEW" if manifest_file.exists() and not owned_state(target)
+                       else "KEEP_EXISTING" if manifest_file.exists() else "CREATE_MANAGED")
+    plan["operations"].append({"path": ".aikya/analysis/manifest.json",
+                               "action": manifest_action})
+    if manifest_action == "CONFLICT_REQUIRES_REVIEW":
         conflicts.append({"path": ".aikya/analysis/manifest.json",
                           "action": "CONFLICT_REQUIRES_REVIEW"})
     status = "NEEDS_REVIEW" if conflicts else projection["status"]
@@ -162,7 +167,7 @@ def execute(target: Path, *, scope: str = ".", focus: str = "general",
                 "focus": focus, "inventory": inventory,
                 "unresolved": projection["unresolved"], "plan": plan["operations"] + installation,
                 "conflicts": conflicts, "approval_required": status == "READY" and not approved,
-                "recommended_command": "/aikya-init" if inventory["project_type"] == "unknown"
+                "recommended_command": "/aikya-analyze --scope <componente>" if inventory["project_type"] == "unknown"
                                        else "/aikya-analyze --approved"}
     profile = projection["profile"]
     detected = {"modules": [{"role": m["role"], "technology": m["technology"],
