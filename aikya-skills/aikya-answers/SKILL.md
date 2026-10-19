@@ -19,3 +19,8 @@ Entrada: `$ARGUMENTS` (ruta opcional a JSON). No hagas una entrevista completa s
 ## Perfil v5.8
 
 `project_type` acepta `development`, `infrastructure` y `devops`; si no existe, se trata como development por compatibilidad. Valida infra/DevOps sin backend, frontend ni móvil, y no inviertas el orden de selección de modo y estado del repositorio. Aikya nunca despliega infraestructura por cargar answers.json.
+
+## Aikya 6.0.0 / SDD
+
+- `methodology` acepta `standard` (default legados) o `sdd` (opción explícita del usuario). Es independiente de `project_type` y `mode`.
+- Si está activo SDD, valida el perfil y enseña el flujo `/aikya-specify` → `/aikya-clarify` → `/aikya-plan` → `/aikya-tasks` → `/aikya-implement` → `/aikya-sdd-status`; no ejecutes tareas ni despliegues durante la carga de `answers.json`.

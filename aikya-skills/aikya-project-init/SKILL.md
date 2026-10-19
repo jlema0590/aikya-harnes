@@ -16,3 +16,7 @@ Petición: `$ARGUMENTS`.
 2. Sigue las instrucciones técnicas especializadas de esa skill y las reglas del proyecto; no te limites a invocarla, ejecuta el flujo dentro de Claude Code.
 3. Si la tarea cambia código, actualiza documentación afectada y verifica pruebas reales.
 4. Devuelve resultados realmente observados y pendientes. No uses herramientas externas automáticamente ni delegues sin motivo.
+
+## SDD v6.0.0
+
+Si `methodology=sdd`, la planificación inicial parte de requisitos aprobados en SPEC-NNN; no generes módulos ni decisiones de arquitectura definitivas antes de `/aikya-specify` y `/aikya-clarify`. Conserva los documentos de roadmap y ADR existentes sin sobrescrituras silenciosas.

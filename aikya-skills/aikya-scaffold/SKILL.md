@@ -24,3 +24,7 @@ Solicita el alcance de `$ARGUMENTS` (por ejemplo: `plan`, `backend`, `frontend` 
 Una vez verificados los manifiestos, versiones y pruebas del código, ejecuta `/aikya-infra-project plan` para Dockerfile, Compose, IaC y despliegue según las opciones elegidas. Nunca generes Dockerfiles de una aplicación que aún no existe ni presupongas su puerto.
 
 **Modos autónomos:** en `project_type=infrastructure` o `devops`, no ejecutar generadores de aplicación; usa `/aikya-infra-project plan` y posteriormente `generate` con aprobación específica.\n
+## SDD v6.0.0
+
+- Para `methodology=sdd`, `/aikya-scaffold` sólo puede ejecutar generación de código autorizada que esté vinculada a una especificación SPEC-NNN con plan/tareas aprobadas. Si sólo se solicita un plan, mantén el carácter de lectura y documenta que falta el gate SDD para generar.
+- En `standard` se conserva el comportamiento actual.

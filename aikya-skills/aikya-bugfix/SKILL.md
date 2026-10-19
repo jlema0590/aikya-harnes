@@ -16,3 +16,7 @@ Petición: `$ARGUMENTS`.
 2. Sigue las instrucciones técnicas especializadas de esa skill y las reglas del proyecto; no te limites a invocarla, ejecuta el flujo dentro de Claude Code.
 3. Si la tarea cambia código, actualiza documentación afectada y verifica pruebas reales.
 4. Devuelve resultados realmente observados y pendientes. No uses herramientas externas automáticamente ni delegues sin motivo.
+
+## SDD v6.0.0
+
+Si `methodology=sdd`, vincula el bug a una SPEC-NNN aprobada o propone una especificación de regresión con criterios de aceptación, plan de cambio, tareas y pruebas; no omitas los gates SDD. Para correcciones urgentes, explica la excepción y requiere aprobación humana expresa y registro documental.

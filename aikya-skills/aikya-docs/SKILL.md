@@ -17,3 +17,7 @@ Sincroniza la documentación afectada por la tarea `$ARGUMENTS` y valida sus evi
 3. Si hubo cambios de código, tests, infra o configuración técnica, crea/actualiza `aikya/docs/changes/REQ-YYYYMMDD-xxxxxxxx.md` con **## Cambios**, **## Evidencias** y **## Documentos actualizados**; no inventes pruebas, ni copies secretos o el prompt original.
 4. Ejecuta `python3 aikya/scripts/harness/docs_guard.py base` y, si el identificador de sesión está disponible, `python3 aikya/scripts/harness/docs_guard.py status --session <id>`. No confundas pasar el esquema con veracidad del contenido: revisa las afirmaciones manualmente.
 5. No hagas cambios documentales artificiales ante consultas informativas sin cambios técnicos. Resume exactamente qué páginas cambiaste y qué validaciones se ejecutaron.
+
+## SDD v6.0.0
+
+Cuando `methodology=sdd`, mantén enlaces entre `aikya/docs/specs/<project_type>/SPEC-NNN/`, fichas de features, ADR y bitácora `aikya/docs/changes/REQ-*.md`. No modifiques manualmente archivos gestionados por `sdd_engine.py` sin seguir su flujo de aprobación; registra discrepancias o solicitudes de cambio como pendientes.
