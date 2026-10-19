@@ -708,7 +708,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         if not source.is_file() or '__pycache__' in source.parts or source.suffix == '.pyc':
             continue
         rel = source.relative_to(TEMPLATE)
-        if rel.as_posix() in ('CLAUDE.md','harness.json','.claude/settings.json') or (adopt_existing and rel.parts[0] in ('.github', 'infra')):
+        if rel.as_posix() in ('CLAUDE.md','harness.json','.claude/settings.json') or (adopt_existing and (rel.parts[0] in ('.github', 'infra') or rel.name in ('.gitignore', 'Dockerfile', 'compose.yml', 'compose.yaml', 'docker-compose.yml', 'docker-compose.yaml') or rel.suffix in ('.tf', '.tfvars'))):
             continue
         dest = target / (Path('aikya/scripts') / Path(*rel.parts[1:]) if rel.parts[0]=='scripts' else Path('aikya/test') / Path(*rel.parts[1:]) if rel.parts[0]=='tests' else rel)
         if dest.exists():
@@ -726,7 +726,8 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, dest)
             actions.append('CREADO '+str(dest))
-    migrate_v55_project_config(target,actions)
+    if not adopt_existing:
+        migrate_v55_project_config(target,actions)
     # v6: retain legacy commands with lightweight aliases.
     from aikya_setup import BOOTSTRAP_COMMANDS
     for original in sorted((TEMPLATE/'.claude/skills').glob('*/SKILL.md')):
