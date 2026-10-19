@@ -38,5 +38,28 @@ class PolicyTests(unittest.TestCase):
             self.assertEqual(result["totals"]["calls"], 1)
             self.assertEqual(result["totals"]["cache_read_input_tokens"], 20)
 
+    def test_tool_results_metrics_only_not_content(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "session.jsonl"
+            record = {"uuid": "event1", "message": {"role": "user", "content": [
+                {"type": "tool_result", "tool_use_id": "tool1", "content": "SECRET_SUPPRESSED"}]}}
+            path.write_text(json.dumps(record) + "\\n", encoding="utf8")
+            data = summarize([path])
+            self.assertEqual(data["largest_tool_results"][0]["tool_use_id"], "tool1")
+            self.assertEqual(data["largest_tool_results"][0]["bytes"], len("SECRET_SUPPRESSED"))
+            self.assertNotIn("SECRET_SUPPRESSED", json.dumps(data))
+
+    def test_usage_streaming_cumulative_max(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "session.jsonl"
+            events = [
+                {"message":{"id":"m1","role":"assistant","model":"sonnet","usage":{"output_tokens":3}}},
+                {"message":{"id":"m1","role":"assistant","model":"sonnet","usage":{"output_tokens":11}}}
+            ]
+            path.write_text("\\n".join(json.dumps(e) for e in events)+"\\n", encoding="utf8")
+            data = summarize([path])
+            self.assertEqual(data["totals"]["output_tokens"],11)
+            self.assertEqual(data["totals"]["calls"],1)
+
 if __name__ == "__main__":
     unittest.main()
