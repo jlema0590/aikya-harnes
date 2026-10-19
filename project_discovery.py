@@ -74,8 +74,8 @@ def scan(root: Path, scope: str = ".") -> dict:
                     dirs.append(entry)
                 # .github workflows are recognized separately at root
                 continue
-            if not entry.is_file():
-                continue
+            if not entry.is_file() or entry.name in ('CLAUDE.md', 'harness.json'):
+                continue  # Managed onboarding metadata must not affect source inventory.
             files += 1
             if files > MAX_FILES:
                 truncated = True
