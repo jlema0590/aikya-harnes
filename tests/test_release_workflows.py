@@ -71,7 +71,7 @@ class VersionContractTests(unittest.TestCase):
             self.valid()
 
     def test_older_or_equal_release_is_rejected(self):
-        with self.assertRaisesRegex(contract.ReleaseError,"superar"):
+        with self.assertRaisesRegex(contract.ReleaseError,"higher"):
             contract.validate(self.root,tags=["v5.9.2"],head_sha="a"*40)
         with self.assertRaisesRegex(contract.ReleaseError,"superar"):
             contract.validate(self.root,tags=["v5.10.0"],head_sha="a"*40)
@@ -115,13 +115,13 @@ class VersionContractTests(unittest.TestCase):
         self.assertEqual("v5.9.2",name)
         self.assertEqual("5.9.2",(self.root/"VERSION").read_text().strip())
         body=f.read_text()
-        self.assertIn("## Sin publicar\n\n## v5.9.2 — 2026-10-19",body)
+        self.assertIn("## Unreleased\n\n## v5.9.2 — 2026-10-19",body)
         self.assertEqual(1,body.count("## v5.9.2"))
         self.assertIn("Nuevo cambio",contract.notes_from_changelog(body,"5.9.2"))
 
     def test_prepare_never_overwrites_without_unreleased_notes(self):
         before=(self.root/"VERSION").read_bytes()
-        with self.assertRaisesRegex(contract.ReleaseError,"Sin publicar"):
+        with self.assertRaisesRegex(contract.ReleaseError,"Unreleased"):
             prepare.prepare(self.root,"v5.9.2")
         self.assertEqual(before,(self.root/"VERSION").read_bytes())
         with self.assertRaisesRegex(contract.ReleaseError,"superar"):
@@ -153,7 +153,7 @@ class VersionContractTests(unittest.TestCase):
         self.assertEqual("6.0.0",(ROOT/"VERSION").read_text().strip())
         changelog=(ROOT/"CHANGELOG.md").read_text()
         self.assertIn("## v5.9.1",changelog)
-        self.assertIn("Corrección y automatización",changelog)
+        self.assertIn("GitHub Actions fixes and automation",changelog)
 
 
 if __name__=="__main__":
