@@ -70,7 +70,7 @@ class RenamedSkillsTests(unittest.TestCase):
             state = json.loads((runtime / 'manifest.json').read_text())['files']
             self.assertFalse(any(k.startswith('bootstrap_skills/') for k in state))
             self.assertTrue(any('MIGRADO a aikya-skills/' in entry for entry in logs))
-            self.assertEqual(logs.count('CONSERVADO legacy personalizado'), 0)
+            self.assertEqual(logs.count('PRESERVED customized or unverified legacy asset'), 0)
             # Idempotency after migration.
             aikya_setup.setup(ROOT, project, 'project')
             self.assertFalse(old.exists())
