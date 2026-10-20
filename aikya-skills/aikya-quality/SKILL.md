@@ -1,25 +1,15 @@
 ---
 name: aikya-quality
-description: Ejecuta desde Claude Code los quality gates de Aikya, lint, seguridad, estado documental y CI sin falsos positivos.
+description: Run configured repository quality gates, report real outcomes and enforce documentation requirements without false positives.
 disable-model-invocation: true
 ---
 <!-- AIKYA BOOTSTRAP MANAGED -->
-# /aikya-quality
 
-Objetivo: evaluar calidad del repositorio actual, no instalar dependencias.
-## Resolución y seguridad
-- Trabaja en el directorio de proyecto abierto por Claude Code, NUNCA dentro del runtime global. Si falta `.harness/project-profile.json`, indica `/aikya-init` para un proyecto nuevo, `/aikya-analyze` para uno existente o `/aikya-answers` para configuración declarativa.
-- No descargues dependencias, modifiques el SDK, realices despliegues, commits ni pushes sin autorización explícita. Conserva archivos y configuraciones ajenas.
-- Lee sólo el perfil, los archivos directamente relacionados y las reglas estrictamente necesarias; evita grandes volcados de contexto.
+# Quality gates
+1. Inspect harness.json and repository configuration. Do not install tools automatically.
+2. Execute configured non-destructive checks only with the required permissions.
+3. Report each result as PASS, FAIL, SKIPPED or NOT_CONFIGURED; never infer success.
+4. Verify required documentation under aikya/docs/ in the configured locale and preserve legacy Spanish logs.
+5. Summarize failing checks, needed dependencies and next actions.
 
-1. Lee `harness.json` y las reglas del proyecto. Si no hay checks configurados, informa explícitamente de que no pueden considerarse verificados.
-2. Ejecuta `python3 aikya/scripts/harness/run_checks.py` y registra fallos, omisiones, checks `NOT_CONFIGURED` y aprobados con comando y evidencia.
-3. Ejecuta `python3 aikya/scripts/harness/skills_lint.py` y `python3 aikya/scripts/harness/docs_guard.py base` si existen. Para cobertura de la petición, utiliza `/aikya-docs`; no fuerces una validación de sesión equivocada.
-4. Revisa seguridad o CI/CD del área afectada cuando el cambio lo justifique, evitando scans costosos no autorizados. No confundir archivos de CI generados con pipelines ejecutados.
-5. Actualiza `aikya/docs/quality/testing.md` con resultados comprobados sólo si hay cambios de código/proceso que afecten documentación, y registra evidencias en `aikya/docs/changes/` si hubo cambios técnicos. Nunca declares éxito si un gate requerido falló o no estaba configurado.
-6. Devuelve resumen de QA con estado `APROBADO`, `FALLÓ` o `NO VERIFICADO`, lista de riesgos y próximos pasos.
-
-## Infrastructure & DevOps
-
-- Si `infrastructure` está configurado y existen artefactos, ejecuta `python3 aikya/scripts/harness/infrastructure.py validate` además de los gates habituales. Distingue NOT_CONFIGURED de éxito. No accedas a clusters, cloud ni servidores durante checks locales.
-- Documenta las evidencias en `aikya/docs/operations/deployment.md` y `aikya/docs/infrastructure/`.
+Keep engineering instructions in English. Living documentation language is restricted to aikya/docs/.

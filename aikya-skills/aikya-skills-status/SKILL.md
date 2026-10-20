@@ -1,22 +1,17 @@
 ---
 name: aikya-skills-status
-description: Gestiona desde Claude Code skills externas Ponytail, Graphify y UI UX Pro Max: estado, plan e instalación autorizada.
+description: Inspect installed project Agent Skills, provenance and availability without downloading or installing anything.
 disable-model-invocation: true
 ---
 <!-- AIKYA BOOTSTRAP MANAGED -->
-# /aikya-skills-status
 
-Argumentos de la petición: `$ARGUMENTS`.
-## Resolución y seguridad
-- Trabaja en el directorio de proyecto abierto por Claude Code, NUNCA dentro del runtime global. Si falta `.harness/project-profile.json`, indica `/aikya-init` o `/aikya-answers` antes de continuar.
-- No descargues dependencias, modifiques el SDK, realices despliegues, commits ni pushes sin autorización explícita. Conserva archivos y configuraciones ajenas.
-- Lee sólo el perfil, los archivos directamente relacionados y las reglas estrictamente necesarias; evita grandes volcados de contexto.
+# Agent Skills status
 
-1. Comprueba el perfil e inventario actual. Ejecuta `python3 aikya/scripts/harness/external_skills.py status` desde el proyecto; se actualizará `aikya/docs/skills.md` si está generado por Aikya.
-2. Describe skills habilitadas del proyecto, externas ausentes, fallidas y origen. Nunca confundas **disponible** con **ejecutada**.
-3. No descargues ni instales nada ni leas instrucciones completas de skills ajenas para esta consulta.
+1. Read the project-scoped Aikya skills registry and relevant manifests.
+2. Distinguish AVAILABLE, MISSING and FAILED; installed does not mean invoked.
+3. List registered project skills, trusted source, compatible technology and version evidence.
+4. Report unavailable or unverified external integrations as pending, not installed.
+5. Never download, install or run third-party code in a status request.
+6. If synchronizing the skills inventory under aikya/docs/, obey the project's documentation policy en or es, and preserve custom pages.
 
-## Especialistas Aikya del proyecto
-
-- Incluye `aikya/docs/agents.md` y `aikya/docs/skills.md` en la comprobación de disponibilidad del catálogo técnico.
-- Si la consulta abarca componentes incluidos con Aikya, ejecuta `python3 aikya/scripts/harness/engineering_catalog.py list` y distingue **disponibles en el catálogo** de **instalados en el proyecto**.
+Keep all engineering instructions and CLI output in English.

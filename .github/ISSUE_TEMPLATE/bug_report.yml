@@ -1,66 +1,66 @@
-name: Reportar un error en Aikya
-description: Describir problemas del harness, sus agentes, skills o generadores
+name: Report an Aikya bug
+description: Report a problem in the harness, agents, skills or project generators
 labels: []
 body:
   - type: markdown
     attributes:
       value: |
-        Gracias por reportar un error. No incluyas contraseñas, tokens, secretos cloud ni datos personales.
-        Si es una vulnerabilidad, utiliza `SECURITY.md` y un reporte privado.
+        Thanks for reporting a bug. Do not include passwords, access tokens, cloud secrets or personal data.
+        For vulnerabilities, follow SECURITY.md and report privately.
   - type: dropdown
     id: project_type
     attributes:
-      label: Modo de Aikya
+      label: Aikya project type or scope
       options:
         - Development
         - Infrastructure (Terraform/OpenTofu/Ansible)
         - DevOps (Docker/Compose/Kubernetes)
-        - Instalación global o del proyecto
-        - Engineering Agents / Skills
-        - Otro
+        - Global or project installation
+        - Engineering agents or skills
+        - Other
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Versión o commit de Aikya
-      description: Rama y commit o versión utilizada (sin credenciales).
+      label: Aikya version or commit
+      description: Branch and commit or version used. Do not include credentials.
       placeholder: 'develop @ <SHA>'
     validations:
       required: true
   - type: input
     id: environment
     attributes:
-      label: Sistema operativo / Python / Claude Code
+      label: Operating system / Python / Claude Code
       placeholder: Ubuntu 24.04 / Python 3.11 / Claude Code
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Pasos para reproducir
-      description: Incluye el comando `/aikya-*` o el procedimiento y un perfil mínimo sin secretos.
+      label: Steps to reproduce
+      description: Include the Aikya command or procedure and a minimal secret-free profile.
       placeholder: |
-        1. Seleccioné project_type=...
-        2. Ejecuté /aikya-...
-        3. Se produjo el error ...
+        1. Selected project_type=...
+        2. Ran /aikya-...
+        3. Observed the failure ...
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Comportamiento esperado
+      label: Expected behavior
     validations:
       required: true
   - type: textarea
     id: actual
     attributes:
-      label: Comportamiento observado
+      label: Actual behavior
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Logs anonimizados
-      description: Elimina rutas privadas, credenciales, accesos a clouds y datos personales.
+      label: Sanitized logs
+      description: Remove private paths, credentials, cloud secrets and personal data.
       render: shell

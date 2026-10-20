@@ -1,13 +1,13 @@
 ---
 name: mobile-feature
-description: Implementa funcionalidades móviles en Android/iOS o Flutter/React Native con validación específica de plataforma.
+description: Implement approved Android, iOS, Flutter or React Native features with real platform checks.
 disable-model-invocation: true
 ---
-Solicitud: $ARGUMENTS
-1. Revisa el perfil y los manifiestos de Android/iOS/Flutter/React Native reales.
-2. Establece criterios de aceptación por plataforma, permisos, accesibilidad, red y datos locales.
-3. Usa `mobile-engineer` para cambios complejos; evita cambios simultáneos al mismo archivo.
-4. Crea pruebas unitarias e instrumentadas/UI cuando existan herramientas disponibles.
-5. Ejecuta builds por variante/scheme real; si faltan SDK, Xcode o simulador, informa NO VERIFICADO.
-6. Revisa claves, permisos, firma y publicación; no ejecutes releases sin aprobación.
-7. Actualiza `aikya/docs/features/index.md` con diferencias Android/iOS y criterios de aceptación, `aikya/docs/quality/testing.md` con pruebas reales y `aikya/docs/security/security.md` si toca permisos/datos. Registra la petición en `aikya/docs/changes/REQ-*.md`.
+
+# Mobile feature implementation
+1. Inspect actual mobile manifests, SDK versions, app targets and platform-specific conventions.
+2. Define acceptance criteria, required permissions, accessibility and lifecycle behavior.
+3. Change the smallest approved scope and add platform-relevant tests.
+4. Do not install SDKs, change signing, release to app stores or contact remote systems without approval.
+5. Report actual simulator/build results and limitations; update affected living docs in the configured locale.
+

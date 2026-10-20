@@ -1,4 +1,4 @@
-"""Topología del repositorio Aikya, independiente de la arquitectura de software."""
+"""Aikya repository topology, independent from software architecture."""
 LAYOUTS = ("monorepo", "singlerepo")
 
 def app_count(profile: dict) -> int:
@@ -22,7 +22,7 @@ def validate_layout(profile: dict) -> None:
     if profile.get('project_type','development') != 'development':
         return
     if profile.get("mode") == "new" and layout_of(profile) == "singlerepo" and app_count(profile) != 1:
-        raise ValueError("singlerepo requiere exactamente una aplicación. Selecciona monorepo para backend/frontend independientes o varias apps móviles.")
+        raise ValueError("singlerepo requires exactly one application. Select monorepo for separate backend/frontend apps or multiple mobile targets.")
 
 def module_root(profile: dict, module: str) -> str:
     if layout_of(profile) == "singlerepo":

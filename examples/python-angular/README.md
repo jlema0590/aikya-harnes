@@ -1,24 +1,17 @@
-# Ejemplo: FastAPI + Angular (aplicación nueva)
+# Example: FastAPI Python backend and Angular frontend
 
-> **Plantilla de decisiones, no aplicación generada.** No hay compilación, dependencia ni SDK instalado por este ejemplo.
+> **Technical decision sample, not a generated or deployed application.** This example does not install an SDK, execute a build or access cloud resources.
 
-**Stack:** backend `python` + frontend `angular` + móvil `none`. **Arquitectura base:** `layered`. **Patrones complementarios:** ninguno.
+## How to use in Claude Code
 
-## Uso desde Claude Code
+1. Open an authorized target project in Claude Code and inspect `examples/python-angular/answers.json`.
+2. For a **new** project, choose /aikya-init or validate and apply the sample with /aikya-answers. For an **existing** repository, use /aikya-analyze instead of reinitializing source.
+3. Use /aikya-doctor to inspect toolchain requirements without installing anything.
+4. For new application projects use /aikya-scaffold plan; for infrastructure use /aikya-infra-project plan. Generate only after explicit approval.
+5. Inspect /aikya-skills-status, /aikya-tests and /aikya-quality; installed capabilities are not evidence of execution.
 
-1. Instala Aikya en modo global o proyecto desde una conversación de Claude Code.
-2. Solicita: `/aikya-answers` y usa `examples/python-angular/answers.json` como respuestas. Pide a Claude que te muestre primero las decisiones y las adapte a tu entorno.
-3. Continúa con `/aikya-doctor` para diagnosticar versiones y dependencias sin instalarlas automáticamente.
-4. En aplicaciones nuevas, pide `/aikya-scaffold plan` y aprueba el generador adecuado. En un repositorio existente no ejecutes scaffolding sobre el código.
-5. Solicita `/aikya-skills-status`, `/aikya-tests` y `/aikya-quality` para revisar los componentes activados y las verificaciones realmente disponibles.
+## Technical constraints
 
-## Skills y agentes previstos
+Confirm Python and Angular SDK versions before generator selection and do not assert builds or compatibility without checks.
 
-Tras inicializar, Aikya utiliza el perfil para activar únicamente especialistas pertinentes; consulta `docs/agents.md`, `docs/skills.md` y `.harness/engineering-catalog.json`.
-No todos los componentes del catálogo se instalan en cada proyecto y **disponible no significa ejecutado**.
-
-## Consideraciones
-
-FastAPI con Python y Angular; los generadores deben seleccionarse en Claude Code tras comprobar SDK y compatibilidad.
-
-Revisa los comandos de build/test según los manifiestos creados. Si faltan, deben permanecer como pendientes en `harness.json`.
+The example contains no production credentials, verified cloud resources or deployment authorization. All core engineering instructions are English. Living documentation may be created under aikya/docs/ in the selected en/es language.

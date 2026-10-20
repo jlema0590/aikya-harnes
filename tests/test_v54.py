@@ -70,7 +70,7 @@ class RenamedSkillsTests(unittest.TestCase):
             state = json.loads((runtime / 'manifest.json').read_text())['files']
             self.assertFalse(any(k.startswith('bootstrap_skills/') for k in state))
             self.assertTrue(any('MIGRADO a aikya-skills/' in entry for entry in logs))
-            self.assertEqual(logs.count('CONSERVADO legacy personalizado'), 0)
+            self.assertEqual(logs.count('PRESERVED customized or unverified legacy asset'), 0)
             # Idempotency after migration.
             aikya_setup.setup(ROOT, project, 'project')
             self.assertFalse(old.exists())
@@ -87,7 +87,7 @@ class RenamedSkillsTests(unittest.TestCase):
             self.assertIn('TEAM OVERRIDE', (old / 'aikya-feature/SKILL.md').read_text())
             self.assertTrue((old / 'aikya-feature/custom-notes.md').exists())
             self.assertTrue((runtime / 'aikya-skills/aikya-feature/SKILL.md').is_file())
-            self.assertTrue(any('CONSERVADO legacy personalizado' in x for x in logs))
+            self.assertTrue(any('PRESERVED customized or unverified legacy asset' in x for x in logs))
 
     def test_installer_still_initializes_project_skills_from_new_path(self):
         with tempfile.TemporaryDirectory() as temp:

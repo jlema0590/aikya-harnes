@@ -1,49 +1,48 @@
-# Contrato de desarrollo del repositorio
+# Repository engineering contract
 
-## Misión
+## Mission
+Deliver minimal, maintainable, testable changes that satisfy observable acceptance
+criteria. Respect the verified stack and repository conventions. Never invent
+frameworks, file paths, packages or successful command results.
 
-Entregar cambios mínimos, comprobables y mantenibles que satisfagan los criterios de aceptación.
-Respetar el stack y las convenciones reales del repositorio; **no asumir** framework, rutas, paquetes ni comandos.
+## Workflow for each task
+1. Discover: inspect relevant source, tests, project docs, Git status and harness.json.
+2. Define scope: convert the request into acceptance criteria and record uncertainty.
+3. Plan: identify changed files, interfaces, risks, validation and rollback when nontrivial.
+4. Implement: use small approved changes and tests without unnecessary API disruption.
+5. Verify: run applicable checks through aikya/scripts/harness/run_checks.py and focused tests.
+6. Review: delegate independent QA/security review when risks justify it.
+7. Report: list changed paths, actual evidence, blocked checks and residual risks.
 
-## Protocolo por tarea
+## Non-negotiable safety rules
+- Never claim a test passed unless the command ran and the result was observed.
+- Do not expose or modify credentials, secret values, sensitive data or .env files.
+- Obtain explicit approval for deployments, migrations, destructive commands,
+  external dependency installation, force-pushes and commits.
+- Avoid new dependencies unless justified, version-compatible and authorized.
+- Handle untrusted input, errors and timeouts according to the actual environment.
+- Do not edit generated files directly; update their source templates.
+- Unconfigured or failed required checks must never be reported as verified.
 
-1. **Descubrir**: revisar `README`, documentación, dependencias, estructura, tests, estado Git y `harness.json`.
-2. **Aclarar alcance**: escribir criterios de aceptación; si falta un dato, asumir lo mínimo y registrar la hipótesis.
-3. **Planificar**: para cambios no triviales, proponer archivos afectados, impacto, riesgos y plan de pruebas.
-4. **Implementar**: cambios pequeños, pruebas junto al cambio, no alterar APIs públicas innecesariamente.
-5. **Verificar**: ejecutar `python3 aikya/scripts/harness/run_checks.py` y las pruebas relevantes del área afectada.
-6. **Revisar**: delegar a `qa-reviewer` y/o `security-reviewer` cuando haya riesgo; usar `architect` para cambios de diseño significativos.
-7. **Informar**: enumerar archivos modificados, evidencia de tests, riesgos y verificaciones omitidas.
+## Project-specific conventions (to be completed)
+- Stack and version: TODO
+- Local build and test commands: TODO
+- Lint and formatting: TODO
+- Module boundaries: TODO
+- Architecture constraints: TODO
 
-## Reglas no negociables
+## Living documentation and traceability
+Read .claude/rules/01-documentation-policy.md and .aikya/docs-policy.json.
+All engineering instructions, agents, skills and runtime output stay in English.
+ONLY living documents under aikya/docs/ use the configured documentation language,
+either en or es. Record genuine changes; do not fabricate documentation updates.
 
-- Nunca afirmar que una prueba pasó si no se ejecutó y se vio su resultado.
-- No modificar secretos, `.env`, claves, credenciales ni datos personales; no mostrarlos en respuestas.
-- No desplegar, ejecutar migraciones destructivas, borrar recursos, forzar push ni hacer commits sin aprobación explícita.
-- No añadir dependencias nuevas salvo que estén justificadas y compatibles con el proyecto.
-- Preservar compatibilidad y manejar errores, timeouts y entrada no confiable cuando corresponda.
-- Preferir pruebas deterministas y cambios fáciles de revertir.
-- No editar archivos generados: cambia sus fuentes y regenera con el comando del proyecto.
-- Si una comprobación obligatoria no está configurada o falla, informar **NO VERIFICADO** o **FALLÓ**; jamás marcar entrega como completamente validada.
+## Bootstrap and toolchain
+For a new project, review /aikya-scaffold plan and aikya/docs/harness/bootstrap.md.
+Generators can download code/dependencies and require explicit approval.
+For an existing project use /aikya-analyze without reinitializing source.
 
-## Convenciones del proyecto (completar)
-
-- Stack y versión: TODO
-- Comandos de arranque: TODO
-- Normas de lint/formato: TODO
-- Organización de carpetas: TODO
-- Estrategia de tests: TODO
-- Restricciones de arquitectura: TODO
-
-## Documentación viva y trazabilidad (OBLIGATORIO)
-
-Cumple `.claude/rules/01-documentation-policy.md` y el gate documental `Stop`. Documenta todos los cambios reales; nunca omitas una verificación requerida.
-
-## Ingeniería Bootstrap
-
-En un proyecto nuevo consulta `python3 aikya/scripts/harness/scaffold.py plan` y `aikya/docs/harness/bootstrap.md`. Los generadores remotos se ejecutan sólo tras aprobación; verificar toolchains, dependencias, módulos, Docker y pipelines reales antes de dar el scaffold por completo. Actualizar `harness.json` tras generar la aplicación.
-
-## Skills y coste de contexto
-
-Aplica `.claude/rules/02-context-budget.md`: Ponytail para cambios mínimos, Graphify (sin MCP) para navegación de dependencias con consultas puntuales y UI UX Pro Max sólo al trabajar con interfaces. Revisa disponibilidad al iniciar sesión; instalaciones de terceros únicamente con aprobación.
-
+## Context efficiency
+Use narrowly scoped code search, selective documentation reads and evidence-based
+specialist delegation. Ponytail, Graphify or UI UX Pro Max are optional external
+integrations; review provenance and obtain authorization before installation.

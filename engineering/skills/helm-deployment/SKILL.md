@@ -1,25 +1,12 @@
 ---
 name: helm-deployment
-description: "Crear, revisar y validar Helm charts y values por entorno sin desplegar cambios automáticamente."
+description: Design and locally validate Helm chart templates, value overlays and release configuration without deploying.
 ---
 
-# helm-deployment
+# Helm deployment engineering
+1. Inspect Chart.yaml, templates, dependencies, values and environment overlays.
+2. Plan locally safe checks such as helm lint and helm template without unapproved downloads.
+3. Avoid secrets in plain-text values; validate least privilege, health probes and upgrade constraints.
+4. Never install, upgrade, rollback, uninstall or contact a cluster without explicit authorization.
+5. Report manifests, actual validation results and deployment risks in the configured living docs language.
 
-Esta skill es una capacidad selectiva de Aikya Engineering: se activa según el stack y el perfil Infrastructure & DevOps. No ejecuta cambios remotos por sí sola.
-
-## Diseño de charts
-- Identifica imagen/tag o digest, puertos, namespace, dependencias, probes, secrets y valores por entorno.
-- Usa `Chart.yaml`, `values.yaml`, `templates/`, valores override revisados y plantillas legibles.
-- No copies credenciales a valores; admite integración de secretos aprobada.
-- Incluye recursos, securityContext, RBAC mínimo, graceful shutdown cuando corresponda.
-## Verificación
-- Ejecuta `helm lint` y `helm template` en local, revisa YAML renderizado.
-- Una plantilla que renderiza no garantiza validez en el cluster ni disponibilidad de recursos.
-- No uses `helm upgrade`, `install`, `rollback` o `uninstall` sin autorización específica del cluster/namespace.
-## Entrega
-Documenta release, versiones, valores afectados, comparativa y rollback.
-
-## Guardrails
-- Analiza fuentes reales y declara hipótesis; no inventes pruebas ni métricas.
-- No ejecutes herramientas remotas ni comandos destructivos sin consentimiento específico.
-- Respeta archivos personalizados y produce documentación en `aikya/docs/infrastructure/` cuando cambia la infraestructura.

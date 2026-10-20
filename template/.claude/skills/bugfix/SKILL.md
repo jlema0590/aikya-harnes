@@ -1,15 +1,13 @@
 ---
 name: bugfix
-description: Diagnostica y corrige un bug con reproducción y prueba de regresión.
+description: Diagnose and repair an approved defect with reproduction, narrow changes and regression evidence.
 disable-model-invocation: true
 ---
 
-Problema: $ARGUMENTS
+# Bugfix workflow
+1. Reproduce the reported failure where safe, or explain missing prerequisites.
+2. Inspect relevant source and tests; verify the root-cause hypothesis.
+3. Make the minimal approved change and add regression coverage.
+4. Run focused checks, distinguish NOT_CONFIGURED from PASS and document limitations.
+5. Update affected bugs and change-log pages under aikya/docs/ in the selected language.
 
-1. Localiza el comportamiento y reproduce el fallo (o explica qué falta para reproducirlo).
-2. Formula hipótesis y contrástalas con trazas o tests, evitando cambios especulativos.
-3. Antes de corregir, escribe una prueba que falle cuando sea viable.
-4. Implementa la corrección mínima y comprueba la regresión.
-5. Ejecuta `/verify` o `python3 aikya/scripts/harness/run_checks.py` y comunica resultados, riesgos y pruebas pendientes.
-6. Actualiza `aikya/docs/bugs/index.md` con síntoma, causa raíz confirmada/hipótesis y prueba de regresión. Revisa si seguridad, feature o arquitectura también se ven afectados. Crea `aikya/docs/changes/REQ-*.md`.
-**Contexto eficiente:** usa análisis mínimo y Ponytail para evitar correcciones especulativas; consulta Graphify sólo para rutas de dependencias transversales si el índice existe. En bugs de interfaz usa UI UX Pro Max sólo cuando afecte el diseño/UX.

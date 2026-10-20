@@ -10,6 +10,6 @@
   "ci": "gitlab-ci",
   "deployment": "kubernetes",
   "package_manager": "none",
-  "notes": "Ejemplo de entrevista sobre repositorio existente: detectar módulos y preservar código y configuración.",
+  "notes": "Historical existing-repository example: discover actual modules and preserve source code and configuration; use /aikya-analyze.",
   "repository_layout": "singlerepo"
 }

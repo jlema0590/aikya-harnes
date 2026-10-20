@@ -14,7 +14,7 @@
   "deployment": "docker",
   "package_manager": "pnpm",
   "runtime_versions": "Java 21; Node 22",
-  "notes": "Backend Spring Boot independiente y frontend React; eventos sólo tras definir contratos, outbox e idempotencia.",
+  "notes": "Independent Spring Boot backend and React frontend; introduce events only after defining contracts, outbox and idempotency.",
   "repository_layout": "monorepo",
   "infrastructure": {
     "provider": "on-prem",
