@@ -255,15 +255,30 @@ def write_agents_doc(root: Path) -> None:
         return
     if target.exists() and not target.read_text(encoding='utf8').startswith(MARKER):
         return
+    from docs_language import resolve as docs_language
+    english = docs_language(root) == "en"
     rows = []
     for name in sorted(AGENTS):
-        path = _destination(root, 'agents', name)
+        path = _destination(root, "agents", name)
         if path.is_file() and not path.is_symlink():
-            rows.append(f'| `{name}` | Disponible | Aikya Engineering |')
-    rows.append('| `security-reviewer` | Agente Aikya existente | Se conserva, no se duplica |')
-    target.parent.mkdir(parents=True,exist_ok=True)
-    target.write_text(MARKER+'\n# Agentes técnicos disponibles\n\nCatálogo seleccionado por stack; disponible no equivale a invocado.\n\n| Agente | Estado | Procedencia |\n|---|---|---|\n'+'\n'.join(rows)+'\n',encoding='utf8')
-
+            rows.append(f"| {name} | " + ("Available" if english else "Disponible")
+                        + " | Aikya Engineering |")
+    if english:
+        rows.append("| security-reviewer | Existing Aikya agent | Preserved, not duplicated |")
+        body = (MARKER + "\n# Available engineering agents\n\n"
+                "Agents are selected according to the project's real technology stack. "
+                "Available does not mean invoked.\n\n"
+                "| Agent | Status | Provenance |\n|---|---|---|\n"
+                + "\n".join(rows) + "\n")
+    else:
+        rows.append("| security-reviewer | Agente Aikya existente | Se conserva, no se duplica |")
+        body = (MARKER + "\n# Agentes técnicos disponibles\n\n"
+                "Catálogo seleccionado por stack; disponible no equivale a invocado.\n\n"
+                "| Agente | Estado | Procedencia |\n|---|---|---|\n"
+                + "\n".join(rows) + "\n")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists() or target.read_text(encoding="utf8") != body:
+        target.write_text(body, encoding="utf8")
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description='Catálogo técnico local Aikya (invocado desde Claude Code)')
