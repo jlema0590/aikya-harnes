@@ -1,6 +1,17 @@
-# next-react-terraform-helm
+# Example: Next.js and React with AWS Terraform, Docker and Helm
 
-Singlerepo Next.js + React, Terraform AWS, Docker y Helm. El ejemplo no contiene aplicación generada, provider configurado ni credenciales AWS; Aikya sólo prepara un plan de infraestructura.\n
-Abre Claude Code, utiliza `/aikya-answers` con el archivo `answers.json` y revisa las decisiones. Después consulta `/aikya-infra-project plan`. La generación exige aprobación; no se realizan despliegues remotos.
+> **Technical decision sample, not a generated or deployed application.** This example does not install an SDK, execute a build or access cloud resources.
 
-Diagnostica el entorno con `/aikya-doctor` y revisa los especialistas activados mediante `/aikya-skills-status` antes de aprobar la creación de infraestructura.
+## How to use in Claude Code
+
+1. Open an authorized target project in Claude Code and inspect `examples/next-react-terraform-helm/answers.json`.
+2. For a **new** project, choose /aikya-init or validate and apply the sample with /aikya-answers. For an **existing** repository, use /aikya-analyze instead of reinitializing source.
+3. Use /aikya-doctor to inspect toolchain requirements without installing anything.
+4. For new application projects use /aikya-scaffold plan; for infrastructure use /aikya-infra-project plan. Generate only after explicit approval.
+5. Inspect /aikya-skills-status, /aikya-tests and /aikya-quality; installed capabilities are not evidence of execution.
+
+## Technical constraints
+
+Use a single Next.js/React application. No actual provider, cloud credentials or generated application is included. Infrastructure requires separate approval.
+
+The example contains no production credentials, verified cloud resources or deployment authorization. All core engineering instructions are English. Living documentation may be created under aikya/docs/ in the selected en/es language.
