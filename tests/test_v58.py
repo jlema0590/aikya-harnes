@@ -66,7 +66,7 @@ class AutonomousModeTests(unittest.TestCase):
 
     def test_no_application_stack_permitted_in_specialized_mode(self):
         with tempfile.TemporaryDirectory() as d:
-            with self.assertRaisesRegex(ValueError,'no admiten stack'):
+            with self.assertRaisesRegex(ValueError, 'cannot include an application stack'):
                 self.profile(Path(d),backend='java',backend_framework='spring-boot')
 
     def test_devops_kubernetes_from_existing_image_without_docker_local(self):
