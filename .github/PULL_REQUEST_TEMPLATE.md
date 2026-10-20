@@ -1,50 +1,51 @@
-## Resumen
+## Summary
 
-<!-- ¿Qué cambia y por qué? Relaciona el Issue, si existe. -->
+<!-- What changes and why? Link the issue if one exists. -->
 
-## Tipo de cambio
+## Change type
 
-- [ ] `feat`: nueva funcionalidad
-- [ ] `fix`: corrección
-- [ ] `docs`: documentación
-- [ ] `test`: pruebas
-- [ ] `refactor` / mantenimiento
+- [ ] feat: new functionality
+- [ ] fix: bug fix
+- [ ] docs: documentation
+- [ ] test: tests
+- [ ] refactor or maintenance
 - [ ] Infrastructure / DevOps / Engineering Skill
 
-## Áreas afectadas
+## Affected areas
 
-- [ ] `/aikya-*` (`aikya-skills/`)
-- [ ] Instalación y runtime (`install.py`, `aikya_setup.py`, `template/`)
-- [ ] Agentes y skills (`engineering/`)
-- [ ] `development`
-- [ ] `infrastructure` (Terraform / OpenTofu / Ansible)
-- [ ] `devops` (Docker / Compose / Kubernetes / Helm / Kustomize)
-- [ ] Workflows GitHub Actions
+- [ ] Aikya commands under aikya-skills/
+- [ ] Installer and runtime (install.py, aikya_setup.py, template/)
+- [ ] Agents and skills under engineering/
+- [ ] Development projects
+- [ ] Infrastructure (Terraform / OpenTofu / Ansible)
+- [ ] DevOps (Docker / Compose / Kubernetes / Helm / Kustomize)
+- [ ] GitHub Actions workflows
 
-## Verificación
+## Verification
 
-- [ ] He ejecutado `python3 -m unittest discover -s tests -p 'test_*.py' -v`.
-- [ ] Los perfiles de `examples/` siguen siendo compatibles.
-- [ ] He ejecutado `python3 scripts/ci/check_assets.py` si cambia el catálogo.
-- [ ] He ejecutado `python3 scripts/ci/smoke_profiles.py` si cambian los perfiles/planes.
-- [ ] He actualizado documentación y `CHANGELOG.md` cuando procede.
-- [ ] He comprobado que no se sobrescriben archivos de usuario.
-- [ ] No he añadido secretos, credenciales, estado Terraform ni datos personales.
-- [ ] Los recursos externos no se modifican sin aprobación expresa.
+- [ ] Python unit and integration tests executed successfully on supported versions.
+- [ ] Example project profiles remain compatible.
+- [ ] Agent Skills and subagent definitions validated.
+- [ ] Catalog asset synchronization and profile smoke checks verified.
+- [ ] Affected docs and CHANGELOG.md updated when relevant.
+- [ ] Existing user/custom files are not overwritten.
+- [ ] No secrets, Terraform state or personal data added.
+- [ ] No external resources modified without explicit approval.
+- [ ] EN/ES documentation under aikya/docs/ matches the configured locale.
 
-**Pruebas ejecutadas y resultados:**
+**Actual validation results:**
 
-<!-- Describe aquí las verificaciones reales. Indica las no realizadas. -->
+<!-- List commands and observed results, including checks not executed. -->
 
-## Compatibilidad y riesgos
+## Compatibility and risks
 
-<!-- Impacto sobre Aikya existente, agents/skills, backend/frontend, permisos y rollback. -->
+<!-- Impact on prior Aikya profiles, agents, skills, permissions and rollback. -->
 
-## Licencias de terceros
+## Third-party licensing
 
-<!-- Si incorporas contenido externo: origen, licencia y obligaciones de atribución. -->
+<!-- For imported content, document origin, license and attribution obligations. -->
 
-## Lista de verificación de publicación
+## Release checklist
 
-- [ ] Este Pull Request apunta a `develop` (salvo preparación deliberada de una release).
-- [ ] No publica paquetes ni despliega infraestructura automáticamente.
+- [ ] PR targets develop unless it is a deliberate release preparation.
+- [ ] No packages or remote infrastructure are published or deployed automatically.
