@@ -1,7 +1,17 @@
-# infra-ansible-only
+# Example: Standalone Ansible infrastructure project
 
-Ansible-only: roles e inventarios iniciales sin servidores ni credenciales ficticios.
+> **Technical decision sample, not a generated or deployed application.** This example does not install an SDK, execute a build or access cloud resources.
 
-Abre el proyecto desde Claude Code y solicita `/aikya-answers` para cargar las decisiones del ejemplo. Ejecuta `/aikya-doctor` y consulta `/aikya-skills-status` para verificar las herramientas y los especialistas seleccionados. Luego usa `/aikya-infra-project plan`. Autoriza por separado la generación (`generate`) y valida con `/aikya-infra-project validate`; nunca despliegues automáticamente.
+## How to use in Claude Code
 
-El JSON es un ejemplo de configuración. No contiene credenciales, aplicaciones compiladas ni recursos cloud reales.
+1. Open an authorized target project in Claude Code and inspect `examples/infra-ansible-only/answers.json`.
+2. For a **new** project, choose /aikya-init or validate and apply the sample with /aikya-answers. For an **existing** repository, use /aikya-analyze instead of reinitializing source.
+3. Use /aikya-doctor to inspect toolchain requirements without installing anything.
+4. For new application projects use /aikya-scaffold plan; for infrastructure use /aikya-infra-project plan. Generate only after explicit approval.
+5. Inspect /aikya-skills-status, /aikya-tests and /aikya-quality; installed capabilities are not evidence of execution.
+
+## Technical constraints
+
+Generate role/inventory plans without inventing production hosts, credentials or infrastructure state.
+
+The example contains no production credentials, verified cloud resources or deployment authorization. All core engineering instructions are English. Living documentation may be created under aikya/docs/ in the selected en/es language.
