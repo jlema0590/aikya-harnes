@@ -61,8 +61,8 @@ class V51Commands(unittest.TestCase):
     def test_external_and_scaffold_require_approval_from_claude(self):
         skills=(ROOT/'aikya-skills/aikya-skills-install/SKILL.md').read_text()
         scaffold=(ROOT/'aikya-skills/aikya-scaffold/SKILL.md').read_text()
-        self.assertIn('autorización explícita',skills.lower())
-        self.assertIn('aprobación inequívoca',scaffold.lower())
+        self.assertIn('explicit informed user authorization',skills.lower())
+        self.assertIn('unambiguous explicit approval',scaffold.lower())
         self.assertIn('requirements',scaffold)
         self.assertIn('mode: existing',scaffold)
 
