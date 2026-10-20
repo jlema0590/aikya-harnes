@@ -87,7 +87,7 @@ class RenamedSkillsTests(unittest.TestCase):
             self.assertIn('TEAM OVERRIDE', (old / 'aikya-feature/SKILL.md').read_text())
             self.assertTrue((old / 'aikya-feature/custom-notes.md').exists())
             self.assertTrue((runtime / 'aikya-skills/aikya-feature/SKILL.md').is_file())
-            self.assertTrue(any('CONSERVADO legacy personalizado' in x for x in logs))
+            self.assertTrue(any('PRESERVED customized or unverified legacy asset' in x for x in logs))
 
     def test_installer_still_initializes_project_skills_from_new_path(self):
         with tempfile.TemporaryDirectory() as temp:
