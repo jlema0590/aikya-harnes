@@ -69,7 +69,7 @@ class DocumentationLanguageTests(unittest.TestCase):
             install.install(root, profile(root), {"modules": [], "findings": []}, docs_lang="es")
             self.assertEqual(read(root), "es")
             self.assertIn("Visión general", (root / "aikya/docs/overview.md").read_text())
-            self.assertIn("Perfil", (root / "aikya/docs/agents.md").read_text() or "Perfil")
+            self.assertIn("Agentes técnicos disponibles", (root / "aikya/docs/agents.md").read_text())
             self.assertIn("Technical project profile", (root / ".claude/rules/00-project-profile.md").read_text())
             self.assertFalse((root / ".aikya/analysis/manifest.json").exists())
 
