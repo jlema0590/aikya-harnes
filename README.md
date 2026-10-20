@@ -127,6 +127,8 @@ optional external tools automatically.
 
 ## 4. Generated project structure
 
+- aikya-skills/ — source of the 21 public Claude Code slash commands.
+- engineering/agents/ and engineering/skills/ — curated specialist definitions.
 - .aikya/answers.json — technical decisions for compatible profiles.
 - .aikya/docs-policy.json — living documentation language (en/es).
 - .aikya/model-policy.json — optional per-role model policy.
