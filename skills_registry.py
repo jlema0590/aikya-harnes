@@ -29,11 +29,12 @@ def _metadata(file: Path) -> tuple[str, str]:
     return get('name') or file.parent.name, get('description') or 'Sin descripción'
 
 
-def render(root: Path, profile: dict|None=None) -> str:
+def render(root: Path, profile: dict|None=None, language: str|None=None) -> str:
     """Enumera skills locales y estados de integraciones con traza de procedencia."""
     root=root.resolve()
     from docs_language import resolve as documentation_language
-    if documentation_language(root) == "en":
+    from docs_language import validate as validate_docs_language
+    if (validate_docs_language(language) if language is not None else documentation_language(root)) == "en":
         return _render_english(root)
     profile=profile or {}
     skill_root=root/'.claude/skills'
