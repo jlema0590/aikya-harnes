@@ -87,7 +87,7 @@ def build_message(root: Path) -> str:
     # Short box: CLI notification renderers may not support ANSI or wide panels.
     lines = [
         '==============================================================================='
-        'Welcome to Aikya Harness',
+        , 'Welcome to Aikya Harness',
         f'Developer: {who}',
         f'Repository: {repo}',
         f'Aikya project: {DEFAULT_SOURCE}',
