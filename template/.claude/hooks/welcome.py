@@ -86,14 +86,17 @@ def build_message(root: Path) -> str:
     repo = repository(root)
     # Short box: CLI notification renderers may not support ANSI or wide panels.
     lines = [
-        '==============================================================================='
-        , 'Welcome to Aikya Harness',
+        '================================== Welcome to Aikya Harness ==================================',
         f'Developer: {who}',
         f'Repository: {repo}',
         f'Aikya project: {DEFAULT_SOURCE}',
-        'Commands: /aikya-init · /aikya-analyze · /aikya-scaffold · /aikya-quality',
+        'Commands start: /aikya-init · /aikya-analyze · /aikya-doctor · /aikya-answers',
+        'Commands develop: /aikya-scaffold · /aikya-feature · /aikya-bugfix  · /aikya-quality',
+        'Commands arquitecture: //aikya-architecture-review',
+        'Commands mobile: /aikya-mobile-feature',
+        'Commands test: /aikya-test',
         'Project documentation: aikya/docs/README.md',
-        '===============================================================================',
+        '==============================================================================================',
     ]
     width = min(max(len(line) for line in lines), 95)
     border = '+' + '-' * (width + 2) + '+'
