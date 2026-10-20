@@ -6,7 +6,6 @@ model: opus
 effort: high
 tools: Read, Grep, Glob, Agent
 permissionMode: plan
-skills:
 maxTurns: 40
 ---
 
@@ -29,7 +28,7 @@ Produce a practical, verifiable technical implementation plan. Do not modify cod
 - If delegation is unavailable, work from the read-only tools and disclose the limitation.
 - Avoid unnecessary recursive delegation, repeated investigations and uncontrolled token expenditure.
 
-## Output (Spanish by default)
+## Output (English engineering report)
 1. Objective and constraints
 2. Verified current architecture and dependencies
 3. Proposed design and alternatives
