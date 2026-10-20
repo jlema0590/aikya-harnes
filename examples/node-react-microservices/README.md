@@ -1,24 +1,17 @@
-# Ejemplo: NestJS + React, microservicios y eventos
+# Example: NestJS, React and event-driven microservices
 
-> **Plantilla de decisiones, no aplicación generada.** No hay compilación, dependencia ni SDK instalado por este ejemplo.
+> **Technical decision sample, not a generated or deployed application.** This example does not install an SDK, execute a build or access cloud resources.
 
-**Stack:** backend `node` + frontend `react` + móvil `none`. **Arquitectura base:** `microservices`. **Patrones complementarios:** event-driven.
+## How to use in Claude Code
 
-## Uso desde Claude Code
+1. Open an authorized target project in Claude Code and inspect `examples/node-react-microservices/answers.json`.
+2. For a **new** project, choose /aikya-init or validate and apply the sample with /aikya-answers. For an **existing** repository, use /aikya-analyze instead of reinitializing source.
+3. Use /aikya-doctor to inspect toolchain requirements without installing anything.
+4. For new application projects use /aikya-scaffold plan; for infrastructure use /aikya-infra-project plan. Generate only after explicit approval.
+5. Inspect /aikya-skills-status, /aikya-tests and /aikya-quality; installed capabilities are not evidence of execution.
 
-1. Instala Aikya en modo global o proyecto desde una conversación de Claude Code.
-2. Solicita: `/aikya-answers` y usa `examples/node-react-microservices/answers.json` como respuestas. Pide a Claude que te muestre primero las decisiones y las adapte a tu entorno.
-3. Continúa con `/aikya-doctor` para diagnosticar versiones y dependencias sin instalarlas automáticamente.
-4. En aplicaciones nuevas, pide `/aikya-scaffold plan` y aprueba el generador adecuado. En un repositorio existente no ejecutes scaffolding sobre el código.
-5. Solicita `/aikya-skills-status`, `/aikya-tests` y `/aikya-quality` para revisar los componentes activados y las verificaciones realmente disponibles.
+## Technical constraints
 
-## Skills y agentes previstos
+Verify service ownership and contracts; distributed costs, messaging and operational complexity must be justified before generating services.
 
-Tras inicializar, Aikya utiliza el perfil para activar únicamente especialistas pertinentes; consulta `docs/agents.md`, `docs/skills.md` y `.harness/engineering-catalog.json`.
-No todos los componentes del catálogo se instalan en cada proyecto y **disponible no significa ejecutado**.
-
-## Consideraciones
-
-Evaluar costes distribuidos: empezar con límites y contratos, no crear múltiples servicios sin necesidad.
-
-Revisa los comandos de build/test según los manifiestos creados. Si faltan, deben permanecer como pendientes en `harness.json`.
+The example contains no production credentials, verified cloud resources or deployment authorization. All core engineering instructions are English. Living documentation may be created under aikya/docs/ in the selected en/es language.
