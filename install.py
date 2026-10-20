@@ -140,45 +140,45 @@ def ask(question: str, default: str = '') -> str:
 
 def yesno(question: str, default: bool = True) -> bool:
     while True:
-        value = input(f'{question} [{"S/n" if default else "s/N"}]: ').strip().lower()
+        value = input(f'{question} [{"Y/n" if default else "y/N"}]: ').strip().lower()
         if not value:
             return default
         if value in ('s', 'si', 'sí', 'y', 'yes'):
             return True
         if value in ('n', 'no'):
             return False
-        print('Responde s o n.')
+        print('Answer y or n.')
 
 
 def specialized_interview(target: Path, detected: dict[str, Any], kind: str, mode: str) -> dict[str, Any]:
-    """Entrevista autónoma, sin preguntas ni generadores de aplicaciones."""
-    name=ask('Nombre del proyecto',target.name)
-    provider=choice('Cloud / on-prem / híbrido',['none','aws','azure','gcp','on-prem','hybrid'],'none')
+    """Independent infrastructure interview without application generators."""
+    name=ask('Project name',target.name)
+    provider=choice('Cloud / on-prem / hybrid',['none','aws','azure','gcp','on-prem','hybrid'],'none')
     infra={'provider':provider,'iac':'none','configuration_management':'none',
            'containers':{'enabled':False,'compose':False},'orchestration':'none',
            'deployment_method':'none','environments':[],'image_repository':'',
            'container_port':None,'source_kind':'none',
            'helm_chart_mode':'create','helm_chart_path':''}
     if kind=='infrastructure':
-        infra['iac']=choice('Terraform / OpenTofu / existente / ninguno',['none','terraform','opentofu','existing'],'terraform')
-        infra['configuration_management']=choice('Ansible / existente / ninguno',['none','ansible','existing'],'none')
+        infra['iac']=choice('Terraform / OpenTofu / existing / none',['none','terraform','opentofu','existing'],'terraform')
+        infra['configuration_management']=choice('Ansible / existing / none',['none','ansible','existing'],'none')
     else:
-        infra['source_kind']=choice('Origen del despliegue',['source','image','chart','manifests'],'image')
-        docker=yesno('¿Generar Dockerfile desde el código fuente?',infra['source_kind']=='source')
-        compose=yesno('¿Generar Docker Compose para desarrollo local?',False)
+        infra['source_kind']=choice('Deployment source',['source','image','chart','manifests'],'image')
+        docker=yesno('Generate Dockerfile from actual source code?',infra['source_kind']=='source')
+        compose=yesno('Generate Docker Compose for local development?',False)
         infra['orchestration']=choice('Destino',['none','kubernetes','cloud-managed','vm'],'kubernetes')
         infra['containers']={'enabled':docker or compose,'compose':compose}
         if infra['orchestration']=='kubernetes':
-            infra['deployment_method']=choice('Kubernetes: método',['helm','kustomize','yaml'],'helm')
+            infra['deployment_method']=choice('Kubernetes deployment method',['helm','kustomize','yaml'],'helm')
             if infra['deployment_method']=='helm':
-                infra['helm_chart_mode']=choice('Helm: crear o reutilizar chart',['create','existing'],'create')
+                infra['helm_chart_mode']=choice('Helm: create or reuse chart',['create','existing'],'create')
                 if infra['helm_chart_mode']=='existing':
-                    infra['helm_chart_path']=ask('Ruta relativa del chart existente','infra/helm/charts/app')
+                    infra['helm_chart_path']=ask('Relative path of existing chart','infra/helm/charts/app')
         if infra['containers']['enabled'] or infra['orchestration']=='kubernetes':
-            infra['image_repository']=ask('Imagen versionada sin credenciales (vacío=pendiente)','')
-            port=ask('Puerto interno validado (vacío=pendiente)','')
+            infra['image_repository']=ask('Versioned image without credentials (blank=pending)','')
+            port=ask('Verified internal port (blank=pending)','')
             infra['container_port']=int(port) if port.isdecimal() else (port or None)
-    environments=ask('Entornos separados por coma','dev')
+    environments=ask('Comma-separated environments','dev')
     infra['environments']=[v.strip() for v in environments.split(',') if v.strip()]
     return {'project_type':kind,'mode':mode,'name':name,'repository_layout':'singlerepo',
             'backend':'none','frontend':'none','mobile':'none','mobile_framework':'none',
@@ -187,16 +187,16 @@ def specialized_interview(target: Path, detected: dict[str, Any], kind: str, mod
             'observability':'undecided','android_language':'none','ios_ui':'none',
             'architecture_patterns':[],'package_manager':'none','deployment':'none',
             'quality':'unit+integration','ci':choice('CI/CD',CIS,'undecided'),
-            'runtime_versions':'','notes':ask('Restricciones adicionales (opcional)',''),
+            'runtime_versions':'','notes':ask('Additional constraints (optional)',''),
             'infrastructure':infra}
 
 
 def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
-    print('\n=== ENTREVISTA TÉCNICA — AIKYA HARNESS ===')
-    print('Detección inicial (son indicios, no resultados de build ni pruebas):')
+    print('\n=== AIKYA HARNESS TECHNICAL INTERVIEW ===')
+    print('Initial observations (not verified builds or tests):')
     for finding in detected['findings']:
         print(' -', finding)
-    kind=choice('Tipo de proyecto Aikya',list(PROJECT_TYPES),'development')
+    kind=choice('Aikya project type',list(PROJECT_TYPES),'development')
     # Greenfield interview only; legacy existing data remains valid for analyze.
     mode = 'new'
     if kind!='development':
@@ -205,21 +205,21 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
                     for role in ('backend', 'frontend', 'mobile')}
     mobile_detected = technologies['mobile']
     mobile_default = 'both' if mobile_detected in ('flutter', 'react-native') else ('android' if mobile_detected == 'android' else ('ios' if mobile_detected == 'ios' else 'none'))
-    backend = choice('Backend principal', BACKENDS, 'none')
+    backend = choice('Primary backend', BACKENDS, 'none')
     frontend = choice('Frontend web', FRONTENDS, 'react' if backend == 'next' else 'none')
-    mobile = choice('Plataformas móviles', MOBILES, 'none')
+    mobile = choice('Mobile platforms', MOBILES, 'none')
     framework = 'none'
     android_language = 'none'
     ios_ui = 'none'
     if mobile != 'none':
         default_framework = mobile_detected if mobile_detected in ('flutter','react-native') else 'native'
-        framework = choice('Estrategia de desarrollo móvil', FRAMEWORKS, default_framework)
+        framework = choice('Mobile development framework', FRAMEWORKS, default_framework)
         if framework == 'native' and mobile in ('android', 'both'):
-            android_language = choice('Lenguaje Android', ['kotlin', 'java'], 'kotlin')
+            android_language = choice('Android language', ['kotlin', 'java'], 'kotlin')
         if framework == 'native' and mobile in ('ios', 'both'):
-            ios_ui = choice('Tecnología interfaz iOS', ['swiftui', 'uikit'], 'swiftui')
+            ios_ui = choice('iOS UI framework', ['swiftui', 'uikit'], 'swiftui')
     if backend == 'none' and frontend == 'none' and mobile == 'none':
-        raise ValueError('Selecciona al menos un backend, frontend o plataforma móvil.')
+        raise ValueError('Select at least one backend, frontend or mobile platform.')
     frameworks = {
         'java': ['undecided','spring-boot','quarkus','micronaut'],
         'python': ['undecided','fastapi','django','flask'],
@@ -228,44 +228,44 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
         'next': ['next-app-router'],
         'none': ['none'],
     }
-    backend_framework = choice('Framework de backend', frameworks[backend], frameworks[backend][1] if backend in ('java','dotnet','next') else frameworks[backend][0]) if backend != 'none' else 'none'
-    api_style = choice('Estilo de API', API_STYLES, 'rest') if backend != 'none' else 'undecided'
-    frontend_rendering = choice('Estrategia de renderizado web', RENDERING, 'hybrid' if backend=='next' and frontend=='react' else 'spa') if frontend != 'none' else 'undecided'
-    layout = choice('Topología del repositorio', list(LAYOUTS),
+    backend_framework = choice('Backend framework', frameworks[backend], frameworks[backend][1] if backend in ('java','dotnet','next') else frameworks[backend][0]) if backend != 'none' else 'none'
+    api_style = choice('API style', API_STYLES, 'rest') if backend != 'none' else 'undecided'
+    frontend_rendering = choice('Web rendering strategy', RENDERING, 'hybrid' if backend=='next' and frontend=='react' else 'spa') if frontend != 'none' else 'undecided'
+    layout = choice('Repository layout', list(LAYOUTS),
                     'monorepo' if app_count({'backend':backend, 'frontend':frontend, 'mobile':mobile, 'mobile_framework':framework}) > 1 or (target/'apps').is_dir() else 'singlerepo')
-    arch = choice('Arquitectura preferida', [a for a in ARCHS if a != 'existing'],
+    arch = choice('Preferred architecture', [a for a in ARCHS if a != 'existing'],
                   'modular-monolith')
-    event_driven = yesno('¿El proyecto necesita eventos asíncronos como estilo complementario?', False)
-    database = choice('Base de datos', DATABASES, 'undecided')
-    ci = choice('Integración continua', CIS, 'undecided')
-    deployment = choice('Destino de despliegue', DEPLOYS, 'app-stores' if mobile != 'none' and backend == frontend == 'none' else 'undecided')
-    pkg_mgr = choice('Gestor JS (si aplica)', PACKAGES, 'npm') if backend in ('node','next') or frontend != 'none' or framework == 'react-native' else 'none'
-    auth = choice('Identidad/autenticación', AUTH, 'undecided')
+    event_driven = yesno('Does the project need asynchronous events as an additional architectural pattern?', False)
+    database = choice('Database', DATABASES, 'undecided')
+    ci = choice('Continuous integration', CIS, 'undecided')
+    deployment = choice('Deployment target', DEPLOYS, 'app-stores' if mobile != 'none' and backend == frontend == 'none' else 'undecided')
+    pkg_mgr = choice('JS package manager (when relevant)', PACKAGES, 'npm') if backend in ('node','next') or frontend != 'none' or framework == 'react-native' else 'none'
+    auth = choice('Identity/authentication', AUTH, 'undecided')
     telemetry = choice('Observabilidad', OBSERVABILITY, 'opentelemetry' if backend != 'none' else 'undecided')
-    quality = choice('Estrategia de pruebas', TEST_STYLES, 'unit+integration')
+    quality = choice('Test strategy', TEST_STYLES, 'unit+integration')
     infrastructure = {'provider':'none','iac':'none','configuration_management':'none',
                       'containers':{'enabled':False,'compose':False},
                       'orchestration':'none','deployment_method':'none','environments':[],
                       'image_repository':'','container_port':None}
-    if yesno('¿Configurar infraestructura y DevOps para este proyecto?', deployment in ('docker','kubernetes')):
-        infrastructure['provider'] = choice('Plataforma de infraestructura', ['none','aws','azure','gcp','on-prem','hybrid'], 'none')
-        infrastructure['iac'] = choice('Infraestructura como código', ['none','terraform','opentofu','existing'], 'none')
-        infrastructure['configuration_management'] = choice('Configuración de servidores', ['none','ansible','existing'], 'none')
-        enabled = yesno('¿Crear contenedores Docker?', deployment in ('docker','kubernetes'))
-        compose = yesno('¿Docker Compose para desarrollo local?', False) if enabled else False
+    if yesno('Configure infrastructure and DevOps for this project?', deployment in ('docker','kubernetes')):
+        infrastructure['provider'] = choice('Infrastructure provider', ['none','aws','azure','gcp','on-prem','hybrid'], 'none')
+        infrastructure['iac'] = choice('Infrastructure as code', ['none','terraform','opentofu','existing'], 'none')
+        infrastructure['configuration_management'] = choice('Server configuration management', ['none','ansible','existing'], 'none')
+        enabled = yesno('Create Docker containers?', deployment in ('docker','kubernetes'))
+        compose = yesno('Use Docker Compose for local development?', False) if enabled else False
         infrastructure['containers'] = {'enabled': enabled, 'compose': compose}
-        infrastructure['orchestration'] = choice('Orquestación', ['none','kubernetes','cloud-managed','vm'], 'kubernetes' if deployment=='kubernetes' else 'none') if enabled else 'none'
+        infrastructure['orchestration'] = choice('Orchestration', ['none','kubernetes','cloud-managed','vm'], 'kubernetes' if deployment=='kubernetes' else 'none') if enabled else 'none'
         if infrastructure['orchestration'] == 'kubernetes':
-            infrastructure['deployment_method'] = choice('Formato de despliegue Kubernetes', ['helm','kustomize','yaml'], 'helm')
+            infrastructure['deployment_method'] = choice('Kubernetes manifest format', ['helm','kustomize','yaml'], 'helm')
         if infrastructure['iac'] not in ('none','existing') or infrastructure['configuration_management']=='ansible' or infrastructure['orchestration']=='kubernetes':
-            environments = ask('Entornos (separados por coma; ej. dev,staging,prod)', 'dev')
+            environments = ask('Environments (comma-separated; e.g. dev,staging,prod)', 'dev')
             infrastructure['environments'] = [e.strip() for e in environments.split(',') if e.strip()]
         if enabled:
-            infrastructure['image_repository'] = ask('Imagen del contenedor (opcional, sin credenciales)', '')
-            port = ask('Puerto interno de la aplicación (vacío si se desconoce)', '')
+            infrastructure['image_repository'] = ask('Container image (optional, no credentials)', '')
+            port = ask('Application internal port (blank if unknown)', '')
             infrastructure['container_port'] = int(port) if port.isdecimal() else (port or None)
-    versions = ask('Versiones/SDKs que necesitas fijar (vacío = por decidir)', '')
-    return {'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Nombre del producto/proyecto', target.name),
+    versions = ask('Versions/SDKs to pin (blank = undecided)', '')
+    return {'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Product/project name', target.name),
             'backend': backend, 'frontend': frontend, 'mobile': mobile,
             'mobile_framework': framework, 'backend_framework':backend_framework, 'api_style':api_style,
             'frontend_rendering':frontend_rendering, 'auth':auth, 'observability':telemetry,
@@ -274,7 +274,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
             'architecture_patterns':['event-driven'] if event_driven else [], 'database': database,
             'ci': ci, 'deployment': deployment, 'package_manager': pkg_mgr,
             'infrastructure': infrastructure,
-            'quality': quality, 'notes': ask('Restricciones técnicas o convenciones adicionales (opcional)', '')}
+            'quality': quality, 'notes': ask('Additional technical constraints or conventions (optional)', '')}
 
 
 def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
