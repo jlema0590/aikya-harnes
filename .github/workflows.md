@@ -1,57 +1,56 @@
-# GitHub Actions de Aikya Harness — corrección v5.9.1
+# Aikya Harness GitHub Actions — release and branch policy
 
-## Política de ramas y de publicación
+## Branch and publication policy
 
 ```text
-feat/* o fix/* → PR develop → PR main → CI → tag vX.Y.Z + GitHub Release
+feat/* or fix/* → PR to develop → PR to main → CI → tag vX.Y.Z + GitHub Release
 ```
 
-- PR a `develop` y ramas `feat/*`/`fix/*`: pruebas y smoke sin publicar.
-- PR a `main`: `release-check.yml` comprueba SemVer, incremento frente a `origin/main`, `LICENSE`, `CHANGELOG.md` y ausencia de tags duplicados.
-- Push tras merge a `main`: `release.yml` publica automáticamente si vuelven a superar las pruebas los archivos exactos fusionados. `workflow_dispatch` sirve únicamente como recuperación manual tras una interrupción.
-- La versión se lee de `VERSION` como `5.9.1`; la etiqueta se llama `v5.9.1`. No se inventa una versión basada en fecha o SHA.
+- Feature/fix branches and PRs to develop run tests without publishing.
+- PRs to main are validated by release-check.yml: SemVer, increment over origin/main, LICENSE, CHANGELOG.md and duplicate tags.
+- After merge to main, release.yml validates the merged commit before publishing. workflow_dispatch is for supervised recovery only.
+- VERSION uses X.Y.Z; release tags use vX.Y.Z. Never derive version numbers from timestamps or SHAs.
 
-## Inventario de workflows
+## Workflow inventory
 
-| Workflow | Triggers | Responsabilidad |
-| --- | --- | --- |
-| `tests.yml` | push develop/main/feat/fix/release, PR, manual | Sintaxis y unittest Python 3.10–3.13 |
-| `smoke-stacks.yml` | push/PR sobre rutas relevantes, manual | Simular 14 perfiles sin desplegar |
-| `check-asset-sync.yml` | push/PR sobre agentes, skills y bootstrap; manual | Catálogo, frontmatter y comandos |
-| `refresh-catalogs.yml` | lunes, manual | Inventario solo lectura; NO sincroniza contenido tercero |
-| `release-check.yml` | PR hacia main, push feature cuando cambia release, manual | Contrato SemVer y tests de release |
-| `bump-versions.yml` | manual en develop | Genera PR con VERSION y CHANGELOG; no publica |
-| `release.yml` | push main, recuperación manual | Verifica, ZIP/sha256, tag y GitHub Release |
+| Workflow | Trigger | Responsibility |
+|---|---|---|
+| tests.yml | push/PR/manual | Syntax, metadata and Python 3.10–3.13 tests |
+| smoke-stacks.yml | relevant push/PR/manual | Simulate 14 project profiles without deploying |
+| check-asset-sync.yml | relevant push/PR/manual | Catalog, frontmatter and commands |
+| refresh-catalogs.yml | Monday/manual | Read-only inventory, never fetch or install third-party code |
+| release-check.yml | PR main / relevant feature changes / manual | SemVer contract and release tests |
+| bump-versions.yml | manual on develop | Reviewable VERSION and CHANGELOG PR |
+| release.yml | push main / supervised manual recovery | Validate, build ZIP/checksums, tag and GitHub Release |
 
-## Archivos auxiliares
+## Supporting scripts
 
-- `scripts/ci/release_contract.py`: validación estable de versión, notas, tags e incremento de PR.
-- `scripts/ci/prepare_release.py`: transforma las notas de `## Sin publicar` en changelog de nueva versión y actualiza VERSION. Requiere contenido real, falla si faltan notas.
-- `scripts/ci/check_assets.py`, `smoke_profiles.py`, `catalog_review.py`: no generan ni despliegan recursos.
-- `tests/test_release_workflows.py`: contratos de versión, fallos, recuperación, preparación del siguiente release.
+- scripts/ci/release_contract.py: version, notes, tags, uniqueness and PR monotonicity.
+- scripts/ci/prepare_release.py: accepts legacy `## Sin publicar` and preferred `## Unreleased`; prepares the next version from reviewed notes.
+- scripts/ci/check_assets.py, smoke_profiles.py and catalog_review.py: no cloud deployments.
+- tests/test_release_workflows.py: validation, recoverability and version preparation tests.
 
-## Pasos de configuración de GitHub (mantenedor)
+## Maintainer configuration
 
-1. En Settings → Branches o Rulesets, exige PRs para `main` (sin push directo ni bypass), revisiones y checks obligatorios. Incluye `Validate VERSION and changelog` y los jobs de tests de la matriz Python.
-2. Verifica que GitHub Actions no está deshabilitado. El job de publicación solicita `contents: write`; el resto usa lectura. No necesita personal access token, secretos cloud ni acceso a servidores.
-3. GitHub Actions debe permitir a la acción que prepara versiones crear Pull Requests; si la configuración de la organización no lo permite, el mantenedor puede abrir un PR con VERSION y CHANGELOG manualmente.
-4. Promueve `feat/adap_workflows` a `develop`, valida el CI, después abre PR a `main`. El merge dispara la primera publicación automática `v5.9.1`, siempre que ese tag no exista todavía.
+1. In GitHub Settings → Branches/Rulesets, require reviewed PRs and protected checks on main. Include Python matrix and version/release validation.
+2. Verify GitHub Actions is enabled. Publishing requires contents: write; ordinary checks have read-only permissions. Cloud secrets or personal access tokens are not required.
+3. Allow the version-preparation workflow to create PRs if organization policy permits it; otherwise create a reviewed VERSION/CHANGELOG PR manually.
+4. Merge tested features into develop; promote through a reviewed PR to main only after the release contract succeeds.
 
-**Nunca actives una Release automática antes de comprobar el derecho a distribuir agentes y skills terceros.** La licencia MIT del proyecto no sustituye las licencias de terceros.
+Never publish a release before confirming rights to redistribute bundled third-party agents and skills. The project's MIT license does not replace third-party licenses.
 
-## Recuperación e idempotencia
+## Idempotency and recovery
 
-- Antes de crear un tag, el pipeline comprueba versión y assets. El tag apunta exactamente a `GITHUB_SHA` de main validado; no se mueve ni se fuerza.
-- Si el tag ya existe en otro commit, el job falla de forma segura.
-- Si existe en el mismo commit, el workflow puede recuperar la publicación sin recrearlo.
-- Si la Release existe, no se duplica: sólo añade artefactos faltantes. Release completa no se altera.
-- Si falla una verificación no se crea el tag ni se publica la Release.
-- Las ejecuciones se serializan con cola para minimizar carreras entre merges.
+- Tags refer to the exact validated GITHUB_SHA. Never force or move an existing tag.
+- A tag on another commit fails safely; a tag on the same commit can be reused to complete interrupted publication.
+- An existing release is not duplicated; recovery can add missing artifacts without changing a completed publication.
+- Missing tests or failed validations block tag/release creation.
+- Publication jobs are serialized to reduce merge races.
 
-**Límites:** este pipeline no despliega cloud, no actualiza SDKs, no publica NPM y no audita jurídicamente las licencias. `sha256sum` verifica integridad del ZIP, no procedencia del contenido.
+This pipeline does not deploy cloud resources, update SDKs, publish NPM packages or perform a legal third-party license audit. SHA-256 checksums verify ZIP integrity, not source provenance.
 
-## Recuperación de v5.9.1 si la publicación todavía no existe
+## Historical v5.9.1 recovery
 
-`github_tag.py` consulta GitHub con estado HTTP explícito: 404 significa tag ausente, 401/403/5xx detienen la operación, y los tags anotados se resuelven hasta el commit real. La publicación crea el tag con `gh release create --target "$GITHUB_SHA"` únicamente si la referencia no existe.
+github_tag.py distinguishes HTTP 404 (missing tag) from authorization/server failures. Annotated tags resolve to their target commits. Creation through gh release create --target "$GITHUB_SHA" is allowed only when the tag reference is absent.
 
-Si `main` contiene VERSION=5.9.1 pero el tag aún no existe, se permite un PR de reparación sin incremento de versión; luego el merge a main publicará `v5.9.1` sobre el **nuevo commit**. Después de publicar ese tag, la siguiente versión debe aumentar. No utilices `Re-run failed jobs` del workflow antiguo: GitHub Actions reejecuta la definición anterior; hay que integrar el fix en main para usarla.
+If main carries VERSION=5.9.1 but its tag is absent, a supervised repair PR may retain that version. Following a successful merge the resulting validated main commit can publish v5.9.1. Once published, the next release must increment VERSION. Rerunning an older failed workflow still uses the old workflow definition; merge the fix before retrying.
