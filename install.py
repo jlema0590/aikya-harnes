@@ -588,6 +588,16 @@ def project_bootstrap_en(profile: dict[str, Any]) -> str:
             lines.append("Choose a project tool and verify FastAPI, Django or Flask versions.")
         elif backend in ("node", "next"):
             lines.append("Review package manager and framework generator before running.")
+    frontend = profile.get("frontend", "none")
+    if frontend == "vue":
+        lines.append("Vue frontend: verify package manager, Vue Router and Vite setup before generation.")
+    elif frontend == "angular":
+        lines.append("Angular frontend: verify Angular CLI, dependency versions and workspace layout.")
+    elif frontend == "react":
+        lines.append("React frontend: verify bundler and component conventions.")
+    if profile.get("mobile", "none") != "none":
+        lines.append("Android: verify JDK, Gradle, SDK target, lifecycle and platform tests.")
+        lines.append("iOS: verify Xcode, Swift, signing and simulator/physical-device tests.")
     return "\n".join(lines) + "\n"
 
 
