@@ -30,9 +30,9 @@ def infra_files(p:dict) -> dict[str,str]:
             '**/*.tfvars\n**/*.tfvars.json\n**/.ansible/\n')}
     outputs={}
     if p.get('repository_layout', 'monorepo') == 'monorepo':
-        outputs['apps/README.md']='''# Aplicaciones del monorepo\n\nLos generadores crean los proyectos bajo `apps/api`, `apps/web`, `apps/frontend`, `apps/mobile`, `apps/android` y/o `apps/ios` según el perfil. La existencia de esta carpeta **no** significa que los módulos estén generados o verificados.\n'''
-        outputs['packages/README.md']='''# Paquetes compartidos\n\nUbicar aquí sólo librerías, contratos y utilidades justificadas para varios módulos. No compartir directamente entidades de persistencia ni secretos. Añadir documentación y tests antes de publicarlos.\n'''
-        outputs['contracts/README.md']='''# Contratos y compatibilidad\n\nMantener contratos REST (OpenAPI), GraphQL o gRPC cuando corresponda, versionados y con tests de compatibilidad. Evita generar un contrato ficticio sin requisitos de endpoints.\n'''
+        outputs['apps/README.md']='''# Monorepo applications\n\nProject generators create modules under `apps/api`, `apps/web`, `apps/frontend`, `apps/mobile`, `apps/android` y/o `apps/ios` according to the profile. This folder does not prove that modules have been generated or verified.\n'''
+        outputs['packages/README.md']='''# Shared packages\n\nKeep only libraries, contracts and utilities justified for multiple modules. Do not share persistence entities or secrets directly. Document and test public APIs before publishing.\n'''
+        outputs['contracts/README.md']='''# Contracts and compatibility\n\nMaintain versioned REST/OpenAPI, GraphQL or gRPC contracts when needed, with compatibility tests. Do not invent interfaces without endpoint requirements.\n'''
     js_app=(p['backend'] in ('node','next') or p['frontend'] in ('react','vue','angular') or p['mobile_framework']=='react-native')
     if js_app and p.get('repository_layout','monorepo') == 'monorepo':
         import re
@@ -56,8 +56,8 @@ def infra_files(p:dict) -> dict[str,str]:
     }
     if database in services:
         image,port,svc,env=services[database]
-        outputs['compose.yaml']=f'''# Entorno local de desarrollo. NO es un manifiesto de producción.
-# La BD se vincula a loopback y requiere secretos desde .env local no versionado.
+        outputs['compose.yaml']=f'''# Local development dependencies only. NOT a production deployment manifest.
+# Bind database ports to loopback and load secrets from an untracked local .env file.
 services:
   {svc}:
     image: {image}
@@ -75,28 +75,28 @@ volumes:
             outputs['compose.yaml']=outputs['compose.yaml'].replace('db_data:/data/db',
                 'db_data:/var/lib/postgresql/data' if database=='postgresql' else 'db_data:/var/lib/mysql')
     else:
-        outputs['infra/docker/compose.example.yaml']='''# Ejemplo orientativo: agregar servicios tras confirmar runtimes, puertos y secretos.
+        outputs['infra/docker/compose.example.yaml']='''# Example only: add services after verifying runtimes, ports and secret handling.
 services: {}
 '''
     outputs['infra/docker/README.md']='''# Docker y contenedores
 
-`compose.yaml` (si existe) sirve únicamente para dependencias de desarrollo local, no despliega la aplicación.
-Genera Dockerfiles específicos por módulo una vez que los generadores oficiales hayan creado código y se hayan fijado versiones de runtime. Añade healthchecks, usuario sin privilegios, escaneo y optimización de capas. Evita credenciales predeterminadas de producción.
+compose.yaml, if present, defines local development dependencies only and does not deploy the application.
+Generate per-module Dockerfiles only after application source and runtime versions exist. Add health checks, a non-root user, scanning and efficient layers. Avoid production default credentials.
 '''
-    outputs['infra/observability/README.md']='''# OpenTelemetry — integración pendiente
+    outputs['infra/observability/README.md']='''# OpenTelemetry — integration pending
 
-Esta carpeta contiene recomendaciones, **no instrumentación ejecutándose**. Integrar los SDKs oficiales compatibles con el framework elegido, propagación W3C tracecontext, resource attributes (`service.name`, `deployment.environment`) y exportador OTLP. Excluir PII y secretos de atributos y eventos. Validar exportación mediante un collector autorizado antes de activar alertas.
+This directory contains guidance, **not running instrumentation**. Integrate approved SDKs with W3C tracecontext, resource attributes (service.name and deployment.environment) and OTLP export. Exclude secrets and PII. Validate against an authorized collector before enabling alerts.
 
-Variables típicas (si la aplicación está realmente instrumentada): `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TRACES_EXPORTER`, `OTEL_METRICS_EXPORTER`.
+Typical variables (only if the application is instrumented): `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TRACES_EXPORTER`, `OTEL_METRICS_EXPORTER`.
 '''
-    outputs['infra/observability/otel.env.example']='''# Variables orientativas, no se cargan automáticamente.
+    outputs['infra/observability/otel.env.example']='''# Example variables; they are not loaded automatically.
 OTEL_SERVICE_NAME=replace-with-service-name
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 OTEL_TRACES_EXPORTER=otlp
 OTEL_METRICS_EXPORTER=otlp
 '''
-    outputs['.env.example']='''# Desarrollo local: copia a .env (NO versionar el archivo .env).
-# Configura variables necesarias según la BD del perfil y nunca uses esto en producción.
+    outputs['.env.example']='''# Local development: copy to .env (NEVER commit the .env file).
+# Configure variables for the selected database; never use these defaults in production.
 POSTGRES_USER=app
 POSTGRES_DB=app
 POSTGRES_PASSWORD=REPLACE_LOCALLY
@@ -107,14 +107,14 @@ MYSQL_ROOT_PASSWORD=REPLACE_LOCALLY
 MONGO_USERNAME=app
 MONGO_PASSWORD=REPLACE_LOCALLY
 '''
-    outputs['.gitignore']='''# Harness y estado de trabajo
+    outputs['.gitignore']='''# Harness and local work state
 .harness/state/
 .harness/welcome.json
-# Entornos y credenciales
+# Environments and credentials
 .env
 .env.*
 !.env.example
-# Artefactos comunes
+# Common build artifacts
 graphify-out/
 node_modules/
 dist/
@@ -150,7 +150,7 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: python3 aikya/scripts/harness/docs_guard.py ci --base "$BASE_SHA"
-  # Integrar un job adicional por stack para SDKs/instalación y quality gates reales.
-  # run_checks.py exige runtimes y dependencias; no asumirlos en runner Python.
+  # Add stack-specific jobs for SDK setup and real quality checks.
+  # run_checks.py requires real runtimes and dependencies; do not assume them on the Python runner.
 '''
     return outputs
