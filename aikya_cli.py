@@ -5,6 +5,8 @@ import argparse
 import json
 import sys
 from pathlib import Path
+# Dry-run and report-only must not leave bytecode in a project-local Aikya runtime.
+sys.dont_write_bytecode = True
 import install as installer
 from aikya_requirements import check, markdown
 
@@ -16,21 +18,37 @@ def resolved_answers(args, target:Path) -> Path:
         candidates=[target/'.aikya/answers.json',target/'.harness/project-profile.json']
         path=next((p for p in candidates if p.is_file()),candidates[0])
     if not path.is_file():
-        raise ValueError(f'No hay respuestas en {path}; realiza /aikya-init o indica --answers.')
+        raise ValueError(f'No hay respuestas en {path}; usa /aikya-init para nuevo, /aikya-analyze para existente, o indica --answers.')
     return path
 
 
 def main(argv=None):
     parser=argparse.ArgumentParser(description='Aikya Harness · acciones ejecutadas por Claude Code')
-    parser.add_argument('command',choices=['probe','requirements','init','answers','status'])
+    parser.add_argument('command',choices=['probe','requirements','init','answers','status','analyze'])
     parser.add_argument('--target',type=Path,default=Path.cwd())
     parser.add_argument('--answers',type=Path)
     parser.add_argument('--dry-run',action='store_true')
     parser.add_argument('--strict',action='store_true',help='Requisitos incompletos generan exit 4')
     parser.add_argument('--external',choices=['skip','plan','install'],default='plan')
     parser.add_argument('--display-name')
+    parser.add_argument('--scope',default='.')
+    parser.add_argument('--focus',choices=['general','security','architecture','infrastructure','operations'],default='general')
+    parser.add_argument('--refresh',action='store_true')
+    parser.add_argument('--report-only',action='store_true')
+    parser.add_argument('--approved',action='store_true',help='Explicit approval to create Aikya-owned files')
     args=parser.parse_args(argv)
     target=args.target.expanduser().resolve()
+    if args.command=='analyze':
+        from aikya_analyze import execute
+        try:
+            result=execute(target,scope=args.scope,focus=args.focus,
+                           approved=args.approved,refresh=args.refresh,
+                           dry_run=args.dry_run,report_only=args.report_only)
+        except (ValueError,OSError,UnicodeError,TypeError) as exc:
+            print('ERROR en análisis:',exc,file=sys.stderr)
+            return 2
+        print(json.dumps(result,ensure_ascii=False,indent=2))
+        return 0 if result['status']=='READY' else 4
     if args.command=='probe':
         detected=installer.detect_project(target) if target.exists() else {'modules':[],'findings':['Nuevo directorio']}
         print(json.dumps({'target':str(target),'detected':detected,
@@ -49,6 +67,21 @@ def main(argv=None):
     except (ValueError,OSError,UnicodeError,TypeError) as exc:
         print('ERROR en respuestas:',exc,file=sys.stderr)
         return 2
+    if args.command=='init' and profile['mode']!='new':
+        print('ERROR: /aikya-init sólo admite proyectos nuevos. Para repositorios existentes usa /aikya-analyze; no se escribieron archivos.',file=sys.stderr)
+        return 2
+    if args.command=='answers' and profile['mode']=='existing':
+        print('AVISO: ruta declarativa existente; para descubrimiento automatico usa /aikya-analyze.',file=sys.stderr)
+        # Compatibility shim: existing profiles remain valid but no user IaC, CI or Docker files change.
+        detected=installer.detect_project(target)
+        try:
+            actions=installer.install(target,profile,detected,dry_run=args.dry_run,adopt_existing=True)
+        except (ValueError,OSError,UnicodeError) as exc:
+            print('ERROR de adopcion:',exc,file=sys.stderr)
+            return 2
+        print(json.dumps({'mode':'existing','dry_run':args.dry_run,'actions':actions},
+                         ensure_ascii=False,indent=2))
+        return 0
     report=check(profile,target)
     print('\n=== AIKYA · REQUISITOS DEL ENTORNO ===')
     print(json.dumps(report,ensure_ascii=False,indent=2))

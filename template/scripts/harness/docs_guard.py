@@ -38,29 +38,54 @@ def normalized_session(session: str) -> str:
 
 
 def file_map() -> dict[str,str]:
-    """Snapshot de archivos relevantes; ignora .env y secretos sin abrirlos."""
+    """Incremental local snapshot; rehash only files with changed stat metadata."""
+    index_file = STATE / 'hash-index.json'
+    try:
+        index = json.loads(index_file.read_text(encoding='utf8'))
+        if not isinstance(index, dict):
+            index = {}
+    except (OSError, UnicodeError, ValueError):
+        index = {}
     mapping: dict[str,str] = {}
+    new_index: dict[str,dict] = {}
     seen = 0
     for base, dirs, names in os.walk(ROOT, followlinks=False):
         dirs[:] = [d for d in dirs if d not in IGNORED and not d.startswith('.git')]
         for name in names:
-            path = Path(base)/name
+            path = Path(base) / name
             rel = path.relative_to(ROOT).as_posix()
             if name.startswith('.env') or path.is_symlink() or not path.is_file():
                 continue
-            if rel.startswith('aikya/docs/') or is_source(rel):
-                try:
-                    if path.stat().st_size > 3_000_000:
-                        mapping[rel] = f'large:{path.stat().st_size}:{path.stat().st_mtime_ns}'
-                    else:
-                        mapping[rel] = hashlib.sha256(path.read_bytes()).hexdigest()
-                except OSError:
-                    continue
-                seen += 1
-                if seen >= 12000:
-                    # En un repo enorme es una aproximación; avisar a través de estado.
-                    mapping['__TRUNCATED__'] = 'true'
-                    return mapping
+            if not (rel.startswith('aikya/docs/') or is_source(rel)):
+                continue
+            try:
+                st = path.stat()
+                signature = [st.st_size, st.st_mtime_ns, st.st_ctime_ns]
+                old = index.get(rel)
+                if isinstance(old, dict) and old.get('stat') == signature and isinstance(old.get('hash'), str):
+                    digest = old['hash']
+                elif st.st_size > 3_000_000:
+                    digest = f'large:{st.st_size}:{st.st_mtime_ns}:{st.st_ctime_ns}'
+                else:
+                    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                mapping[rel] = digest
+                new_index[rel] = {'stat': signature, 'hash': digest}
+            except OSError:
+                continue
+            seen += 1
+            if seen >= 12000:
+                mapping['__TRUNCATED__'] = 'true'
+                break
+        if seen >= 12000:
+            break
+    # Cache is an optimization: failure to write must not affect correctness.
+    try:
+        STATE.mkdir(parents=True, exist_ok=True)
+        tmp = index_file.with_name('hash-index-' + uuid4().hex + '.json')
+        tmp.write_text(json.dumps(new_index, separators=(',', ':')), encoding='utf8')
+        tmp.replace(index_file)
+    except OSError:
+        pass
     return mapping
 
 
@@ -79,18 +104,29 @@ def is_source(path: str) -> bool:
 
 
 def kind_from_prompt(prompt: str) -> str:
-    """Clasificador heurístico; una petición puede abarcar varias categorías."""
+    """Word-boundary classification; suggestions only, never sole proof of changed files."""
     p = prompt.lower()
-    matches=[]
-    for kind, keys in {
-        'security': ('seguridad','vulnerab','autenticación','autorización','security','cve','secrets'),
-        'bug': ('bug','error','fix','corrige','corregir','fallo','regresión','defecto'),
-        'architecture': ('arquitectura','refactor','migración','architecture','refactoring'),
-        'operations': ('devops','deploy','pipeline','docker','kubernetes','terraform','ci/cd'),
-        'feature': ('feature','funcionalidad','implementa','crear','añade','agrega','endpoint','pantalla'),
-    }.items():
-        if any(k in p for k in keys):
-            matches.append(kind)
+    # Read-only questions should not trigger an action category merely because
+    # they mention bugs, Docker or architecture.
+    interrogative = re.search(r'^\s*¿?\s*(qué|que|cuál|cual|cómo|como|por qué|why|what|how|explain)\b', p)
+    action = re.search(r'\b(corrige|corrigir|corregir|fix|implementa|añade|agrega|crea|despliega|refactoriza)\b', p)
+    if interrogative and not action:
+        return 'general'
+    keywords = {
+        'security': ('seguridad', 'vulnerabilidad', 'autenticación', 'autorización',
+                     'security', 'cve', 'secrets'),
+        'bug': ('bug', 'error', 'fix', 'corrige', 'corregir', 'fallo',
+                'regresión', 'defecto'),
+        'architecture': ('arquitectura', 'refactor', 'migración',
+                         'architecture', 'refactoring'),
+        'operations': ('devops', 'deploy', 'pipeline', 'docker',
+                       'kubernetes', 'terraform', 'ci/cd'),
+        'feature': ('feature', 'funcionalidad', 'implementa', 'crear',
+                    'añade', 'agrega', 'endpoint', 'pantalla'),
+    }
+    matches = [kind for kind, terms in keywords.items()
+               if any(re.search(r'(?<!\w)' + re.escape(term) + r'(?!\w)', p)
+                      for term in terms)]
     return '+'.join(matches) if matches else 'general'
 
 

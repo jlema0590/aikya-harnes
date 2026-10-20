@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Argumentos: `$ARGUMENTS` (`plan`, `generate`, `validate`). Si faltan, pregunta el objetivo.
 
-1. Trabaja en el directorio del proyecto Claude Code. Requiere `.harness/project-profile.json`, `aikya/scripts/harness/infrastructure.py` y, si existe, `aikya/docs/infrastructure/plan.md`. Si no está inicializado, usa `/aikya-init`.
+1. Trabaja en el directorio del proyecto Claude Code. Requiere `.harness/project-profile.json`, `aikya/scripts/harness/infrastructure.py` y, si existe, `aikya/docs/infrastructure/plan.md`. Si no está inicializado, usa `/aikya-init` si es nuevo o `/aikya-analyze` si ya tiene código.
 2. **Plan:** ejecuta `python3 aikya/scripts/harness/infrastructure.py plan` y presenta rutas, dependencias, requisitos pendientes, seguridad, alternativas, efectos y aprobaciones. Este modo es de sólo lectura.
 3. **Generate:** presenta primero el plan actual. Solicita consentimiento explícito para CREAR los archivos concretos; después ejecuta `python3 aikya/scripts/harness/infrastructure.py generate --approved`. Nunca interpretes un pedido de plan como consentimiento para generar. Conserva cualquier archivo preexistente y personalizado.
 4. **Validate:** ejecuta `python3 aikya/scripts/harness/infrastructure.py validate`; indica PASSED, FAILED o NOT_CONFIGURED. Verifica sólo localmente: fmt, sintaxis Ansible, Compose config, Helm lint/template o Kustomize build. Una validación local no equivale a desplegar.

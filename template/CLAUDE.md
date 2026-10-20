@@ -26,13 +26,6 @@ Respetar el stack y las convenciones reales del repositorio; **no asumir** frame
 - No editar archivos generados: cambia sus fuentes y regenera con el comando del proyecto.
 - Si una comprobación obligatoria no está configurada o falla, informar **NO VERIFICADO** o **FALLÓ**; jamás marcar entrega como completamente validada.
 
-## Uso de agentes
-
-- `architect`: evaluación de contratos, modularidad y decisiones importantes (lectura).
-- `developer`: implementación acotada con pruebas, coordinada por el agente principal.
-- `qa-reviewer`: cobertura, regresiones, límites, fallos y criterios de aceptación (lectura y comandos).
-- `security-reviewer`: superficie de ataque, secretos, autorizaciones y dependencias (lectura y comandos).
-
 ## Convenciones del proyecto (completar)
 
 - Stack y versión: TODO
@@ -44,7 +37,7 @@ Respetar el stack y las convenciones reales del repositorio; **no asumir** frame
 
 ## Documentación viva y trazabilidad (OBLIGATORIO)
 
-Antes y después de cualquier implementación, revisa `aikya/docs/README.md`, `aikya/docs/overview.md` y `.claude/rules/01-documentation-policy.md`. Cada petición que modifique código, tests o infraestructura requiere actualizar la documentación afectada y crear `aikya/docs/changes/REQ-*.md` con cambios, evidencias reales y documentos actualizados. `UserPromptSubmit` registra la petición y `Stop` verifica la cobertura. No asumir que una edición sin tests ni documentación está lista.
+Cumple `.claude/rules/01-documentation-policy.md` y el gate documental `Stop`. Documenta todos los cambios reales; nunca omitas una verificación requerida.
 
 ## Ingeniería Bootstrap
 
@@ -54,8 +47,3 @@ En un proyecto nuevo consulta `python3 aikya/scripts/harness/scaffold.py plan` y
 
 Aplica `.claude/rules/02-context-budget.md`: Ponytail para cambios mínimos, Graphify (sin MCP) para navegación de dependencias con consultas puntuales y UI UX Pro Max sólo al trabajar con interfaces. Revisa disponibilidad al iniciar sesión; instalaciones de terceros únicamente con aprobación.
 
-## Aikya v5: inicio desde Claude Code
-- La entrevista inicial se realiza con `/aikya-init` **en Claude**, no con preguntas de `install.py` en terminal.
-- `/aikya-answers` utiliza el perfil JSON aprobado y `/aikya-doctor` verifica SDKs antes de scaffold.
-- Prefiere comandos `/aikya-feature`, `/aikya-bugfix`, `/aikya-scaffold`, `/aikya-skills-status`, `/aikya-tests`, `/aikya-docs` y `/aikya-quality`; aliases heredados disponibles. Todo el flujo de usuario ocurre dentro de Claude Code; los scripts se ejecutan internamente cuando corresponda.
-- Nunca actualices SDK, interpretes que el build pasó ni ejecutes generadores remotos sin autorización.

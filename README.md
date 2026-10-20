@@ -14,7 +14,7 @@ Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**.
    > **Instala Aikya Harness** desde `https://github.com/jlema0590/aikya-harness.git`, rama `develop`, en **modo global**. Revisa la fuente antes de instalar y pide mi aprobación para cualquier descarga o cambio de configuración. Registra sus skills, hooks y bienvenida, sin modificar otros repositorios ni instalar SDKs automáticamente. Después explícame cómo usar `/aikya-init`.
 
 2. **Abre una sesión nueva** de Claude Code para que se carguen los comandos `/aikya-*` y el panel de bienvenida.
-3. Ejecuta `/aikya-init` en el repositorio que quieras inicializar.
+3. Ejecuta `/aikya-init` en una carpeta nueva sin código, o `/aikya-analyze` en un repositorio existente para detectar su stack e incorporar Aikya sin entrevista.
 
 | Modo de instalación | Efecto |
 |---|---|
@@ -23,9 +23,12 @@ Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**.
 
 En ambos casos no se sobrescriben skills ni configuraciones personalizadas.
 
+
+**Proyectos existentes:** abre el repositorio en Claude Code y ejecuta `/aikya-analyze --dry-run` para previsualizar el descubrimiento. El comando `/aikya-analyze` primero presenta el plan; la incorporación real exige autorización explícita. `--report-only` no escribe; `--refresh` actualiza exclusivamente documentos gestionados cuyo hash previo coincide; `--scope` limita la exploración y `--focus security|architecture|infrastructure|operations` prioriza el informe. Si el proyecto es ambiguo devuelve `PARTIAL`/`NEEDS_REVIEW` y nunca inventa tecnología. No ejecuta builds, Terraform, Docker ni scripts del usuario. Para directorios vacíos utiliza `/aikya-init`.
+
 ## 2. Tipos de proyecto
 
-La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`); después, si el repositorio es nuevo o existente (`mode`). Un perfil antiguo sin `project_type` se trata como `development`.
+La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`); siempre crea `mode: new` y no ofrece modalidad de proyecto existente. Para adoptar repositorios con código se utiliza `/aikya-analyze`, que detecta automáticamente el stack, prepara el perfil `mode: existing` y propone los archivos del harness antes de pedir aprobación. Los perfiles legados sin `project_type` continúan tratándose como `development`.
 
 | Tipo | Qué pregunta | Qué genera |
 |---|---|---|
@@ -42,13 +45,26 @@ La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`)
 - Claude pregunta sólo por las decisiones que faltan, guarda el perfil en `.aikya/answers.json` y muestra un resumen antes de aplicar cambios.
 - `/aikya-doctor` valida JDK, .NET, Node.js, gestores de paquetes, Android SDK, Xcode, Flutter o las herramientas de infraestructura elegidas. **Si falta un requisito, el scaffold se detiene**; nunca se actualizan SDKs en silencio.
 - Los modos Infraestructura y DevOps no ejecutan `/aikya-scaffold` ni generan tests de aplicación ficticios.
-- En proyectos existentes Aikya amplía de forma incremental: no mueve aplicaciones ni ejecuta scaffolds destructivos.
+- Para proyectos existentes utiliza `/aikya-analyze`: adopta el repositorio sin entrevista, no mueve aplicaciones ni ejecuta scaffolds destructivos.
+
+
+### Separación de comandos (v6.0.0)
+
+| Ruta | Entrada | Modo de perfil | Escrituras |
+|---|---|---|---|
+| `/aikya-init` | Carpeta vacía o solo bootstrap Aikya | `new` | Entrevista y autorización antes de generar |
+| `/aikya-analyze` | Proyecto con manifiestos/código | `existing` | Primero plan; solo instala harness con `--approved` y permiso |
+| `/aikya-analyze --report-only` | Proyecto existente | Sin modificar perfil | Ninguna |
+| `/aikya-analyze --refresh` | Proyecto con análisis anterior | `existing` | Solo documentos gestionados no personalizados |
+
+El CLI v6 admite `aikya_cli.py analyze --target . --dry-run` para vista previa y `--approved` después de consentimiento. Los perfiles con `mode: existing` siguen siendo aceptados por el núcleo, validadores y workflows declarativos antiguos, pero el comando público `init` ya no los acepta. Revisa [la guía de separación](docs/INIT_ANALYZE_SEPARATION.md).
 
 ## 3. Comandos de Claude Code
 
 | Grupo | Comando | Qué hace | Ejemplo |
 |---|---|---|---|
-| Inicialización | `/aikya-init` | Entrevista técnica para proyecto nuevo o existente. | `/aikya-init Quiero una API Java 21 con React` |
+| Inicialización nueva | `/aikya-init` | Entrevista técnica solo para proyectos desde cero. | `/aikya-init Quiero una API Java 21 con React` |
+| Adopción existente | `/aikya-analyze` | Detecta el repositorio, genera un plan y, con consentimiento, instala Aikya sin reescribir código. | `/aikya-analyze --focus architecture` |
 | | `/aikya-answers` | Reutiliza un archivo de decisiones aprobado. | `/aikya-answers examples/next-react/answers.json` |
 | | `/aikya-doctor` | Diagnostica SDKs y herramientas sin modificarlos. | `/aikya-doctor Revisa si tengo el SDK .NET adecuado` |
 | | `/aikya-project-init` | Define alcance, estructura, roadmap y ADR inicial. | `/aikya-project-init Planifica una API de inventario` |
@@ -104,7 +120,7 @@ Disponible como modo propio o como bloque opcional del modo Desarrollo: proveedo
 
 ## 6. Catálogo de agentes y skills técnicas
 
-`engineering/agents/` contiene **27 subagentes** especializados y `engineering/skills/` **29 Agent Skills** con métodos y checklists. Al confirmar la entrevista, `engineering_catalog.py` copia sólo los que encajan con el stack y la arquitectura a `.claude/agents/` y `.claude/skills/` del proyecto. El resto queda en el catálogo local para activarlo más tarde con `/aikya-skills-install`, siempre con aprobación y sin descargas.
+`engineering/agents/` contiene **27 especialistas históricos y 3 agentes auxiliares opcionales en v6** y `engineering/skills/` **29 Agent Skills** con métodos y checklists. Al completar `/aikya-init` o al autorizar `/aikya-analyze`, `engineering_catalog.py` selecciona solo los que encajan con el stack y la arquitectura a `.claude/agents/` y `.claude/skills/` del proyecto. El resto queda en el catálogo local para activarlo más tarde con `/aikya-skills-install`, siempre con aprobación y sin descargas.
 
 | Dominio | Agentes | Skills |
 |---|---|---|
@@ -133,6 +149,17 @@ Integración **optativa y supervisada** de [Ponytail](https://github.com/Dietric
 > `/aikya-skills-install Quiero incorporar una skill desde https://github.com/ORGANIZACION/REPOSITORIO.git. Revisa primero su SKILL.md y licencia, identifica la carpeta skills/NOMBRE, verifica el commit exacto, explícame los permisos y solicita mi aprobación antes de instalarla.`
 
 Nada se descarga ni se indexa automáticamente al iniciar Claude Code, y Graphify se consulta con preguntas concretas, nunca volcando el grafo completo.
+
+
+## Aikya v6.0.0 — Token Efficiency & Observability
+**Routing híbrido:** una clasificación Python intenta resolver la petición sin llamada adicional. Si permanece ambigua y Haiku 5.5 está habilitado, un agente auxiliar de solo lectura puede sugerir una clasificación; su JSON se valida y nunca autoriza cambios. Planner y Orchestrator con Opus intervienen únicamente cuando hay complejidad significativa. La comprobación de modelos es conservadora: un alias publicado no garantiza acceso; en otros proveedores el despliegue puede exigir un identificador específico.
+
+**Coste:** /aikya-tokens informa estadísticas por modelo y calcula una estimación de tarifa pública de Haiku 5.5 por petición (<=100K o >100K tokens de prompt), dando un rango cuando desconoce si la escritura de caché fue de 5 minutos o una hora. No equivale a una factura.
+
+
+La versión 6 añade los comandos `/aikya-models` y `/aikya-tokens`. Los modelos de `planner` y `orchestrator` están reservados para planificación compleja (por defecto `opus`), mientras los demás agentes gestionados heredan el modelo activo del usuario. Haiku 5.5 se puede activar de forma opcional para extracción, clasificación, routing sugerido, borradores documentales y resumen de logs, solo tras autorización y validación de Claude Code 2.1.293+ y del proveedor. Las políticas v1 con Haiku 4.5 siguen intactas hasta que el usuario apruebe una migración. Las decisiones se almacenan en `.aikya/model-policy.json`, separado de los perfiles de 5.9.1, y no cambian la selección global de Claude Code.
+
+`/aikya-tokens` procesa transcripciones JSONL locales de forma acotada para informar uso de entrada, salida y caché por modelo, sin almacenar prompts ni derivar un precio no confirmado. Las reglas de contexto recomiendan consultas filtradas y salidas limitadas de `Bash`, logs, diffs y GitHub CLI. La guía de migración y compatibilidad está en [docs/V6_TOKEN_COMPATIBILITY.md](docs/V6_TOKEN_COMPATIBILITY.md).
 
 ## Versionado y publicación automática (v5.9.1)
 

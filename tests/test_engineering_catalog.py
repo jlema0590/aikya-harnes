@@ -21,7 +21,8 @@ EXCLUDED = {'digital-law-coordinator','ecommerce-platform-lawyer',
 
 class EngineeringCatalogTests(unittest.TestCase):
     def test_only_engineering_components_packaged(self):
-        self.assertEqual(27,len(catalog.AGENTS))
+        self.assertEqual(27,len(catalog.AGENTS - {'log-summarizer', 'aikya-auxiliary-analyzer', 'aikya-docs-assistant'}))
+        self.assertTrue({'log-summarizer','aikya-auxiliary-analyzer','aikya-docs-assistant'} <= catalog.AGENTS)
         self.assertEqual(29,len(catalog.SKILLS))
         self.assertFalse((catalog.AGENTS|catalog.SKILLS)&EXCLUDED)
         self.assertNotIn('security-reviewer', catalog.AGENTS)

@@ -20,7 +20,7 @@ try:
     if not ok:
         print(json.dumps({'decision':'block','reason':
             'Gate de documentación pendiente para '+state['request_id']+': '+
-            '; '.join(details[-8:])+'. Actualiza los documentos con contenido real (no placeholders) '
+            '; '.join(details[-4:])+'. Actualiza los documentos con contenido real (no placeholders) '
             'y comprueba de nuevo. Si es trabajo sólo informativo, no edites código.'},ensure_ascii=False))
 except Exception as exc:
     # Fallo visible, sin bloquear infinitamente: CI seguirá validando la documentación.

@@ -197,17 +197,17 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
     for finding in detected['findings']:
         print(' -', finding)
     kind=choice('Tipo de proyecto Aikya',list(PROJECT_TYPES),'development')
-    nonempty = target.exists() and any(target.iterdir())
-    mode = choice('Repositorio nuevo o existente', ['existing', 'new'], 'existing' if nonempty else 'new')
+    # Greenfield interview only; legacy existing data remains valid for analyze.
+    mode = 'new'
     if kind!='development':
         return specialized_interview(target,detected,kind,mode)
     technologies = {role: next((m['technology'] for m in detected['modules'] if m['role'] == role), 'none')
                     for role in ('backend', 'frontend', 'mobile')}
     mobile_detected = technologies['mobile']
     mobile_default = 'both' if mobile_detected in ('flutter', 'react-native') else ('android' if mobile_detected == 'android' else ('ios' if mobile_detected == 'ios' else 'none'))
-    backend = choice('Backend principal', BACKENDS, technologies['backend'] if mode == 'existing' else 'none')
-    frontend = choice('Frontend web', FRONTENDS, technologies['frontend'] if mode == 'existing' else ('react' if backend == 'next' else 'none'))
-    mobile = choice('Plataformas móviles', MOBILES, mobile_default if mode == 'existing' else 'none')
+    backend = choice('Backend principal', BACKENDS, 'none')
+    frontend = choice('Frontend web', FRONTENDS, 'react' if backend == 'next' else 'none')
+    mobile = choice('Plataformas móviles', MOBILES, 'none')
     framework = 'none'
     android_language = 'none'
     ios_ui = 'none'
@@ -233,8 +233,8 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
     frontend_rendering = choice('Estrategia de renderizado web', RENDERING, 'hybrid' if backend=='next' and frontend=='react' else 'spa') if frontend != 'none' else 'undecided'
     layout = choice('Topología del repositorio', list(LAYOUTS),
                     'monorepo' if app_count({'backend':backend, 'frontend':frontend, 'mobile':mobile, 'mobile_framework':framework}) > 1 or (target/'apps').is_dir() else 'singlerepo')
-    arch = choice('Arquitectura preferida (en existing, se respeta la observada)', ARCHS,
-                  'existing' if mode == 'existing' else 'modular-monolith')
+    arch = choice('Arquitectura preferida', [a for a in ARCHS if a != 'existing'],
+                  'modular-monolith')
     event_driven = yesno('¿El proyecto necesita eventos asíncronos como estilo complementario?', False)
     database = choice('Base de datos', DATABASES, 'undecided')
     ci = choice('Integración continua', CIS, 'undecided')
@@ -680,9 +680,11 @@ def migrate_v55_project_config(target: Path, actions: list[str]) -> None:
         actions.append('MIGRADOS quality gates anteriores sin alterar checks personalizados.')
 
 
-def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False) -> list[str]:
+def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False, *, adopt_existing: bool=False) -> list[str]:
     """Instala sin sobrescribir archivos de usuario. Para dry-run no muta."""
     actions: list[str] = []
+    if adopt_existing and profile.get('mode') != 'existing':
+        raise ValueError('adopt_existing requires a legacy-compatible existing profile')
     validate_layout(profile)
     # También se admiten llamadas directas desde harnesses antiguos sin validated().
     profile = {**profile, 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
@@ -695,7 +697,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                'decisions':profile, 'detected':detected}
     if profile_path.exists():
         old = read_json_safe(profile_path)
-        if old.get('_generated_by') != 'claude-dev-harness-interactive':
+        if adopt_existing or old.get('_generated_by') != 'claude-dev-harness-interactive': 
             actions.append('CONSERVADO perfil ajeno: '+str(profile_path))
         else:
             profile_path.write_text(json.dumps(payload,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
@@ -706,7 +708,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         if not source.is_file() or '__pycache__' in source.parts or source.suffix == '.pyc':
             continue
         rel = source.relative_to(TEMPLATE)
-        if rel.as_posix() in ('CLAUDE.md','harness.json','.claude/settings.json'):
+        if rel.as_posix() in ('CLAUDE.md','harness.json','.claude/settings.json') or (adopt_existing and (rel.parts[0] in ('.github', 'infra') or rel.name in ('.gitignore', 'Dockerfile', 'compose.yml', 'compose.yaml', 'docker-compose.yml', 'docker-compose.yaml') or rel.suffix in ('.tf', '.tfvars'))):
             continue
         dest = target / (Path('aikya/scripts') / Path(*rel.parts[1:]) if rel.parts[0]=='scripts' else Path('aikya/test') / Path(*rel.parts[1:]) if rel.parts[0]=='tests' else rel)
         if dest.exists():
@@ -724,17 +726,32 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, dest)
             actions.append('CREADO '+str(dest))
-    migrate_v55_project_config(target,actions)
-    # Alias prefijados: se conservan los comandos heredados para compatibilidad.
+    if not adopt_existing:
+        migrate_v55_project_config(target,actions)
+    # v6: retain legacy commands with lightweight aliases.
+    from aikya_setup import BOOTSTRAP_COMMANDS
     for original in sorted((TEMPLATE/'.claude/skills').glob('*/SKILL.md')):
-        old_name=original.parent.name
-        if old_name == 'project-bootstrap':
-            continue  # Comando público renombrado a aikya-infra-project.
-        if old_name.startswith('aikya-'):
+        old_name = original.parent.name
+        if old_name == 'project-bootstrap' or old_name.startswith('aikya-'):
             continue
-        alias='aikya-'+old_name
-        content=original.read_text(encoding='utf8').replace('name: '+old_name+'\n','name: '+alias+'\n',1)
-        safe_write(target/'.claude/skills'/alias/'SKILL.md',content,actions)
+        alias = 'aikya-' + old_name
+        # Public wrappers are registered below. Never shadow them with copied skills.
+        if alias in BOOTSTRAP_COMMANDS:
+            continue
+        destination = target/'.claude/skills'/alias/'SKILL.md'
+        body = ('---\nname: '+alias+'\ndescription: Alias de compatibilidad para /'+old_name+
+                '.\ndisable-model-invocation: true\n---\n'
+                '<!-- AIKYA BOOTSTRAP MANAGED -->\n'
+                '# /'+alias+'\nConsulta la skill de proyecto /'+old_name+
+                ' y aplica el procedimiento original con los mismos permisos.\n')
+        if destination.is_file() and not destination.is_symlink():
+            legacy = original.read_text(encoding='utf8').replace(
+                'name: '+old_name+'\n','name: '+alias+'\n',1)
+            if destination.read_text(encoding='utf8') == legacy:
+                destination.write_text(body,encoding='utf8')
+                actions.append('MIGRADO alias gestionado '+str(destination))
+                continue
+        safe_write(destination,body,actions)
     # Registrar todos los comandos gestionados Aikya cuando el proyecto se inicializa.
     # Los wrappers tienen la marca AIKYA BOOTSTRAP MANAGED y no sustituyen skills personalizadas.
     from aikya_setup import BOOTSTRAP_COMMANDS
@@ -794,7 +811,22 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
             safe_write(target/'aikya/scripts/harness/infrastructure_profile.py',
                        local_profile.read_text(encoding='utf8'),actions)
 
-    merge_settings(target, actions)
+    # v6: instalar utilidades de modelos/tokens sin cambiar configuración global.
+    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py'):
+        source = HERE / utility
+        if source.is_file():
+            safe_write(target/'aikya/scripts/harness'/utility,
+                       source.read_text(encoding='utf8'), actions)
+    # El perfil v5.9.1 permanece intacto. La política v6 es opcional y externa a answers.json.
+    model_policy = target/'.aikya/model-policy.json'
+    if not model_policy.exists():
+        from token_policy import DEFAULT
+        safe_write(model_policy, json.dumps(DEFAULT,ensure_ascii=False,indent=2)+'\n', actions)
+
+    if not adopt_existing or not (target/'.claude/settings.json').exists():
+        merge_settings(target, actions)
+    else:
+        actions.append('CONSERVADO settings.json existente (adopcion)')
     claude = target / 'CLAUDE.md'
     if not claude.exists():
         safe_write(claude, (TEMPLATE/'CLAUDE.md').read_text(encoding='utf8') + '\n' +
@@ -837,7 +869,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     from skills_registry import write_inventory
     ok, note = write_inventory(target,profile)
     actions.append(('INVENTARIO ' if ok else 'AVISO ') + note)
-    for rel, content in infra_files(profile).items():
+    for rel, content in ({} if adopt_existing else infra_files(profile)).items():
         if rel == '.gitignore':
             ignore = target/'.gitignore'
             if not ignore.exists():
@@ -855,7 +887,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         else:
             safe_write(target/rel,content,actions)
     from infrastructure_profile import selected
-    if selected(profile['infrastructure']):
+    if selected(profile['infrastructure']) and not adopt_existing:
         from importlib.util import spec_from_file_location, module_from_spec
         infra_module = TEMPLATE/'scripts/harness/infrastructure.py'
         if infra_module.is_file():
@@ -928,6 +960,9 @@ def main(argv: list[str]|None=None) -> int:
     if target.exists() and not target.is_dir():
         parser.error('--target debe ser un directorio')
     detected=detect_project(target) if target.exists() else {'modules':[],'findings':['Directorio nuevo.']}
+    if not args.answers and target.exists() and any(target.iterdir()) and not (args.allow_bootstrap and only_aikya_bootstrap(target)):
+        print('ERROR: el init interactivo es sólo para proyectos nuevos; usa /aikya-analyze.',file=sys.stderr)
+        return 2
     try:
         if args.answers:
             answers=read_json_safe(args.answers)

@@ -14,13 +14,13 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent
 BOOTSTRAP_COMMANDS=(
-    'aikya-init', 'aikya-answers', 'aikya-doctor',
+    'aikya-init', 'aikya-analyze', 'aikya-answers', 'aikya-doctor',
     'aikya-project-init', 'aikya-infra-project', 'aikya-scaffold',
     'aikya-feature', 'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
     'aikya-skills-status', 'aikya-skills-plan', 'aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
-    'aikya-documentation-sync', 'aikya-verify',
+    'aikya-documentation-sync', 'aikya-verify', 'aikya-models', 'aikya-tokens',
 )
-CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py')
+CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py','token_policy.py','token_report.py','model_capabilities.py','aikya_router.py','project_discovery.py','profile_builder.py','analysis_manifest.py','aikya_analyze.py')
 
 
 def files_to_copy(source:Path):
@@ -216,7 +216,7 @@ def main(argv=None):
     except (OSError,ValueError) as exc:
         print(f'ERROR: {exc}',file=sys.stderr)
         return 1
-    print('Siguiente: dentro de Claude Code utiliza /aikya-init, /aikya-answers, /aikya-scaffold, /aikya-skills-status o /aikya-quality.')
+    print('Siguiente: dentro de Claude Code utiliza /aikya-init (nuevo), /aikya-analyze (existente), /aikya-answers, /aikya-scaffold, /aikya-skills-status o /aikya-quality.')
     return 0
 
 if __name__=='__main__':sys.exit(main())

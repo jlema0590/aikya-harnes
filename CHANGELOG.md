@@ -1,5 +1,20 @@
 # Changelog
 
+## v6.0.0 — Token Efficiency & Observability (en desarrollo)
+
+- Política de modelos por rol conservadora y validada: Opus para planificación y orquestación, herencia para tareas habituales y Haiku opcional con consentimiento.
+- Comandos `/aikya-models` y `/aikya-tokens` para selección explícita y métricas de sesiones locales; sin modificar la configuración global.
+- Compatibilidad con perfiles 5.9.1, conservación de personalizaciones y pruebas de regresión.
+- Reglas de higiene de contexto para salidas de CLI, diffs y logs.
+- Separación de comandos: `/aikya-init` únicamente para proyectos nuevos; `/aikya-analyze` para adopción automática y sin entrevista de proyectos existentes.
+- Nuevo discovery determinista multistack, constructor de perfiles compatibles, plan de instalación revisable, manifest con hashes y análisis en modo read-only con consentimiento explícito antes de escribir.
+- Política `adopt_existing` impide crear o modificar infraestructura, scripts, CI/CD y `.gitignore` durante la incorporación; pruebas de idempotencia y migración v5.9.1.
+
+- Haiku 5.5 opcional para extracción, clasificación, routing y borradores documentales mediante agentes read-only; compatibilidad preservada con políticas v1 de Haiku 4.5.
+- Router híbrido determinista con validación de sugerencias, escalado a Planner/Orchestrator solo para tareas complejas y comprobación de CLI/proveedor.
+- Estimación transparente de coste API para Haiku 5.5 según tramo de contexto y duración incierta de caché, sin atribuir ahorro no medido.
+
+
 ## v5.9.1 — Corrección y automatización de GitHub Actions
 
 - Publicación automática de tags y GitHub Releases tras integrar una versión aprobada en `main`.
