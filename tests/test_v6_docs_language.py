@@ -1,0 +1,116 @@
+"""English engineering assets and bilingual Aikya living docs regression tests."""
+from __future__ import annotations
+import importlib.util
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+import install
+from aikya_analyze import execute
+from doc_bootstrap import pages
+from docs_language import POLICY_FILE, read, resolve, validate, write_approved
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def profile(root: Path) -> dict:
+    return install.validated(
+        json.loads((ROOT / "examples/new-next-react.json").read_text(encoding="utf8")),
+        root
+    )
+
+
+class DocumentationLanguageTests(unittest.TestCase):
+    def test_only_exact_en_es_are_supported(self):
+        for value in ("en", "es"):
+            self.assertEqual(validate(value), value)
+        for value in ("en-US", "es-ES", "english", "spanish", "", None, 7):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                validate(value)
+
+    def test_policy_is_safe_immutable_and_idempotent(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.assertIsNone(read(root))
+            self.assertEqual(resolve(root), "en")
+            self.assertTrue(write_approved(root, "es"))
+            self.assertFalse(write_approved(root, "es"))
+            self.assertEqual(read(root), "es")
+            self.assertEqual(json.loads((root / POLICY_FILE).read_text())["schema_version"], 1)
+            with self.assertRaises(ValueError):
+                resolve(root, "en")
+            with self.assertRaises(ValueError):
+                write_approved(root, "en")
+
+    def test_symlinked_policy_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / ".aikya").symlink_to(root)
+            with self.assertRaises(ValueError):
+                resolve(root, "en")
+
+    def test_locales_generate_same_document_paths(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            technical_profile = profile(root)
+            en = pages(technical_profile, [], "en")
+            es = pages(technical_profile, [], "es")
+            self.assertEqual(set(en), set(es))
+            self.assertIn("Living documentation", en["aikya/docs/README.md"])
+            self.assertIn("Documentación", es["aikya/docs/README.md"])
+            self.assertIn("## Changes", en["aikya/docs/changes/README.md"])
+            self.assertIn("Bitácora", es["aikya/docs/changes/README.md"])
+            self.assertTrue(all(k.startswith("aikya/docs/") for k in en))
+
+    def test_spanish_initial_install_localizes_docs_not_english_profile(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            install.install(root, profile(root), {"modules": [], "findings": []}, docs_lang="es")
+            self.assertEqual(read(root), "es")
+            self.assertIn("Visión general", (root / "aikya/docs/overview.md").read_text())
+            self.assertIn("Perfil", (root / "aikya/docs/agents.md").read_text() or "Perfil")
+            self.assertIn("Technical project profile", (root / ".claude/rules/00-project-profile.md").read_text())
+            self.assertFalse((root / ".aikya/analysis/manifest.json").exists())
+
+    def test_english_initial_install_generates_english_inventory(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            install.install(root, profile(root), {"modules": [], "findings": []}, docs_lang="en")
+            self.assertEqual(read(root), "en")
+            self.assertIn("Project overview", (root / "aikya/docs/overview.md").read_text())
+            self.assertIn("Available engineering agents", (root / "aikya/docs/agents.md").read_text())
+            self.assertIn("not a history of model invocations",
+                          (root / "aikya/docs/skills.md").read_text().lower())
+
+    def test_analyze_preview_never_persists_locale(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "pom.xml").write_text("<project/>", encoding="utf8")
+            preview = execute(root, docs_lang="es", dry_run=True)
+            self.assertEqual(preview["documentation_language"], "es")
+            self.assertFalse(preview["writes"])
+            self.assertIn(POLICY_FILE, [x["path"] for x in preview["plan"]])
+            self.assertFalse((root / POLICY_FILE).exists())
+            result = execute(root, docs_lang="es", approved=True)
+            self.assertTrue(result["writes"])
+            self.assertEqual(read(root), "es")
+            self.assertIn("Visión general", (root / "aikya/docs/overview.md").read_text())
+            self.assertIn("existing repository analysis", (root / ".aikya/analysis/report.md").read_text())
+            with self.assertRaises(ValueError):
+                execute(root, docs_lang="en", dry_run=True)
+
+    def test_existing_custom_document_survives_localization(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "pom.xml").write_text("<project/>", encoding="utf8")
+            custom = root / "aikya/docs/overview.md"
+            custom.parent.mkdir(parents=True)
+            custom.write_text("# Team document\nDo not overwrite\n", encoding="utf8")
+            result = execute(root, docs_lang="en", approved=True)
+            self.assertTrue(result["writes"])
+            self.assertEqual(custom.read_text(), "# Team document\nDo not overwrite\n")
+
+
+if __name__ == "__main__":
+    unittest.main()
