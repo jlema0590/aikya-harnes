@@ -19,7 +19,8 @@ AGENTS = {
     'layered-architecture-architect', 'microservices-architect', 'monolith-architect',
     'angular-developer', 'dotnet-developer', 'java-developer', 'kotlin-developer',
     'python-developer', 'react-developer',
-    'terraform-engineer', 'ansible-engineer', 'kubernetes-engineer', 'helm-engineer',
+    'terraform-engineer', 'ansible-engineer', 'kubernetes-engineer', 'helm-engineer', 'log-summarizer',
+    'aikya-auxiliary-analyzer', 'aikya-docs-assistant',
 }
 SKILLS = {
     'astro-performance', 'cicd-pipelines', 'cloud-architecture', 'cloud-security',
@@ -140,6 +141,29 @@ def discover(root: Path, profile: dict, modules: list[dict] | None = None) -> di
         agents.add('cloud-architect');skills.add('cloud-architecture')
     if len(modules) > 1 or profile.get('architecture') in ('microservices', 'modular-monolith'):
         agents.add('orchestrator')
+    # v1 opt-in keeps its legacy Haiku 4.5 behavior without an automatic upgrade.
+    # New v2 auxiliaries require explicit approval, a suitable CLI and provider.
+    try:
+        from token_policy import validated, auxiliary_ready
+        policy_path = root / '.aikya/model-policy.json'
+        if policy_path.is_file() and not policy_path.is_symlink():
+            model_policy = validated(json.loads(policy_path.read_text(encoding='utf8')))
+            if model_policy['schema_version'] == 1:
+                if model_policy['auxiliary_enabled'] and model_policy['user_approved']:
+                    agents.add('log-summarizer')
+            elif auxiliary_ready(model_policy):
+                from model_capabilities import inspect_cli, capability_status
+                status = capability_status(model_policy, inspect_cli().get('version'))
+                if status['ready_for_cli_delegation']:
+                    tasks = set(model_policy['allowed_tasks'])
+                    if tasks & {'extraction', 'classification', 'routing'}:
+                        agents.add('aikya-auxiliary-analyzer')
+                    if 'documentation' in tasks:
+                        agents.add('aikya-docs-assistant')
+                    if 'log-summary' in tasks:
+                        agents.add('log-summarizer')
+    except (ValueError, UnicodeError, OSError):
+        pass  # Invalid/unavailable policy may never silently enable an auxiliary.
     return {'agents': sorted(agents & AGENTS), 'skills': sorted(skills & SKILLS)}
 
 
@@ -175,6 +199,24 @@ def install_selected(root: Path, selection: dict[str, list[str]], source: Path |
                 logs.append(f'CONSERVADO enlace simbólico: {dest}')
                 continue
             raw = original.read_bytes()
+            if kind == 'agents':
+                # v6 configures only generated agents; never overwrite custom files.
+                try:
+                    from token_policy import validated, resolved_agent_model
+                    policy_path = root / '.aikya/model-policy.json'
+                    policy = validated(json.loads(policy_path.read_text(encoding='utf8'))
+                                       if policy_path.is_file() and not policy_path.is_symlink() else None)
+                    if (policy['schema_version'] == 2 and policy['auxiliary_enabled'] and
+                            name in {'aikya-auxiliary-analyzer','aikya-docs-assistant','log-summarizer'}):
+                        from model_capabilities import inspect_cli, capability_status
+                        if not capability_status(policy, inspect_cli().get('version'))['ready_for_cli_delegation']:
+                            policy = {**policy, 'model_access_confirmed': False}
+                    import re
+                    text = raw.decode('utf8')
+                    text = re.sub(r'(?m)^model:\s*[^\n]+$', 'model: ' + resolved_agent_model(name, policy), text, count=1)
+                    raw = text.encode('utf8')
+                except (OSError, UnicodeError, ValueError) as exc:
+                    logs.append(f'AVISO model policy: {exc}')
             key = dest.relative_to(root).as_posix()
             if dest.exists():
                 if not dest.is_file():
@@ -213,15 +255,30 @@ def write_agents_doc(root: Path) -> None:
         return
     if target.exists() and not target.read_text(encoding='utf8').startswith(MARKER):
         return
+    from docs_language import resolve as docs_language
+    english = docs_language(root) == "en"
     rows = []
     for name in sorted(AGENTS):
-        path = _destination(root, 'agents', name)
+        path = _destination(root, "agents", name)
         if path.is_file() and not path.is_symlink():
-            rows.append(f'| `{name}` | Disponible | Aikya Engineering |')
-    rows.append('| `security-reviewer` | Agente Aikya existente | Se conserva, no se duplica |')
-    target.parent.mkdir(parents=True,exist_ok=True)
-    target.write_text(MARKER+'\n# Agentes técnicos disponibles\n\nCatálogo seleccionado por stack; disponible no equivale a invocado.\n\n| Agente | Estado | Procedencia |\n|---|---|---|\n'+'\n'.join(rows)+'\n',encoding='utf8')
-
+            rows.append(f"| {name} | " + ("Available" if english else "Disponible")
+                        + " | Aikya Engineering |")
+    if english:
+        rows.append("| security-reviewer | Existing Aikya agent | Preserved, not duplicated |")
+        body = (MARKER + "\n# Available engineering agents\n\n"
+                "Agents are selected according to the project's real technology stack. "
+                "Available does not mean invoked.\n\n"
+                "| Agent | Status | Provenance |\n|---|---|---|\n"
+                + "\n".join(rows) + "\n")
+    else:
+        rows.append("| security-reviewer | Agente Aikya existente | Se conserva, no se duplica |")
+        body = (MARKER + "\n# Agentes técnicos disponibles\n\n"
+                "Catálogo seleccionado por stack; disponible no equivale a invocado.\n\n"
+                "| Agente | Estado | Procedencia |\n|---|---|---|\n"
+                + "\n".join(rows) + "\n")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists() or target.read_text(encoding="utf8") != body:
+        target.write_text(body, encoding="utf8")
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description='Catálogo técnico local Aikya (invocado desde Claude Code)')
@@ -240,7 +297,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.error('Nombres fuera del catálogo: '+', '.join(sorted(unknown)))
     if not choices:
         profile_path=root/'.harness/project-profile.json'
-        if not profile_path.is_file():parser.error('Falta perfil del proyecto; ejecuta /aikya-init')
+        if not profile_path.is_file():parser.error('Falta perfil del proyecto; usa /aikya-init para nuevo o /aikya-analyze para existente')
         profile=json.loads(profile_path.read_text(encoding='utf8'))
         selected=discover(root,profile.get('decisions',{}),profile.get('detected',{}).get('modules',[]))
     if args.action=='plan':

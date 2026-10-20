@@ -1,14 +1,13 @@
 ---
 name: verify
-description: Ejecuta los quality gates del repositorio e informa evidencias y verificaciones pendientes.
+description: Execute project quality gates and report reproducible evidence without claiming checks that were not run.
+disable-model-invocation: true
 ---
 
-# Verificar cambios
+# Technical verification
+1. Determine the real scope, project stack and configured checks.
+2. Execute safe, approved local checks and capture exit codes and failures.
+3. Do not install tools, connect to production or alter infrastructure without explicit approval.
+4. Verify documentation changes through docs_guard including English and historical Spanish headings.
+5. Report PASS, FAIL, SKIPPED and NOT_CONFIGURED accurately; include affected paths and next steps.
 
-1. Confirma repositorio y archivo `harness.json`.
-2. Ejecuta `python3 aikya/scripts/harness/run_checks.py` desde la raíz del repo.
-3. Ejecuta las pruebas focalizadas pertinentes para el cambio, si están disponibles y son seguras.
-4. Informa: comandos exactos, éxito/fallo, omitidos, bloqueantes y riesgos.
-5. Si algún check obligatorio figura como `NOT_CONFIGURED` o falla, no declares entrega validada.
-6. No hagas commit, push ni despliegue.
-7. Ejecuta `python3 aikya/scripts/harness/docs_guard.py base` y revisa el estado de documentación de la petición antes de cerrar. No consideres aprobada la revisión si falta `aikya/docs/changes/REQ-*.md` cuando hay cambios técnicos.

@@ -2,7 +2,7 @@
 """Integraciones de Agent Skills externas para Claude Code (sin MCP).
 
 No se descargan ni ejecutan programas sin consentimiento de la persona que instala.
-Ninguna integración toca archivos de usuario existentes ni hace instalaciones en hooks.
+Integrations never modify existing user files or install dependencies through hooks.
 """
 from __future__ import annotations
 import argparse
@@ -61,13 +61,13 @@ def _copy_safe_skill(src: Path, dst: Path) -> None:
         if path.is_dir():
             continue
         if not path.is_file():
-            raise ValueError(f'Entrada inválida en skill de terceros: {path}')
+            raise ValueError(f'Invalid third-party skill entry: {path}')
         sz = path.stat().st_size
         total += sz
         if sz > 1_000_000 or total > 5_000_000 or len(entries) > 500:
-            raise ValueError('Skill excede presupuesto de tamaño/archivos')
+            raise ValueError('Skill exceeds file count or size budget')
         entries.append((path, path.relative_to(src)))
-    # copiado temporal y rename atomizado: ningún archivo del usuario es sobrescrito
+    # temporary copy and atomic rename: never overwrite user-owned assets
     with tempfile.TemporaryDirectory(dir=str(dst.parent)) as temp:
         stage = Path(temp)/'prepared'
         stage.mkdir()
@@ -91,13 +91,13 @@ def install_ponytail(root: Path) -> dict[str, str]:
         checkout = Path(temp)/'upstream'
         result = _invoke(['git','clone','--depth','1',SOURCES['ponytail'],str(checkout)],timeout=120)
         if result.returncode:
-            raise RuntimeError(f'git clone falló (código {result.returncode}): {result.stderr[-500:]}')
+            raise RuntimeError(f'git clone failed (exit {result.returncode}): {result.stderr[-500:]}')
         revision = _invoke(['git','-C',str(checkout),'rev-parse','HEAD'],timeout=15)
         if revision.returncode:
             raise RuntimeError('No se pudo determinar el commit upstream.')
         _copy_safe_skill(checkout/'skills/ponytail',dest)
         return {'state':'installed','commit':revision.stdout.strip(), 'location':'.claude/skills/ponytail',
-                'note':'Se instala sólo la skill; el plugin completo, su band y hooks upstream no se activan.'}
+                'note':'Install only the skill; never enable the full plugin, upstream hooks or unrelated files.'}
 
 
 def _bin(name: str, preferred: str | None = None) -> str | None:
@@ -129,20 +129,20 @@ def install_graphify(root: Path) -> dict[str, str]:
         result = _invoke([manager,'tool','install','graphifyy'] if Path(manager).name=='uv' else
                          [manager,'install','graphifyy'],timeout=300)
         if result.returncode:
-            raise RuntimeError(f'Instalación graphifyy falló ({result.returncode}): {result.stderr[-500:]}')
+            raise RuntimeError(f'Graphify installation failed ({result.returncode}): {result.stderr[-500:]}')
         cli = _bin('graphify')
     if not cli:
         raise RuntimeError('graphifyy instalado pero graphify no aparece en PATH ni ~/.local/bin.')
-    # Usa registro de skill de proyecto si aún no existe. No crea servidor MCP.
+    # Register a project skill only if missing. Do not create an MCP server.
     if not already_installed_skill:
         result = _invoke([cli,'install','--project','--platform','claude'],cwd=root,timeout=90)
         if result.returncode:
-            raise RuntimeError(f'graphify install falló ({result.returncode}): {result.stderr[-500:]}')
+            raise RuntimeError(f'Graphify installer failed ({result.returncode}): {result.stderr[-500:]}')
         if not (dest/'SKILL.md').is_file():
-            raise RuntimeError('El comando terminó, pero no existe .claude/skills/graphify/SKILL.md.')
+            raise RuntimeError('The command exited without creating .claude/skills/graphify/SKILL.md.')
     version = _invoke([cli,'--version'],timeout=15)
     return {'state':'installed','location':'.claude/skills/graphify','version':version.stdout.strip()[:120] if version.returncode==0 else 'desconocida',
-            'note':'Sólo CLI local; el índice se genera bajo demanda, no durante la instalación.'}
+            'note':'Local CLI only; index generation happens on demand, not during installation.'}
 
 
 def install_ui_ux(root: Path) -> dict[str, str]:
@@ -156,11 +156,11 @@ def install_ui_ux(root: Path) -> dict[str, str]:
         raise RuntimeError('Falta npx (Node.js/npm) para instalar ui-ux-pro-max-cli.')
     result = _invoke([npx,'--yes','ui-ux-pro-max-cli','init','--ai','claude'],cwd=root,timeout=300)
     if result.returncode:
-        raise RuntimeError(f'uipro init falló ({result.returncode}): {result.stderr[-500:]}')
+        raise RuntimeError(f'uipro initialization failed ({result.returncode}): {result.stderr[-500:]}')
     if not (dest/'SKILL.md').is_file():
-        raise RuntimeError('uipro terminó, pero .claude/skills/ui-ux-pro-max/SKILL.md no aparece.')
+        raise RuntimeError('uipro exited without creating .claude/skills/ui-ux-pro-max/SKILL.md.')
     return {'state':'installed','location':'.claude/skills/ui-ux-pro-max',
-            'note':'CLI npm upstream; en producción conviene fijar la versión e inspeccionar la dependencia.'}
+            'note':'Upstream npm CLI; pin the production version and inspect dependency provenance.'}
 
 
 INSTALLERS = {'ponytail':install_ponytail,'graphify':install_graphify,'ui-ux-pro-max':install_ui_ux}
@@ -196,12 +196,12 @@ def status(root: Path, profile: dict[str,Any]) -> dict[str, Any]:
 
 def install_all(root: Path, profile: dict[str, Any], *, permission: bool, dry_run: bool=False, selected: list[str]|None=None) -> dict[str, Any]:
     if selected is not None and (not selected or any(n not in enabled_names(profile) for n in selected)):
-        raise ValueError('La selección contiene skills desconocidas o incompatibles con el perfil.')
+        raise ValueError('Selection includes unknown skills or skills incompatible with this profile.')
     if not dry_run and not permission:
-        raise PermissionError('Instalación de terceros exige aprobación explícita (--yes).')
+        raise PermissionError('Third-party installation requires explicit approval (--yes).')
     root = root.resolve()
     if (root/'.claude').is_symlink() or (root/'.claude/skills').is_symlink() or (root/'.harness').is_symlink():
-        raise ValueError('No se admiten directorios .claude/.harness simbólicos para instalaciones externas.')
+        raise ValueError('Symlinked .claude/.harness paths are not allowed for external installations.')
     if not root.is_dir():
         raise RuntimeError('El destino debe existir y ser directorio.')
     if dry_run:
@@ -224,7 +224,7 @@ def install_all(root: Path, profile: dict[str, Any], *, permission: bool, dry_ru
             print('  ->',record['skills'][name]['state'])
         except (OSError,ValueError,RuntimeError,subprocess.TimeoutExpired) as exc:
             record['skills'][name] = {'state':'failed','detail':str(exc)[:700]}
-            print('  -> FALLÓ:',str(exc)[:300],file=sys.stderr)
+            print('  -> FAILED:',str(exc)[:300],file=sys.stderr)
     old_lock.parent.mkdir(parents=True,exist_ok=True)
     old_lock.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     _, note=write_inventory(root,profile)
@@ -237,27 +237,27 @@ def install_github_skill(root: Path, *, name: str, repo: str, skill_path: str,
                          ref: str|None, commit: str|None, permission: bool) -> dict[str, str]:
     """Importar SOLO una carpeta de Agent Skills desde un checkout aislado y aprobado."""
     if not permission:
-        raise PermissionError('Se requiere aprobación explícita del usuario para instalar una skill externa.')
+        raise PermissionError('Installing an external skill requires explicit user approval.')
     if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*',name) or len(name)>64:
-        raise ValueError('Nombre de skill inválido; use minúsculas y guiones.')
+        raise ValueError('Invalid skill name; use lowercase letters and hyphens.')
     if name.startswith('aikya-'):
         raise ValueError('No se puede reemplazar el espacio de comandos Aikya.')
     if not re.fullmatch(r'https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:\.git)?',repo):
-        raise ValueError('Origen permitido: URL HTTPS pública de repositorio github.com/owner/repo.')
+        raise ValueError('Allowed source: public HTTPS GitHub repository URL (github.com/owner/repo).')
     if ref is not None and (not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._/-]{0,120}',ref) or '..' in ref or ref.endswith('.lock')):
-        raise ValueError('Ref Git inválida.')
+        raise ValueError('Invalid Git ref.')
     if commit is not None and not re.fullmatch(r'[a-fA-F0-9]{40}',commit):
         raise ValueError('El commit esperado debe tener 40 caracteres hexadecimales.')
     rel=Path(skill_path)
     if rel.is_absolute() or '..' in rel.parts or not rel.parts or str(rel) in ('.','') or '\\' in skill_path:
-        raise ValueError('Ruta de skill inválida; debe ser relativa y estar contenida en el repositorio.')
+        raise ValueError('Invalid skill path; use a relative path contained within the repository.')
     dest=root/'.claude/skills'/name
     if (root/'.claude').is_symlink() or (root/'.claude/skills').is_symlink() or (root/'.harness').is_symlink():
-        raise ValueError('No se admiten directorios .claude/.harness simbólicos para instalaciones externas.')
+        raise ValueError('Symlinked .claude/.harness paths are not allowed for external installations.')
     if dest.exists() or dest.is_symlink():
         raise FileExistsError(f'La skill {name} ya existe; no se sobrescribe.')
     if not shutil.which('git'):
-        raise RuntimeError('git no está disponible.')
+        raise RuntimeError('Git executable is unavailable.')
     with tempfile.TemporaryDirectory(prefix='aikya-skill-') as temp:
         checkout=Path(temp)/'upstream'
         args=['git','clone','--depth','1','--no-checkout']
@@ -272,15 +272,15 @@ def install_github_skill(root: Path, *, name: str, repo: str, skill_path: str,
         rev=_invoke(['git','-C',str(checkout),'rev-parse','HEAD'],timeout=15)
         sha=rev.stdout.strip()
         if rev.returncode or not re.fullmatch(r'[a-f0-9]{40}',sha):
-            raise RuntimeError('No se verificó el commit de origen.')
+            raise RuntimeError('Could not verify the source commit.')
         if commit and sha.lower()!=commit.lower():
             raise ValueError('El commit descargado difiere del hash aprobado.')
         src=checkout/rel
         if not src.resolve().is_relative_to(checkout.resolve()) or src.is_symlink():
-            raise ValueError('La ruta de skill sale del repositorio o es simbólica.')
+            raise ValueError('Skill path escapes the repository or is symlinked.')
         if not src.is_dir():
             raise ValueError('La ruta no contiene un directorio de skill.')
-        # Validación de contrato Agent Skills antes de copiar; nunca ejecutar el código recibido.
+        # Validate Agent Skills contracts before copying; never execute imported code.
         md=src/'SKILL.md'
         if not md.is_file() or md.is_symlink():
             raise ValueError('Falta SKILL.md regular.')
@@ -300,10 +300,10 @@ def install_custom(root: Path, profile: dict[str, Any], *, name: str, repo: str,
                    skill_path: str, ref: str|None=None, commit: str|None=None,
                    permission: bool=False) -> dict[str, Any]:
     if not permission:
-        raise PermissionError('La instalación exige aprobación explícita.')
+        raise PermissionError('Installation requires explicit approval.')
     root=root.resolve()
     if (root/'.claude').is_symlink() or (root/'.claude/skills').is_symlink() or (root/'.harness').is_symlink():
-        raise ValueError('No se admiten directorios .claude/.harness simbólicos para instalaciones externas.')
+        raise ValueError('Symlinked .claude/.harness paths are not allowed for external installations.')
     lock=root/'.harness/external-skills-lock.json'
     record={'schema_version':1,'sources':SOURCES,'updated_at_utc':datetime.now(timezone.utc).isoformat(),'skills':{}}
     if lock.is_file():
@@ -324,7 +324,7 @@ def install_custom(root: Path, profile: dict[str, Any], *, name: str, repo: str,
     return record
 
 def main(argv: list[str]|None = None) -> int:
-    parser = argparse.ArgumentParser(description='Aikya Harness · gestión de skills externas')
+    parser = argparse.ArgumentParser(description='Aikya Harness external Agent Skills management')
     parser.add_argument('action',choices=['plan','install','status'])
     parser.add_argument('--target',type=Path,default=Path.cwd())
     parser.add_argument('--only',help='Nombres predefinidos separados por coma')
@@ -333,7 +333,7 @@ def main(argv: list[str]|None = None) -> int:
     parser.add_argument('--name',help='Nombre declarado en SKILL.md')
     parser.add_argument('--ref',help='Rama o tag Git, preferiblemente inmutable')
     parser.add_argument('--commit',help='SHA-1 de 40 caracteres que se debe comprobar')
-    parser.add_argument('--yes',action='store_true',help='Aprueba explícitamente ejecutar instaladores externos')
+    parser.add_argument('--yes',action='store_true',help='Explicitly approve running external installers')
     args=parser.parse_args(argv)
     root=args.target.expanduser().resolve()
     try:

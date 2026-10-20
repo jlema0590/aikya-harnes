@@ -1,11 +1,13 @@
 ---
 name: architecture-review
-description: Revisa stack, límites backend/frontend/mobile y riesgos de diseño respecto de la entrevista técnica.
+description: Review the project's real architecture, components and constraints without modifying code.
+disable-model-invocation: true
 ---
 
-1. Lee perfil, código, contratos y decisiones arquitectónicas existentes.
-2. Identifica discrepancias entre decisiones y repositorio y delimita incertidumbres.
-3. Solicita análisis al agente `architect` cuando sea necesario.
-4. Evalúa despliegue, observabilidad, autenticación, persistencia y testing.
-5. Emite decisiones propuestas y ADRs sin imponer patrones innecesarios.
-Cuando exista un grafo Graphify vigente, consulta vínculos concretos de dependencias en vez de leer todo el código. Verifica decisiones críticas en código fuente y evita crear patrones sin requisitos.
+# Architecture review
+1. Read the project profile and relevant source manifests.
+2. Determine actual backend, frontend, mobile and infrastructure boundaries.
+3. Compare observed structure to intended design without inventing services.
+4. Identify ADRs, risks, trade-offs and acceptance criteria.
+5. Do not edit application code, invoke remote tools or deploy in review mode.
+

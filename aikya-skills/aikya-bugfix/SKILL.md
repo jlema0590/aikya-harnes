@@ -1,18 +1,16 @@
 ---
 name: aikya-bugfix
-description: Investiga y corrige incidencias con regresiones y trazabilidad.
+description: Reproduce, diagnose and repair a defect with targeted regression tests and traceable documentation.
 disable-model-invocation: true
 ---
 <!-- AIKYA BOOTSTRAP MANAGED -->
-# /aikya-bugfix
 
-Petición: `$ARGUMENTS`.
-## Resolución y seguridad
-- Trabaja en el directorio de proyecto abierto por Claude Code, NUNCA dentro del runtime global. Si falta `.harness/project-profile.json`, indica `/aikya-init` o `/aikya-answers` antes de continuar.
-- No descargues dependencias, modifiques el SDK, realices despliegues, commits ni pushes sin autorización explícita. Conserva archivos y configuraciones ajenas.
-- Lee sólo el perfil, los archivos directamente relacionados y las reglas estrictamente necesarias; evita grandes volcados de contexto.
+# Defect diagnosis and repair
+1. Read the actual code, incident details and relevant tests; reproduce the failure if safe.
+2. State and verify root-cause hypotheses before editing.
+3. Propose and apply the smallest approved fix; add a regression test.
+4. Do not run external services, destructive commands or production operations without separate approval.
+5. Report real test evidence, limitations, changed files and remaining risks.
+6. Update the bugs index and affected change documents under aikya/docs/ in the configured language.
 
-1. Lee **sólo cuando sea necesario** la skill de proyecto `.claude/skills/bugfix/SKILL.md`. Si no está instalada, lee la fuente correspondiente en `.aikya/runtime/template/.claude/skills/bugfix/SKILL.md` (scope proyecto) o `~/.claude/aikya-harnes/template/.claude/skills/bugfix/SKILL.md` (scope global).
-2. Sigue las instrucciones técnicas especializadas de esa skill y las reglas del proyecto; no te limites a invocarla, ejecuta el flujo dentro de Claude Code.
-3. Si la tarea cambia código, actualiza documentación afectada y verifica pruebas reales.
-4. Devuelve resultados realmente observados y pendientes. No uses herramientas externas automáticamente ni delegues sin motivo.
+Respect user approvals, preserve custom files, do not install dependencies or access external systems without separate authorization. Report tests actually executed, blocked checks and evidence. Living documentation under aikya/docs/ follows .aikya/docs-policy.json; all other content is English.

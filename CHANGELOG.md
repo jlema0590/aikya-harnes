@@ -1,112 +1,124 @@
 # Changelog
 
-## v5.9.1 — Corrección y automatización de GitHub Actions
+## Unreleased
 
-- Publicación automática de tags y GitHub Releases tras integrar una versión aprobada en `main`.
-- Contrato SemVer mediante `VERSION`, changelog con notas verificables y comprobación del tag contra el commit fusionado.
-- Pipeline separado de pruebas, empaquetado ZIP reproducible, checksums SHA-256 y publicación idempotente.
-- Validación de versión para Pull Requests hacia `main` y actualización de la preparación manual de versiones en `develop`.
-- Ampliación de CI y pruebas de regresión para los workflows y scripts de publicación.
-- Los workflows de catálogo y perfiles continúan siendo de sólo lectura, sin despliegues remotos.
+- English-only engineering core with configurable English/Spanish living documentation under aikya/docs/.
+- Claude Code Agent Skills and subagent quality, permissions and routing standardization.
+
+## v6.0.0 — Token Efficiency & Observability (in development)
+
+- Conservative validated per-role model policy: Opus for planning/orchestration, inherit for routine work, and user-approved optional Haiku.
+- /aikya-models and /aikya-tokens for explicit selection and local usage reports, without changing global configuration.
+- v5.9.1 profile compatibility, customized-asset preservation and regression coverage.
+- Context hygiene rules for CLI output, diffs and logs.
+- Separate public commands: /aikya-init for new projects and /aikya-analyze for interview-free existing-project adoption.
+- Deterministic multistack discovery, compatible profile projection, reviewable file plan, ownership hashes and approved read-only analysis.
+- Restrictive adopt_existing policy preserves infrastructure, scripts, CI/CD and .gitignore during onboarding; idempotence and migration tests.
+- Optional Haiku 5.5 for bounded extraction, classification, routing and documentation drafts; Haiku 4.5 policy compatibility.
+- Deterministic hybrid router with advisory suggestions and Planner/Orchestrator only for genuinely complex tasks.
+- Clearly labeled Haiku 5.5 estimated API costs, without inventing measured token savings.
+
+## v5.9.1 — GitHub Actions fixes and automation
+
+- Automated tags and GitHub Releases after merging an approved version into main.
+- SemVer VERSION contract, auditable release notes and tag-to-merge-commit validation.
+- Separate tests, reproducible ZIP packaging, SHA-256 checksums and idempotent publishing.
+- Version validation for pull requests targeting main, with controlled preparation on develop.
+- Expanded CI and regression tests for publishing workflows and release scripts.
+- Catalog and profile workflows remain read-only; no remote deployments.
 
 ## v5.9.0 — 2026-10-19
 
-- Corregido `/aikya-infra-project validate` con Helm cuando la raíz del proyecto llega por un symlink (p. ej. `/var` → `/private/var` en macOS): ya no falla con `ValueError`. Los charts enlazados fuera del proyecto se rechazan como NOT_CONFIGURED.
-
-- README reorganizado: inicio rápido, referencia única de comandos, catálogo completo de 27 agentes y 29 skills, y un solo apartado de seguridad.
-- `INSTALL_FROM_CLAUDE.md` integrado en el README; auditorías movidas a `docs/audits/`.
-- Eliminadas copias obsoletas de `/aikya-init`, `/aikya-answers` y `/aikya-doctor` en `.claude/skills/` del repositorio y el ejemplo sin uso `examples/existing-api.json`.
+- Fixed /aikya-infra-project validate with Helm on symlinked project roots (for example macOS /var pointing to /private/var). Out-of-project linked charts remain rejected as NOT_CONFIGURED.
+- Reorganized README with quick start, command reference, technical catalog and security.
+- Merged INSTALL_FROM_CLAUDE.md into README and moved audits into docs/audits/.
+- Removed obsolete repository-local command copies and unused examples/existing-api.json.
 
 ## v5.8.0 — 2026-10-18
 
-- `/aikya-init`: primera selección `project_type` development, infrastructure o devops; luego nuevo/existente.
-- Modo infrastructure sin SDKs de aplicación; Terraform/OpenTofu/Ansible individuales o combinados.
-- Modo devops independiente: Docker/Compose desde código o imagen; Kubernetes con YAML, Helm (nuevo o reutilizado) y Kustomize.
-- Kubernetes con chart/imagen existente no exige Docker local; perfiles legacy sin project_type siguen en development.
-- Quality gates y documentación de infraestructura sin carpetas `apps/` ni tests ficticios; selección de agentes por especialidad.
-- Plan de solo lectura, generación con aprobación y validación local; sin desplegar automáticamente.
-- Nuevos ejemplos y regresiones de los tres modos.
-
+- Introduced project_type selection for development, infrastructure and devops; originally also supported a new/existing interview choice.
+- Infrastructure-only support without application SDKs, using Terraform/OpenTofu/Ansible independently or together.
+- DevOps-only workflows with Docker/Compose from source or image, Kubernetes YAML, Helm and Kustomize.
+- Existing Helm chart or image does not require local Docker; historical profiles without project_type remain development.
+- Infrastructure quality gates and documentation without invented applications or tests; specialist selection by stack.
+- Read-only plans, approved artifact generation and local validation; no automatic deployment.
+- New example profiles and regressions for all three project types.
 
 ## v5.7.0 — 2026-10-18
 
-- Solucionado el parser de Node: detecta correctamente `v25.9.0` y otras versiones con prefijo `v`.
-- Actualización segura de requisitos en runtime: copias gestionadas se migran; se conserva backup v5.6 y contenido personalizado.
-- Perfil `infrastructure` opcional y validado en la entrevista técnica (provider, Terraform/OpenTofu, Ansible, Docker/Compose, Kubernetes con Helm/Kustomize/YAML, entornos, imagen y puerto).
-- Cuatro agentes y tres skills de ingeniería añadidos; catálogo activado por selección explícita.
-- Generador de infraestructura sin despliegue: `plan`, `generate --approved`, `validate` con protección de archivos.
-- Dockerfile derivado del código real y runtime fijado; Kubernetes exige imagen versionada y puerto confirmado.
-- Documentación viva, quality gates y ejemplos con Terraform/Helm y Ansible/Kustomize; pruebas automatizadas ampliadas.
-
+- Corrected Node version parsing for v25.9.0 and other v-prefixed versions.
+- Safe runtime requirements updates with managed-file migration and preservation of v5.6 backups and custom content.
+- Optional infrastructure profile: provider, Terraform/OpenTofu, Ansible, Docker/Compose, Kubernetes, environments, image and port.
+- Four infrastructure agents and three engineering skills added, activated by explicit selection.
+- Infrastructure generator with plan, generate --approved and validate modes and no automatic deployment.
+- Dockerfile derived from actual application code; Kubernetes requires a versioned image and confirmed port.
+- Living docs, quality checks and examples for Terraform/Helm and Ansible/Kustomize.
 
 ## v5.6.0 — 2026-10-18
 
-- Selección explícita de monorepo/singlerepo en entrevista y respuestas JSON.
-- Sólo monorepo crea apps/, packages/ y contracts/. Singlerepo genera una aplicación en raíz mediante staging.
-- Aikya concentra documentación, pruebas y scripts en aikya/docs/, aikya/test/ y aikya/scripts/.
-- Bienvenida global en proyectos nuevos y existentes, sin duplicados cuando existe hook local.
-- Migración conservadora de documentación previa y actualización de quality gates.
-
+- Explicit monorepo/singlerepo selection during technical intake and in JSON answers.
+- Monorepos alone create apps/, packages/ and contracts/; singlerepos stage a single root application.
+- Consolidated Aikya documentation, tests and scripts under aikya/docs/, aikya/test/ and aikya/scripts/.
+- Global welcome in new and existing projects without duplicate local hooks.
+- Conservative historical-document migration and quality-gate updates.
 
 ## v5.5.0 — 2026-10-18
 
-- Se integran 11 agentes y 11 Agent Skills adicionales de lenguajes y arquitecturas dentro de `engineering/`.
-- El catálogo tiene 23 agentes y 26 skills, selección por backend/frontend/Android y arquitectura/patrones explícitos.
-- Se incorporan Python y Angular a la entrevista y detección; el scaffolding se mantiene guiado hasta validar generadores.
-- Se añaden 7 ejemplos por stack con `answers.json` y README de uso desde Claude Code.
-- Documentación de responsabilidades, activación selectiva, trazabilidad y auditoría ampliada.
+- Integrated 11 additional technical agents and 11 Agent Skills for languages and architectural patterns.
+- At this historical version, the catalog held 23 agents and 26 skills, selected by backend/frontend/mobile and architecture.
+- Added Python and Angular to the technical interview and stack detection; framework scaffolding remained guided.
+- Added seven stack-specific examples with answers.json and Claude Code usage guides.
+- Expanded documented responsibilities, selective activation and traceability.
 
+## v5.4.0 — 2026-10-18 — Aikya command organization
 
-## v5.4.0 — 2026-10-18 — Organización de comandos Aikya
-
-- Renombrada la carpeta fuente `bootstrap_skills/` a `aikya-skills/`; sin cambios en los nombres de los comandos `/aikya-*`.
-- Actualizados el bootstrap global/proyecto, el instalador y la documentación para usar la nueva ruta.
-- Migración conservadora de runtimes existentes: se retiran sólo archivos legacy previamente gestionados y verificados; se conserva contenido personalizado.
-- Pruebas de instalación limpia, actualización en ambos alcances y protección de contenido ajeno.
+- Renamed bootstrap_skills/ to aikya-skills/ without changing public /aikya-* command identities.
+- Updated global/project bootstrap, installer and documentation paths.
+- Conservatively migrated known managed legacy runtimes; customized files were preserved.
+- Added fresh-install, scope-upgrade and unrelated-content protection tests.
 
 ## v5.2.0 — 2026-10-18
 
-- Renombrados comandos: `/aikya-infra-project`, `/aikya-skills-status`, `/aikya-skills-plan`, `/aikya-skills-install`.
-- `/aikya-skills-install` admite skills GitHub adicionales con verificación de origen, ruta, nombre y commit opcional; sin sobrescribir.
-- Nuevo `aikya/docs/skills.md`, inventario de skills disponibles del proyecto; generado en la entrevista y sincronizado tras instalaciones/estado.
-- Migración conservadora de comandos renombrados; se preservan personalizaciones.
+- Renamed /aikya-infra-project, /aikya-skills-status, /aikya-skills-plan and /aikya-skills-install.
+- Allowed additional GitHub skills with source, path, name and optional commit verification, avoiding overwrite.
+- Added the project skills availability inventory in aikya/docs/skills.md.
+- Conservatively migrated renamed commands while preserving customizations.
 
+## v5.1.0 — 2026-10-18 — Claude-native commands
 
-## v5.1.0 — 2026-10-18 — comandos Claude-native
-
-- Comandos `/aikya-scaffold`, `/aikya-skills-status`, `/aikya-quality`, `/aikya-docs` y `/aikya-tests`, además de los comandos de desarrollo ya disponibles, invocables desde Claude Code.
-- El bootstrap global/proyecto expone 16 skills de Aikya, todas con ejecución conversacional y autorización para acciones externas; conserva las skills personalizadas.
-- README reorganizado para explicar sólo instalación y uso desde Claude Code: sin comandos manuales de Python, shell ni scaffolding fuera de Claude.
-- Se preservan scripts internos y documentación viva obligatoria; validación de SDK antes de generar aplicaciones.
-
+- Added /aikya-scaffold, /aikya-skills-status, /aikya-quality, /aikya-docs and /aikya-tests alongside development commands.
+- Global/project bootstrap exposed 16 conversational Aikya skills with approval for external actions and protection of user skills.
+- README described installation and use from Claude Code without mandatory manual scripts.
+- Preserved internal scripts and living documentation, with SDK checks before scaffolding.
 
 ## v5.0.0 — 2026-10-18
 
-- Instalación conversacional en Claude Code con scopes global/proyecto y comandos /aikya-init, /aikya-answers, /aikya-doctor.
-- Prefijos Aikya para los ocho workflows existentes sin eliminar aliases antiguos.
-- Preflight no destructivo de Java JDK, .NET SDK, Node.js, gestores web y SDKs móviles; guía oficial de actualización y bloqueo de scaffold sin requisitos.
-- Hook SessionStart global/proyecto que invita automáticamente a /aikya-init en directorios no inicializados, sin iniciar turnos ni ejecutar descargas.
-- Reutilización de perfiles JSON, onboarding global sin modificar proyectos, y referencia de instalación desde URL GitHub.
-- Suite de pruebas de bootstrap y diagnóstico técnico.
+- Claude Code conversational global/project install and /aikya-init, /aikya-answers, /aikya-doctor.
+- Added Aikya command prefixes without breaking previous aliases.
+- Non-destructive JDK, .NET SDK, Node, web package manager and mobile SDK checks.
+- Non-intrusive SessionStart reminders in uninitialized directories without automatic downloads.
+- Reused JSON profiles and preserved user projects during global onboarding.
+- Added bootstrap and toolchain regression tests.
 
 ## v4.1.0 — 2026-10-18
 
-- Bienvenida al iniciar Claude Code con panel de texto, nombre local configurable, repositorio detectado y URL de Aikya.
-- Hook `SessionStart` no intrusivo: mensaje visible al usuario sin añadir contexto al modelo, sin red y sin avisos en compactación.
-- Soporte `--display-name` y `welcome_name` en `--answers`, identidad local ignorada por Git.
-- README: referencia completa de comandos CLI y las ocho skills propias, cada una con ejemplo; vista previa del saludo.
-- Hooks de bienvenida tanto para el propio repositorio Aikya como para proyectos instalados.
+- Claude Code session welcome with local name, repository and Aikya URL.
+- Non-intrusive SessionStart hook with visible message, no network or compaction notifications.
+- Added --display-name and local welcome_name; identity state ignored by Git.
+- Expanded command/skill examples and welcome preview in README.
+- Supported welcome hooks for Aikya itself and installed projects.
 
 ## v4.0.0 — 2026-10-18
 
-- Entrevista y bootstrap v3 conservados: Java, .NET, Node, Next, Vue, React, Android, iOS y multiplataforma.
-- Integración autorizada por el usuario de Ponytail, Graphify CLI sin MCP y UI UX Pro Max condicional por stack.
-- `SessionStart` verifica skills sin red ni reindexación; gestora `external_skills.py` para plan/install/status.
-- Verificador básico de Agent Skills, audit y reglas de carga progresiva para ahorrar tokens.
-- `aikya/docs/design/design-system.md` condicional y validación documental de cambios de UI.
-- Migración segura de archivos v3 originales con respaldo; archivos personalizados preservados.
-- Suite de 32 pruebas automatizadas locales; se requieren pruebas externas en equipo con red.
+- Preserved v3 interview/bootstrap for Java, .NET, Node, Next, Vue, React, Android, iOS and cross-platform.
+- User-approved Ponytail, Graphify CLI (without MCP) and conditional UI UX Pro Max integrations.
+- Offline SessionStart skill checks, external skill plan/install/status management.
+- Basic Agent Skills validation and progressive context-loading policies.
+- Conditional design-system docs and UI change-validation gates.
+- Backed up original v3 managed files; preserved customized files.
+- Local suite originally contained 32 tests; networked team validation remained necessary.
 
 ## v3.0.0 — 2026-10-18
 
-- Engineering Bootstrap, entrevista, scaffold asistido, infraestructura y documentación viva con hooks de trazabilidad.
+- Engineering bootstrap, technical interview, assisted scaffolding, infrastructure and
+  living documentation with traceability hooks.

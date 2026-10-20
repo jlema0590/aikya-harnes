@@ -1,14 +1,27 @@
-# Política obligatoria de documentación viva (todas las peticiones)
+# Mandatory living documentation policy
 
-Para cada solicitud, consulta primero `aikya/docs/README.md` y `aikya/docs/overview.md` cuando la tarea afecte al producto. **Si editas código, tests, infraestructura, contratos, seguridad o arquitectura**, debes actualizar los documentos afectados y crear `aikya/docs/changes/REQ-*.md` asociado al ID notificado por el hook `UserPromptSubmit`. En consultas de solo lectura no fuerces documentación artificial.
+Read aikya/docs/README.md and the relevant feature, architecture or operational
+documentation before material changes. When modifying source code, tests,
+infrastructure, contracts, security or architecture, update affected pages
+under aikya/docs/ and create a traceable REQ-*.md entry for the active request.
 
-- Features: actualizar `aikya/docs/features/index.md`, y el plan `aikya/docs/plan/roadmap.md` cuando cambien alcance/prioridad.
-- Bugs: registrar reproducción, causa y regresión en `aikya/docs/bugs/index.md`.
-- Seguridad: actualizar controles y riesgos en `aikya/docs/security/security.md`.
-- Arquitectura: actualizar `aikya/docs/architecture/overview.md` y registrar ADR si se adopta una decisión irreversible.
-- Infra/CI/CD: `aikya/docs/operations/deployment.md`; telemetría: `aikya/docs/operations/observability.md`.
-- Tests: `aikya/docs/quality/testing.md` cuando cambia estrategia/cobertura.
-- Cambios en Agent Skills (añadir, configurar, sustituir): actualizar `aikya/docs/skills.md` mediante `/aikya-skills-status` y comprobar procedencia.
-- Cambios amplios: revisar y actualizar `aikya/docs/overview.md`.
+- Features: update aikya/docs/features/index.md and relevant roadmap entries.
+- Bugs: record reproduction, cause and regression under aikya/docs/bugs/index.md.
+- Security: update actual controls and findings under aikya/docs/security/security.md.
+- Architecture: update architecture/overview.md and reviewed ADRs when justified.
+- Infrastructure/CI: update operations/deployment.md and observability.md.
+- Tests: update quality/testing.md with actual check results and pending work.
+- Skills: update aikya/docs/skills.md after installation, with verified provenance.
 
-La bitácora de cada petición incluye **## Cambios**, **## Evidencias** y **## Documentos actualizados**, con rutas y pruebas realmente ejecutadas. No pegues el prompt completo ni datos sensibles. Ejecuta `python3 aikya/scripts/harness/docs_guard.py base` y revisa resultados en el hook Stop. Si una regla documental no encaja en un cambio, explica por qué en la bitácora y ajusta la validación mediante revisión de código, no con un bypass silencioso.
+## Language boundary
+Read the chosen en/es language from .aikya/docs-policy.json. ONLY markdown files
+within aikya/docs/ may use Spanish. All instructions, code comments, logs, hooks,
+configs, other documentation and public GitHub files remain English.
+
+For English change records use headings: Changes, Evidence, Updated documents.
+For Spanish change records use: Cambios, Evidencias, Documentos actualizados.
+Existing Spanish historical records remain compatible with the documentation gate.
+
+Read-only consultations do not require artificial documentation modifications.
+Do not record full user prompts, secret values or private data. Execute the
+configured docs guard and report failures, never silently bypass requirements.

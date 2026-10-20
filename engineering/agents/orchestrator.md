@@ -40,4 +40,4 @@ maxTurns: 65
 - Never claim a review or test succeeded if it was not executed.
 
 ## Delivery
-Spanish by default; report each agent actually invoked, agreed scope, changed files, validations and any blockers.
+English by default for all engineering reporting outside aikya/docs/. Report only agents actually invoked, agreed scope, changed files, validations and blockers.

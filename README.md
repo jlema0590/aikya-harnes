@@ -1,192 +1,235 @@
 # Aikya Harness
+
 **One engineering workflow. Multiple AI agents. Consistent quality.**
 
-![Aikya-Harness](./Aikya-Harness.png)
+![Aikya Harness](./Aikya-Harness.png)
 
-Aikya Harness es un entorno de ingeniería asistida por IA para **Claude Code**. Reúne entrevista técnica, scaffolding de aplicaciones, infraestructura como código, agentes especializados, Agent Skills, quality gates y documentación viva. Cubre backend Java, .NET, Node.js, Next.js y Python; frontend React, Vue, Angular y Astro; móvil Android, iOS, Flutter y React Native; y proyectos de infraestructura o DevOps sin aplicación.
+Aikya Harness is a Claude Code engineering environment combining safe project
+onboarding, application scaffolding, infrastructure-as-code planning, curated
+subagents, Agent Skills, quality gates, observability and living documentation.
 
-> **Todo se inicia y se dirige desde Claude Code.** No necesitas ejecutar instaladores ni scripts en una terminal externa: Claude usa los scripts internos del repositorio y pide tu autorización antes de modificar el entorno o descargar dependencias.
+Supported stacks include Java, .NET, Node.js, Next.js and Python backends;
+React, Vue, Angular and Astro frontends; Android, iOS, Flutter and React Native
+applications; and standalone infrastructure and DevOps repositories.
 
-## 1. Inicio rápido
+**All interactions are initiated through Claude Code.** The harness maintains
+its supporting Python scripts internally and requests approval before writes,
+third-party downloads, SDK installation or external operations.
 
-1. Abre **Claude Code** en la carpeta donde quieras trabajar y envía:
+## 1. Quick start
 
-   > **Instala Aikya Harness** desde `https://github.com/jlema0590/aikya-harness.git`, rama `develop`, en **modo global**. Revisa la fuente antes de instalar y pide mi aprobación para cualquier descarga o cambio de configuración. Registra sus skills, hooks y bienvenida, sin modificar otros repositorios ni instalar SDKs automáticamente. Después explícame cómo usar `/aikya-init`.
+Open Claude Code in the target project and request:
 
-2. **Abre una sesión nueva** de Claude Code para que se carguen los comandos `/aikya-*` y el panel de bienvenida.
-3. Ejecuta `/aikya-init` en el repositorio que quieras inicializar.
+> Install Aikya Harness from https://github.com/jlema0590/aikya-harness.git,
+> branch develop, in global scope. Review the source and request approval before
+> any downloads or configuration changes. Register its skills, hooks and
+> welcome message without changing unrelated repositories or installing SDKs.
+> Then explain /aikya-init and /aikya-analyze.
 
-| Modo de instalación | Efecto |
+Start a new Claude Code session to load the commands and welcome hook.
+
+Choose one onboarding flow:
+
+- **New project:** /aikya-init — interview and creation of the new technical profile.
+- **Existing repository:** /aikya-analyze — evidence-based detection and safe adoption
+  without a project interview.
+
+| Installation scope | Behavior |
 |---|---|
-| **Global** | Registra los comandos en el perfil de Claude Code del usuario y mantiene un runtime compartido. No inicializa ningún repositorio por sí solo. |
-| **Proyecto** | Registra los comandos sólo en el repositorio actual, con runtime local en `.aikya/runtime/`. Sustituye «modo global» por «modo proyecto» en la petición. |
+| Global | Registers commands for the current Claude Code user with a shared runtime; does not initialize projects. |
+| Project | Registers only within the current repository with a local runtime under .aikya/runtime/. |
 
-En ambos casos no se sobrescriben skills ni configuraciones personalizadas.
+Both modes preserve customized skills and configurations.
 
-## 2. Tipos de proyecto
+### Documentation language
 
-La **primera pregunta** de `/aikya-init` es el tipo de proyecto (`project_type`); después, si el repositorio es nuevo o existente (`mode`). Un perfil antiguo sin `project_type` se trata como `development`.
+Only Aikya living docs under **aikya/docs/** can be generated in English or Spanish:
 
-| Tipo | Qué pregunta | Qué genera |
+- **en** (English, default)
+- **es** (Spanish)
+
+The choice is requested during /aikya-init. For existing projects,
+use /aikya-analyze --docs-lang en or /aikya-analyze --docs-lang es;
+without a configured preference, the Claude Code command asks this single
+language question before an approved installation.
+
+The preference is stored in .aikya/docs-policy.json, not in the legacy
+technical profile. All agents, skills, source, CLI, hooks, project rules,
+root documentation and files outside aikya/docs/ remain **English**.
+Spanish/English user requests are both supported by task classifiers.
+
+Changing an existing documentation language is a separate reviewed migration:
+it is never triggered silently by refreshing Aikya.
+
+## 2. Onboarding modes and project types
+
+**/aikya-init is exclusively for new projects.** It always selects
+mode=new and uses an interview to establish project_type and required choices.
+
+**/aikya-analyze is exclusively for existing projects.** It discovers the
+stack and architecture from repository evidence, chooses mode=existing and
+previews Aikya-only file changes. It never invents an ambiguous backend.
+
+| Project type | Technical intake | Result |
 |---|---|---|
-| **Desarrollo** (`development`) | Stack, monorepo/singlerepo, arquitectura, calidad; infraestructura y DevOps opcionales | Aplicaciones, `aikya/` e infraestructura opcional |
-| **Infraestructura** (`infrastructure`) | Terraform/OpenTofu y/o Ansible, cloud u on-premise, entornos y restricciones | `infra/terraform/` o `infra/ansible/`, sin `apps/`, `packages/` ni `contracts/` |
-| **DevOps** (`devops`) | Origen (código, imagen, chart o manifests), Docker/Compose, destino y Kubernetes | Dockerfile sólo con código verificable, Compose desde imagen, YAML, Helm (nuevo o existente) o Kustomize |
+| development | Stack, application layout, architecture, testing and optional platform support | Application plan, Aikya quality/docs and scoped infrastructure |
+| infrastructure | Terraform/OpenTofu, Ansible, provider, environments and constraints | Infrastructure planning without invented application modules |
+| devops | Docker, image/source, existing Helm chart, Kubernetes, YAML/Kustomize | Container and delivery plans without replacing existing resources |
 
-**Flujo recomendado:**
+Existing v5.9.1 profiles without project_type remain compatible as development
+profiles. The internal installer continues accepting mode=existing for legacy
+declarative configuration, but /aikya-init no longer exposes that option.
 
-```text
-/aikya-init → /aikya-doctor → /aikya-scaffold plan → autorizar → /aikya-infra-project → /aikya-quality
-```
+### Existing repositories: safety-first adoption
 
-- Claude pregunta sólo por las decisiones que faltan, guarda el perfil en `.aikya/answers.json` y muestra un resumen antes de aplicar cambios.
-- `/aikya-doctor` valida JDK, .NET, Node.js, gestores de paquetes, Android SDK, Xcode, Flutter o las herramientas de infraestructura elegidas. **Si falta un requisito, el scaffold se detiene**; nunca se actualizan SDKs en silencio.
-- Los modos Infraestructura y DevOps no ejecutan `/aikya-scaffold` ni generan tests de aplicación ficticios.
-- En proyectos existentes Aikya amplía de forma incremental: no mueve aplicaciones ni ejecuta scaffolds destructivos.
+/aikya-analyze --dry-run previews detection without installing anything.
+/aikya-analyze --report-only returns a report without writing artifacts.
+/aikya-analyze --refresh updates only verifiably managed analysis assets.
 
-## 3. Comandos de Claude Code
+Optional focus values: security, architecture, infrastructure or operations.
+Use --scope with a relative project path to inspect one component of a monorepo.
+Ambiguous repositories return PARTIAL or NEEDS_REVIEW. Approval is required
+before incorporation; application code, Terraform, Docker, GitHub workflows
+and customized configurations are not overwritten.
 
-| Grupo | Comando | Qué hace | Ejemplo |
-|---|---|---|---|
-| Inicialización | `/aikya-init` | Entrevista técnica para proyecto nuevo o existente. | `/aikya-init Quiero una API Java 21 con React` |
-| | `/aikya-answers` | Reutiliza un archivo de decisiones aprobado. | `/aikya-answers examples/next-react/answers.json` |
-| | `/aikya-doctor` | Diagnostica SDKs y herramientas sin modificarlos. | `/aikya-doctor Revisa si tengo el SDK .NET adecuado` |
-| | `/aikya-project-init` | Define alcance, estructura, roadmap y ADR inicial. | `/aikya-project-init Planifica una API de inventario` |
-| Generación | `/aikya-scaffold` | Previsualiza y, con aprobación, ejecuta generadores oficiales por módulo. | `/aikya-scaffold Planifica backend .NET y frontend Vue` |
-| | `/aikya-infra-project` | `plan`, `generate` y `validate` de contratos, infraestructura, CI y quality gates. | `/aikya-infra-project plan` |
-| Desarrollo | `/aikya-feature` | Implementa funcionalidad con criterios de aceptación y pruebas. | `/aikya-feature Crea GET /health` |
-| | `/aikya-bugfix` | Reproduce y corrige un error con prueba de regresión. | `/aikya-bugfix Corrige el error 401 del login` |
-| | `/aikya-architecture-review` | Revisa límites de módulos, contratos y ADR. | `/aikya-architecture-review Revisa la división de servicios` |
-| | `/aikya-mobile-feature` | Cambios Android/iOS con requisitos nativos. | `/aikya-mobile-feature Añade login biométrico en Android` |
-| Calidad y docs | `/aikya-quality` | Quality gates, lint de skills y revisión documental. | `/aikya-quality Revisa el estado del proyecto` |
-| | `/aikya-tests` | Pruebas focalizadas o de regresión según el stack. | `/aikya-tests Ejecuta los tests del módulo login` |
-| | `/aikya-docs` | Actualiza la documentación afectada y la bitácora. | `/aikya-docs Documenta la autenticación JWT` |
-| | `/aikya-documentation-sync`, `/aikya-verify` | Alias históricos, mantenidos por compatibilidad. | `/aikya-verify Comprueba la última feature` |
-| Skills | `/aikya-skills-status` | Inventario de skills y agentes; sincroniza `aikya/docs/skills.md`. | `/aikya-skills-status` |
-| | `/aikya-skills-plan` | Recomienda especialistas y skills externas para el stack. | `/aikya-skills-plan Analiza este proyecto Next.js` |
-| | `/aikya-skills-install` | Instala con aprobación especialistas del catálogo o skills de GitHub. | `/aikya-skills-install Sólo Ponytail y Graphify` |
+The discovery phase does not build applications, run Terraform, contact
+cloud infrastructure, execute application scripts or deploy containers.
 
-Los comandos se definen en `aikya-skills/` de este repositorio. Los proyectos inicializados incluyen también las skills originales sin prefijo por compatibilidad, y los comandos de desarrollo comprueban que el repositorio esté inicializado antes de actuar.
+## 3. Claude Code commands
 
-## 4. Estructura de un proyecto Aikya
-
-Durante `/aikya-init` (modo Desarrollo) se elige la **topología del repositorio**, independiente de la arquitectura:
-
-- **Monorepo:** `apps/`, `packages/` y `contracts/`. Necesario para varias aplicaciones (p. ej. Java + React, o Android + iOS).
-- **Singlerepo:** una única aplicación **en la raíz**, sin carpetas de workspace. El scaffold genera en un directorio temporal y copia a la raíz sólo tras comprobar conflictos.
-
-```text
-aikya/
-  docs/        # overview, roadmap, features, seguridad, ADR, skills.md, agents.md y changes/REQ-*.md
-  test/        # pruebas del propio harness
-  scripts/     # validaciones, ingeniería, scaffolding e infraestructura
-.claude/       # agentes, skills, reglas y hooks de Claude Code
-.aikya/        # respuestas de la entrevista y runtime local
-.harness/      # perfil, estados y manifiestos internos (harness.json en la raíz)
-apps/ infra/   # sólo si el stack lo requiere y se autoriza
-```
-
-## 5. Infraestructura y DevOps
-
-Disponible como modo propio o como bloque opcional del modo Desarrollo: proveedor (AWS, Azure, GCP, on-premise, híbrido), Terraform/OpenTofu, Ansible, Docker/Compose, Kubernetes con **una sola** estrategia (Helm, Kustomize o YAML), entornos, imagen y puerto.
-
-| Artefacto | Ubicación y condiciones |
+| Command | Purpose |
 |---|---|
-| Terraform, Ansible, Helm, Kubernetes | `infra/terraform/`, `infra/ansible/`, `infra/helm/`, `infra/kubernetes/`, sólo si se seleccionan |
-| `Dockerfile` y `.dockerignore` | Junto a la aplicación; requieren runtime, lockfile y comando de arranque reales |
-| `compose.apps.yaml` | Servicios ya contenerizados para desarrollo local; no es un despliegue de producción |
-| Plan y evidencias | `aikya/docs/infrastructure/` |
+| /aikya-init | Interview and initialize a brand-new project |
+| /aikya-analyze | Discover and adopt an existing repository |
+| /aikya-answers | Apply a validated declarative technical profile |
+| /aikya-doctor | Diagnose SDK and runtime prerequisites locally |
+| /aikya-project-init | Plan a new project or module |
+| /aikya-infra-project | Plan, generate with approval and validate infrastructure |
+| /aikya-scaffold | Plan and execute approved application generators for new projects |
+| /aikya-feature | Implement a scoped feature with tests |
+| /aikya-bugfix | Investigate defects and add regression evidence |
+| /aikya-architecture-review | Review architecture and propose ADRs |
+| /aikya-mobile-feature | Deliver validated mobile features |
+| /aikya-skills-status | Inspect registered Agent Skills |
+| /aikya-skills-plan | Assess external skill sources and installation impact |
+| /aikya-skills-install | Install reviewed external skills after approval |
+| /aikya-quality | Run available quality gates |
+| /aikya-docs | Maintain evidence-backed living documentation |
+| /aikya-tests | Run focused and regression tests |
+| /aikya-documentation-sync | Synchronize impacted docs and request traceability |
+| /aikya-verify | Validate technical changes and results |
+| /aikya-models | Review optional model routing policy |
+| /aikya-tokens | Inspect token usage and estimated API costs |
 
-- **Helm existente:** `helm_chart_mode=existing` con `helm_chart_path` relativo. El chart no se modifica; se valida con `helm lint` y `helm template`.
-- **Kubernetes desde imagen existente** no necesita Docker local, sólo el motor de validación elegido.
-- `/aikya-infra-project plan` no modifica nada; `generate` pide aprobación explícita y crea sólo archivos inexistentes; `validate` ejecuta fmt, sintaxis Ansible, `compose config`, `helm lint` o `kustomize build` si las herramientas están disponibles.
-- Una validación local no prueba la infraestructura desplegada. Lo que no se puede verificar (imagen sin versión, puerto o runtime) queda como **pendiente**.
+The project-local skills architecture also includes base feature, bugfix,
+verification, documentation and architecture-review workflows. Do not invoke
+optional external tools automatically.
 
-## 6. Catálogo de agentes y skills técnicas
+## 4. Generated project structure
 
-`engineering/agents/` contiene **27 subagentes** especializados y `engineering/skills/` **29 Agent Skills** con métodos y checklists. Al confirmar la entrevista, `engineering_catalog.py` copia sólo los que encajan con el stack y la arquitectura a `.claude/agents/` y `.claude/skills/` del proyecto. El resto queda en el catálogo local para activarlo más tarde con `/aikya-skills-install`, siempre con aprobación y sin descargas.
+- aikya-skills/ — source of the 21 public Claude Code slash commands.
+- engineering/agents/ and engineering/skills/ — curated specialist definitions.
+- .aikya/answers.json — technical decisions for compatible profiles.
+- .aikya/docs-policy.json — living documentation language (en/es).
+- .aikya/model-policy.json — optional per-role model policy.
+- .aikya/analysis/ — English evidence-based inventory for existing repositories.
+- .harness/project-profile.json — legacy-compatible normalized profile.
+- .harness/engineering-catalog.json — managed skill/agent provenance.
+- .claude/agents/ and .claude/skills/ — selected specialists and capabilities.
+- .claude/rules/ and CLAUDE.md — English engineering contracts.
+- aikya/docs/ — living docs in the selected en/es language.
+- aikya/scripts/ and aikya/test/ — internal harness utilities and tests.
+- harness.json — configured quality checks, including NOT_CONFIGURED behavior.
 
-| Dominio | Agentes | Skills |
-|---|---|---|
-| Coordinación | `planner`, `orchestrator` | — |
-| Calidad | `code-reviewer`, `test-engineer` | `code-review`, `testing-strategy`, `security-audit` |
-| Arquitecturas | `clean-architecture-architect`, `layered-architecture-architect`, `monolith-architect`, `microservices-architect`, `event-driven-architect` | `clean-architecture`, `layered-architecture`, `modular-monolith-architecture`, `microservices-architecture`, `event-driven-architecture` |
-| Backend | `java-developer`, `dotnet-developer`, `python-developer`, `node-backend-developer`, `nextjs-developer` | `java-engineering`, `dotnet-engineering`, `python-engineering`, `node-api-design`, `nextjs-architecture` |
-| Frontend | `react-developer`, `vue-developer`, `angular-developer`, `astro-tailwind-developer` | `react-engineering`, `vue-architecture`, `angular-engineering`, `astro-performance` |
-| Móvil | `kotlin-developer`, `flutter-developer` | `kotlin-engineering`, `flutter-architecture` |
-| Cloud e IaC | `cloud-architect`, `terraform-engineer`, `ansible-engineer` | `cloud-architecture`, `cloud-security`, `finops-optimization`, `terraform-iac`, `ansible-automation` |
-| Contenedores y entrega | `docker-developer`, `kubernetes-engineer`, `helm-engineer`, `cicd-engineer` | `docker-best-practices`, `kubernetes-operations`, `helm-deployment`, `kustomize-deployment`, `cicd-pipelines` |
+For a new monorepo, application workspaces can be planned under apps/ with
+shared packages/ and contracts/. A singlerepo keeps its single application
+at the root. Existing projects are not reorganized automatically.
 
-**Reglas de selección:**
-- La arquitectura es independiente del lenguaje: `java` + `architecture=clean` activa `java-developer` y `clean-architecture-architect`. Un perfil `hexagonal` no se convierte silenciosamente en `clean`.
-- `event-driven` sólo se activa si aparece en `architecture_patterns`; no va implícito en microservicios.
-- Los modos Infraestructura y DevOps cargan sólo especialistas de infraestructura, no de lenguajes.
-- Python y Angular tienen scaffolding **asistido/manual** hasta acordar generadores y versiones.
-- Los arquitectos trabajan en modo plan; los desarrolladores editan según permisos. Aikya conserva su propio `security-reviewer` de plantilla.
+## 5. Infrastructure and DevOps
 
-La inicialización registra lo instalado en `aikya/docs/agents.md`, `aikya/docs/skills.md` y `.harness/engineering-catalog.json`.
+The infrastructure workflows support Terraform/OpenTofu, Ansible, Docker,
+Docker Compose, Kubernetes YAML, Helm and Kustomize. Plan is read-only;
+generate requires explicit approval; validate only reports verified local
+results. Applying cloud infrastructure, remote state migrations or cluster
+deployments requires separate authorization.
 
-### Skills externas
+In DevOps-only profiles, an existing versioned image or Helm chart may be used
+without creating a fictional application or Dockerfile. Infrastructure manifests
+are not evidence that cloud resources are deployed.
 
-Integración **optativa y supervisada** de [Ponytail](https://github.com/DietrichGebert/ponytail), [Graphify](https://github.com/Graphify-Labs/graphify) (CLI local, sin MCP) y [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) para interfaz. También puedes incorporar una skill de GitHub indicando URL HTTPS, carpeta, nombre y commit:
+## 6. Engineering agents and Agent Skills
 
-> `/aikya-skills-install Quiero incorporar una skill desde https://github.com/ORGANIZACION/REPOSITORIO.git. Revisa primero su SKILL.md y licencia, identifica la carpeta skills/NOMBRE, verifica el commit exacto, explícame los permisos y solicita mi aprobación antes de instalarla.`
+Aikya provides a curated technical catalog spanning architecture, Java, .NET,
+Python, Kotlin, Flutter, Node, Vue, Angular, React, Astro/Next.js, cloud,
+Terraform, Ansible, Docker, Kubernetes, CI/CD, security, testing and review.
 
-Nada se descarga ni se indexa automáticamente al iniciar Claude Code, y Graphify se consulta con preguntas concretas, nunca volcando el grafo completo.
+Planner and Orchestrator are used selectively for complex cross-stack work.
+Architecture and security reviewers are read-only. Code-modifying specialists
+only change approved scope; independent operations still require authorization.
 
-## Versionado y publicación automática (v5.9.1)
+Agent definitions and Agent Skills follow Claude Code's local file format.
+Agents and skills are selected by the actual stack, not installed indiscriminately.
+An installed agent is not proof that it has been invoked.
 
-Aikya distribuye tags y GitHub Releases automáticamente **tras fusionar una versión aprobada en `main`**. La rama `develop` y las ramas `feat/*` no publican nada.
+### External skills
 
-1. Prepara un incremento SemVer estable en `VERSION` (`X.Y.Z`, sin prefijo `v`) y un apartado con cambios reales `## vX.Y.Z` en `CHANGELOG.md`.
-2. Abre un PR hacia `develop` para el desarrollo normal. La preparación de versiones futuras puede iniciarse desde `.github/workflows/bump-versions.yml`, que creará un PR revisable con `VERSION` y `CHANGELOG.md`.
-3. Cuando la versión esté lista, abre un PR desde `develop` hacia `main`. El check `Aikya | Release version contract` exige que el número aumente respecto a main y a tags existentes, que exista la licencia y que haya notas de release completas.
-4. Un merge en `main` ejecuta `Aikya | Automatic GitHub Release`: vuelve a correr unittest, catálogo y smoke; crea ZIP, comprueba `SHA256SUMS` y publica el tag `vX.Y.Z` y la GitHub Release con los archivos descargables.
-5. Si falla la publicación tras crear el tag, el workflow actualizado puede recuperarse desde `main` sin mover tags ni duplicar la Release. Si el fallo se debe al propio workflow, integra primero la corrección y lanza **una ejecución nueva**, no `Re-run failed jobs` de la ejecución anterior. Mientras `5.9.1` carezca de tag, se permite un PR de recuperación con el mismo VERSION; después de publicarlo se exige incrementar versión. Un tag de la misma versión sobre otro commit siempre se rechaza.
+Ponytail, Graphify CLI and UI UX Pro Max are optional. Source provenance,
+license, tools, network access and version/commit must be reviewed before
+installation. /aikya-skills-plan provides a preview; /aikya-skills-install
+requires explicit approval. Never execute third-party installer hooks silently.
 
-**Imprescindible:** proteger `main` con PR obligatorios y checks de CI. Un `push` directo sobre main también dispara el workflow: la protección es la que garantiza que esos cambios proceden de una revisión. Configura permisos GitHub Actions para que `GITHUB_TOKEN` pueda crear tags y releases; sólo el job `publish` necesita `contents: write`.
+## 7. Model and token policy (v6.0.0)
 
-Las releases representan artefactos verificados por CI, pero eso no sustituye la revisión de licencias y atribuciones de agentes/skills externos. No hay deploy cloud, Terraform apply, push Docker ni publicación NPM automática.
+Aikya retains the user's active Claude Code model by default. Opus may be
+recommended for genuinely complex planning/orchestration; routine agents
+inherit their configured role model. Haiku 5.5 is optional for bounded extraction,
+routing advice and documentation drafts only, subject to explicit user approval,
+provider access and compatible client capabilities.
 
-Detalles: [GitHub Actions y release](.github/workflows.md).
+Haiku must not be the final authority for security findings, critical
+architectural decisions or production operations. Token reports distinguish
+actual usage records from estimated API prices and uncertain caching effects.
+Existing v5.9.1 policy v1 and Haiku 4.5 choices are preserved.
 
-## 7. Seguridad y garantías
+Managed Agents API and a custom Messages API tool-use loop are not part of Aikya.
 
-- **Sin acciones remotas sin aprobación específica:** ni instalación de SDKs o dependencias, ni Terraform apply/destroy, ni playbooks contra servidores, ni push de imágenes, ni `helm`/`kubectl` contra clústeres, ni despliegues.
-- **Sin secretos en Git:** no se guardan credenciales ni estados de Terraform, y no se inventan recursos cloud, imágenes ni puertos.
-- **Sin sobrescribir:** se conservan código, documentación, skills y configuraciones personalizadas; la generación sólo crea archivos inexistentes.
-- **Evidencias honestas:** un check que no está configurado, falla o no se pudo ejecutar se informa como **NO VERIFICADO** o **FALLÓ**, nunca como aprobado. Que un agente o una skill estén registrados no demuestra que se hayan usado.
-- **Documentación viva:** cada cambio técnico actualiza los documentos afectados de `aikya/docs/` y queda registrado en `aikya/docs/changes/REQ-*.md`; los hooks avisan si falta documentación antes de cerrar una tarea.
+## 8. Versioning and publication
 
-## 8. Ejemplos
+VERSION and CHANGELOG.md define version candidates and release notes.
+Pull requests into develop run tests and smoke checks; an approved merge into
+main uses guarded release workflows for tags, checksums and GitHub Releases.
+No workflow should reuse an existing version tag pointing to a different commit.
+The release contract preserves legacy Spanish changelog headings while English
+Unreleased is the standard for new notes.
 
-Cada carpeta de `examples/` contiene `answers.json` (decisiones que valida Aikya) y un `README.md` con su uso desde Claude Code. Son escenarios **simulados**, no aplicaciones compiladas ni desplegadas.
+See .github/workflows.md and docs/INIT_ANALYZE_SEPARATION.md for details.
 
-| Ejemplo | Tipo |
-|---|---|
-| [Next.js + React](examples/next-react/README.md) | Desarrollo, nuevo |
-| [Spring Boot + React con Clean Architecture](examples/java-react-clean/README.md) | Desarrollo, nuevo |
-| [ASP.NET Core + Vue (monolito modular)](examples/dotnet-vue/README.md) | Desarrollo, nuevo |
-| [Android nativo con Kotlin](examples/android-kotlin/README.md) | Desarrollo, nuevo |
-| [FastAPI + Angular](examples/python-angular/README.md) | Desarrollo, nuevo |
-| [NestJS + React, microservicios y eventos](examples/node-react-microservices/README.md) | Desarrollo, nuevo |
-| [API Java existente](examples/existing-java-api/README.md) | Desarrollo, existente |
-| [Next.js + Terraform + Helm](examples/next-react-terraform-helm/README.md) | Desarrollo con infraestructura |
-| [Java/React + Ansible + Kustomize](examples/java-react-ansible-kustomize/README.md) | Desarrollo con infraestructura |
-| [Sólo Terraform](examples/infra-terraform-only/README.md) | Infraestructura |
-| [Sólo Ansible](examples/infra-ansible-only/README.md) | Infraestructura |
-| [Docker Compose](examples/devops-docker-compose/README.md) | DevOps |
-| [Helm con chart existente](examples/devops-helm-existing/README.md) | DevOps |
-| [Kustomize](examples/devops-kustomize/README.md) | DevOps |
+## 9. Safety guarantees and limits
 
-**Uso:** `/aikya-answers Usa las decisiones de examples/next-react/answers.json, enséñame primero el plan y valida requisitos antes de generar código.`
+- Preserve custom project files, agents, skills, instructions and secrets.
+- No automatic SDK installation, dependency download or production deployment.
+- No Terraform apply/destroy, remote cluster writes or destructive migration without approval.
+- Report actual PASS, FAIL, SKIPPED and NOT_CONFIGURED outcomes; never invent results.
+- Keep source and infrastructure evidence separate from live production state.
+- Guard documentation changes through project-specific policies and traceability.
+- Assess optional vendors before installation and do not expose credentials.
 
-### Pantalla de bienvenida
+## 10. Examples
 
-El hook `SessionStart` muestra un panel con el nombre del desarrollador y el repositorio al abrir una **sesión nueva**; una instalación hecha en una sesión ya abierta no lo lanza retroactivamente. Si no aparece, pide a Claude que previsualice `welcome.py --preview` y compruebe el evento `SessionStart`.
+Example decision files are provided for Java/React, Python/Angular,
+Next.js/React, .NET/Vue, Node/React microservices, Android/Kotlin and
+infrastructure-only and DevOps-only profiles.
 
-## 9. Documentación adicional
+Browse [examples](examples/README.md) for scenario descriptions and
+approved /aikya-answers usage. They are **decision examples**, not claims
+that applications, SDKs or cloud resources have been created or verified.
 
-- [Historial de versiones](CHANGELOG.md)
-- [Auditoría del catálogo de ingeniería](docs/audits/ENGINEERING_AUDIT.md): procedencia, exclusiones y validaciones pendientes.
-- [Auditoría de skills externas](docs/audits/SKILLS_AUDIT.md): compatibilidad con Agent Skills, carga progresiva y amenazas.
+## 11. Further documentation
+
+- [Changelog](CHANGELOG.md)
+- [Contribution guide](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Code of conduct](CODE_OF_CONDUCT.md)
+- [Init/analyze separation](docs/INIT_ANALYZE_SEPARATION.md)
+- [v6 model and compatibility policy](docs/V6_TOKEN_COMPATIBILITY.md)
+- [GitHub workflow contracts](.github/workflows.md)

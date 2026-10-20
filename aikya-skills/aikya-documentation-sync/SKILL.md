@@ -1,20 +1,16 @@
 ---
 name: aikya-documentation-sync
-description: Sincroniza la documentación obligatoria de cada cambio.
+description: Update required living documentation and per-request change records following a material code or infrastructure change.
 disable-model-invocation: true
 ---
 <!-- AIKYA BOOTSTRAP MANAGED -->
-# /aikya-documentation-sync
 
-Petición: `$ARGUMENTS`.
-## Resolución y seguridad
-- Trabaja en el directorio de proyecto abierto por Claude Code, NUNCA dentro del runtime global. Si falta `.harness/project-profile.json`, indica `/aikya-init` o `/aikya-answers` antes de continuar.
-- No descargues dependencias, modifiques el SDK, realices despliegues, commits ni pushes sin autorización explícita. Conserva archivos y configuraciones ajenas.
-- Lee sólo el perfil, los archivos directamente relacionados y las reglas estrictamente necesarias; evita grandes volcados de contexto.
+# Documentation synchronization
+1. Determine the actual files changed in the current request.
+2. If no material change occurred, do not create artificial documentation updates.
+3. Read .aikya/docs-policy.json and write solely under aikya/docs/ in the configured en or es locale.
+4. Update the relevant feature, defect, security, architecture, deployment and testing pages.
+5. Write a REQ-*.md log with Changes/Evidence/Updated documents for en or Cambios/Evidencias/Documentos actualizados for es.
+6. Run docs_guard and disclose failures without inventing successful tests.
 
-1. Lee **sólo cuando sea necesario** la skill de proyecto `.claude/skills/documentation-sync/SKILL.md`. Si no está instalada, lee la fuente correspondiente en `.aikya/runtime/template/.claude/skills/documentation-sync/SKILL.md` (scope proyecto) o `~/.claude/aikya-harnes/template/.claude/skills/documentation-sync/SKILL.md` (scope global).
-2. Sigue las instrucciones técnicas especializadas de esa skill y las reglas del proyecto; no te limites a invocarla, ejecuta el flujo dentro de Claude Code.
-3. Para scaffolding ejecuta `/aikya-scaffold`; para documentar ejecuta `/aikya-docs`; para pruebas ejecuta `/aikya-tests`.
-4. Devuelve resultados realmente observados y pendientes. No uses herramientas externas automáticamente ni delegues sin motivo.
-
-Si la petición afecta skills de Claude Code, sincroniza `aikya/docs/skills.md` sin registrar como ejecutadas las skills sólo disponibles.
+All instructions, reports and software-development assets outside aikya/docs/ remain in English.

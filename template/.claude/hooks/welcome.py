@@ -86,14 +86,17 @@ def build_message(root: Path) -> str:
     repo = repository(root)
     # Short box: CLI notification renderers may not support ANSI or wide panels.
     lines = [
-        '==============================================================================='
-        'Bienvenido a Aikya Harness',
-        f'Desarrollador: {who}',
-        f'Repositorio: {repo}',
-        f'Proyecto Aikya: {DEFAULT_SOURCE}',
-        'Comandos: /aikya-init · /aikya-scaffold · /aikya-skills-status · /aikya-quality',
-        'Documentación del proyecto: aikya/docs/README.md',
-        '===============================================================================',
+        '================================== Welcome to Aikya Harness ==================================',
+        f'Developer: {who}',
+        f'Repository: {repo}',
+        f'Aikya project: {DEFAULT_SOURCE}',
+        'Commands start: /aikya-init · /aikya-analyze · /aikya-doctor · /aikya-answers',
+        'Commands develop: /aikya-scaffold · /aikya-feature · /aikya-bugfix  · /aikya-quality',
+        'Commands arquitecture: //aikya-architecture-review',
+        'Commands mobile: /aikya-mobile-feature',
+        'Commands test: /aikya-test',
+        'Project documentation: aikya/docs/README.md',
+        '==============================================================================================',
     ]
     width = min(max(len(line) for line in lines), 95)
     border = '+' + '-' * (width + 2) + '+'
@@ -101,9 +104,9 @@ def build_message(root: Path) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description='Mensaje de bienvenida de Aikya Harness')
-    parser.add_argument('--preview', action='store_true', help='Mostrar el banner sin iniciar Claude Code')
-    parser.add_argument('--project-root', type=Path, help='Directorio del repositorio (preview/pruebas)')
+    parser = argparse.ArgumentParser(description='Aikya Harness welcome message')
+    parser.add_argument('--preview', action='store_true', help='Preview the welcome without starting Claude Code')
+    parser.add_argument('--project-root', type=Path, help='Repository directory (preview/tests)')
     args = parser.parse_args(argv)
     root = (args.project_root or Path(os.environ.get('CLAUDE_PROJECT_DIR') or Path(__file__).resolve().parents[2])).resolve()
     if args.preview:

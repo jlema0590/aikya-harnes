@@ -41,7 +41,11 @@ jobs:
             aikya_session.py aikya_setup.py doc_bootstrap.py \
             engineering_catalog.py external_skills.py \
             infrastructure_profile.py install.py skills_registry.py \
+            docs_language.py docs_templates_en.py docs_templates_es.py \
             template/scripts/harness scripts/ci
+
+      - name: Validate bundled Claude Code agents and Agent Skills
+        run: python scripts/ci/validate_agent_assets.py
 
       - name: Run Aikya regression tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v

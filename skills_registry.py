@@ -29,9 +29,13 @@ def _metadata(file: Path) -> tuple[str, str]:
     return get('name') or file.parent.name, get('description') or 'Sin descripción'
 
 
-def render(root: Path, profile: dict|None=None) -> str:
+def render(root: Path, profile: dict|None=None, language: str|None=None) -> str:
     """Enumera skills locales y estados de integraciones con traza de procedencia."""
     root=root.resolve()
+    from docs_language import resolve as documentation_language
+    from docs_language import validate as validate_docs_language
+    if (validate_docs_language(language) if language is not None else documentation_language(root)) == "en":
+        return _render_english(root)
     profile=profile or {}
     skill_root=root/'.claude/skills'
     discovered: dict[str,tuple[str,str]] = {}
@@ -102,6 +106,69 @@ Este inventario describe las **skills registradas en el proyecto** y su disponib
 - Las skills externas son código de terceros: revisar licencia, contenido, procedencia y permisos antes de instalarlas.
 - Registrar el uso **real** sólo si existen evidencias de ejecución; nunca inferirlo por la mera presencia de un archivo.
 '''
+
+
+def _render_english(root: Path) -> str:
+    """Produce the English inventory without losing lockfile provenance."""
+    root = root.resolve()
+    skill_root = root / ".claude/skills"
+    lock = {}
+    lock_file = root / ".harness/external-skills-lock.json"
+    if lock_file.is_file() and not lock_file.is_symlink():
+        try:
+            obj = json.loads(lock_file.read_text(encoding="utf8"))
+            if isinstance(obj.get("skills"), dict):
+                lock = obj["skills"]
+        except (OSError, ValueError, TypeError):
+            pass
+    engineering = {}
+    manifest = root / ".harness/engineering-catalog.json"
+    if manifest.is_file() and not manifest.is_symlink():
+        try:
+            obj = json.loads(manifest.read_text(encoding="utf8"))
+            if isinstance(obj.get("files"), dict):
+                engineering = obj["files"]
+        except (OSError, ValueError, TypeError):
+            pass
+    discovered = {}
+    if skill_root.is_dir() and not skill_root.is_symlink():
+        for folder in sorted(skill_root.iterdir()):
+            if folder.is_symlink() or not folder.is_dir():
+                continue
+            path = folder / "SKILL.md"
+            if path.is_file() and not path.is_symlink():
+                discovered[folder.name] = _metadata(path)[1]
+    rows = []
+    for name in sorted(set(discovered) | set(lock)):
+        item = lock.get(name, {})
+        if not isinstance(item, dict):
+            item = {}
+        available = name in discovered
+        state = "Available" if available else "Not available"
+        if not available and item.get("state") == "failed":
+            state = "Installation failed"
+        kind = ("External" if name in BUILTIN or name in lock else
+                "Aikya Engineering" if ".claude/skills/" + name + "/SKILL.md" in engineering else
+                "Aikya" if name.startswith("aikya-") else "Project")
+        source = item.get("source") or item.get("location") or (
+            "Aikya vetted technical bundle" if kind == "Aikya Engineering" else
+            "Aikya source" if kind == "Aikya" else "Local")
+        desc = discovered.get(name) or item.get("detail") or "Not installed"
+        safe = lambda value: str(value).replace("|", "/").replace("\n", " ").strip()
+        rows.append("| /" + safe(name) + " | " + kind + " | " + state + " | "
+                    + safe(source) + " | " + safe(desc) + " |")
+    table = "\n".join(rows) or "| — | — | No local skills found | — | — |"
+    return (MARKER + "\n# Installed and available Agent Skills\n\n"
+            "This lists registered project skills, not a history of model invocations. "
+            "A present skill may never have been invoked.\n\n"
+            "## Project skills\n\n| Command | Type | Status | Source | Purpose |\n"
+            "|---|---|---|---|---|\n" + table + "\n\n"
+            "## Governance\n\n"
+            "- /aikya-skills-status: inspect registrations.\n"
+            "- /aikya-skills-plan: review provenance and permissions.\n"
+            "- /aikya-skills-install: install only after explicit authorization.\n"
+            "- Verify licenses and source integrity for external skills.\n"
+            "- Never infer execution from installation alone.\n")
 
 
 def write_inventory(root: Path, profile: dict|None=None) -> tuple[bool,str]:

@@ -1,216 +1,102 @@
-# Contribuir a Aikya Harness
-
-¡Gracias por tu interés en contribuir a Aikya Harness!
-
-Aikya Harness es un proyecto open source orientado a mejorar los flujos de ingeniería de software mediante inteligencia artificial, automatización, arquitectura de software, infraestructura como código y prácticas DevOps.
-
-Valoramos las contribuciones que mejoren la calidad, seguridad, documentación, extensibilidad y experiencia de los desarrolladores.
-
-## 1. Formas de contribuir
-
-Puedes colaborar mediante:
-
-- Reportes de errores.
-- Mejoras de documentación.
-- Nuevos agentes y Engineering Skills.
-- Mejoras en comandos `/aikya-*`.
-- Soporte para lenguajes, frameworks y arquitecturas.
-- Nuevas integraciones de infraestructura y DevOps.
-- Tests, validaciones y automatización.
-- Mejoras de seguridad y rendimiento.
-- Propuestas de funcionalidades y ejemplos de configuración.
-
-## 2. Antes de empezar
-
-Antes de realizar cambios importantes:
-
-1. Revisa el README y la documentación disponible.
-2. Comprueba si existe un Issue relacionado.
-3. Si el cambio es significativo, abre un Issue para discutir su alcance.
-4. Evita introducir funcionalidades duplicadas.
-5. Comprueba que el cambio es compatible con la arquitectura del harness.
-
-Los cambios deben tener una finalidad clara y mantener la coherencia con los objetivos del proyecto.
-
-## 3. Estructura del proyecto
-
-Los principales directorios y archivos son:
-
-| Ubicación | Responsabilidad |
-|---|---|
-| `aikya-skills/` | Comandos y flujos de trabajo de Aikya |
-| `engineering/agents/` | Agentes especializados de ingeniería |
-| `engineering/skills/` | Skills técnicas reutilizables |
-| `template/` | Plantillas y herramientas del harness |
-| `examples/` | Configuraciones de referencia |
-| `tests/` | Pruebas automatizadas |
-| `install.py` | Inicialización de proyectos |
-| `aikya_setup.py` | Instalación y configuración de Aikya |
-| `engineering_catalog.py` | Descubrimiento y selección de especialistas |
-
-En los proyectos inicializados por Aikya, la documentación y las herramientas internas se organizan en `aikya/docs/`, `aikya/test/` y `aikya/scripts/`.
-
-## 4. Flujo de desarrollo
-
-La rama principal de integración de contribuciones es `develop`.
-
-Crea tus cambios en una rama independiente:
-
-```bash
-git clone https://github.com/jlema0590/aikya-harnes.git
-cd aikya-harnes
-
-git switch develop
-git pull origin develop
-
-git switch -c feat/descripcion-del-cambio
-```
-
-Para corregir errores puedes usar el prefijo `fix/`.
-
-No realices cambios directamente sobre `main`.
-
-## 5. Convenciones de desarrollo
-
-Procura seguir estos principios:
-
-- Código legible y mantenible.
-- Responsabilidades claramente definidas.
-- Cambios pequeños y verificables.
-- Compatibilidad con configuraciones existentes.
-- Sin sobreescrituras destructivas de archivos del usuario.
-- Validación de entradas y rutas.
-- Dependencias justificadas y documentadas.
-- Mensajes de error útiles para el desarrollador.
-- Separación entre planificación y ejecución.
-- Documentación actualizada cuando cambie el comportamiento.
-
-En los flujos de IA, los resultados generados deben revisarse antes de considerarse correctos.
-
-## 6. Contribuir con agentes y skills
-
-Los nuevos agentes y skills deben:
-
-1. Tener una responsabilidad concreta.
-2. Utilizar nombres descriptivos y consistentes.
-3. Evitar duplicar especialidades existentes.
-4. Incluir instrucciones claras y verificables.
-5. Definir correctamente su configuración y metadatos.
-6. Respetar el mecanismo de descubrimiento e instalación selectiva.
-7. Evitar operaciones destructivas o remotas sin autorización.
-8. Mantener la compatibilidad con los comandos existentes.
-9. Incorporar pruebas cuando modifiquen el comportamiento del harness.
-
-Los archivos de skills deben utilizar la estructura `SKILL.md` compatible con el entorno de ejecución al que estén destinados.
-
-No deben incluirse credenciales, claves privadas ni instrucciones destinadas a evadir controles de seguridad.
-
-## 7. Infrastructure & DevOps
-
-Las contribuciones relacionadas con Terraform, OpenTofu, Ansible, Docker, Docker Compose, Kubernetes, Helm o Kustomize deben cumplir estos requisitos:
-
-- No ejecutar despliegues reales de forma automática.
-- No incluir credenciales ni secretos.
-- No generar recursos cloud ficticios presentándolos como configuraciones operativas.
-- Validar los parámetros de entrada.
-- Separar entornos cuando corresponda.
-- Preservar configuraciones existentes.
-- Documentar permisos, requisitos y operaciones necesarias.
-- Mantener separados los procesos `plan`, `generate` y `validate`.
-- Solicitar autorización específica antes de ejecutar cambios sobre recursos externos.
-
-La creación de archivos declarativos no equivale a un despliegue exitoso.
-
-## 8. Pruebas
-
-Antes de enviar un Pull Request, ejecuta la suite de pruebas automatizadas:
-
-```bash
-python3 -m unittest discover -s tests -p 'test_*.py' -v
-```
-
-Además:
-
-- Añade pruebas para funcionalidades nuevas.
-- Incluye pruebas de regresión cuando corrijas errores.
-- Comprueba que los ejemplos JSON siguen siendo válidos.
-- Verifica la compatibilidad con los proyectos existentes.
-- Documenta las comprobaciones que no hayas podido ejecutar.
-
-No afirmes que una prueba ha pasado si no se ha ejecutado.
-
-Los cambios significativos deberían contar también con una revisión manual en Claude Code cuando afecten a la interacción con agentes o skills.
-
-## 9. Documentación
-
-Los cambios que afecten al comportamiento del proyecto deben actualizar la documentación correspondiente.
-
-Revisa, según el alcance:
-
-- `README.md`
-- `CHANGELOG.md`
-- Documentación de agentes y skills.
-- Ejemplos y archivos `answers.json`.
-- Instrucciones de instalación.
-- Pruebas y procedimientos de validación.
-
-La documentación debe reflejar el comportamiento real del código.
-
-## 10. Commits y Pull Requests
-
-Recomendamos utilizar mensajes de commit siguiendo Conventional Commits:
-
-```text
-feat: add terraform module support
-fix: correct node version detection
-docs: improve installation guide
-test: add infrastructure regression tests
-refactor: simplify engineering catalog
-```
-
-Los Pull Requests deben dirigirse a la rama `develop`.
-
-Cada Pull Request debería incluir:
-
-- Descripción del cambio.
-- Problema que resuelve.
-- Archivos o componentes afectados.
-- Pruebas ejecutadas y resultados.
-- Impacto sobre compatibilidad y seguridad.
-- Documentación actualizada, cuando corresponda.
-- Referencias a Issues relacionados.
-
-Los cambios serán revisados antes de incorporarse.
-
-## 11. Seguridad y divulgación responsable
-
-No publiques vulnerabilidades de seguridad sin seguir el procedimiento de `SECURITY.md`.
-
-No incluyas secretos, datos personales ni información confidencial en Issues, commits, ejemplos, capturas o Pull Requests.
-
-## 12. Licencias y propiedad intelectual
-
-Al contribuir, confirmas que tienes los derechos necesarios para enviar tu contribución y que puedes distribuirla bajo la licencia MIT del proyecto.
-
-No envíes código, agentes, skills, documentación ni otros materiales de terceros sin comprobar que su licencia permite su incorporación y redistribución.
-
-Cuando utilices componentes externos:
-
-- Identifica su origen.
-- Conserva los avisos de copyright y licencia exigidos.
-- Documenta las dependencias y condiciones relevantes.
-- Declara cualquier incompatibilidad de licencia antes de proponer el cambio.
-
-Los componentes de terceros conservan sus propias condiciones cuando corresponda.
-
-## 13. Código de conducta
-
-Todas las personas colaboradoras deben respetar el documento `CODE_OF_CONDUCT.md`.
-
-Queremos mantener una comunidad técnica abierta, respetuosa y orientada a la colaboración.
-
-## 14. Agradecimientos
-
-Gracias por ayudar a mejorar Aikya Harness.
-
-Cada contribución, desde una corrección documental hasta una nueva integración de infraestructura, ayuda a construir una plataforma de ingeniería más sólida y útil para la comunidad.
+# Contributing to Aikya Harness
+
+Thank you for improving Aikya Harness. We welcome contributions that advance
+the quality, safety, accessibility, documentation and extensibility of
+AI-assisted software, infrastructure and DevOps engineering.
+
+## 1. Ways to contribute
+Contributions include bug reports, documentation, Agent Skills, Claude Code
+subagents, command improvements, language/framework support, infrastructure
+capabilities, tests, security hardening and feature proposals.
+
+## 2. Before you start
+Read README.md, SECURITY.md, CODE_OF_CONDUCT.md and relevant code.
+Search for existing issues and discuss large architectural changes before
+implementing. Never include credentials, private data or proprietary code.
+
+## 3. Repository structure
+- aikya-skills/: public /aikya-* commands and safe user workflows.
+- engineering/agents/: curated technical subagents.
+- engineering/skills/: stack-specific Agent Skills.
+- template/: project-local agents, skills, hooks, rules, scripts and scaffolding.
+- install.py and aikya_cli.py: safe onboarding and project runtime.
+- aikya_analyze.py and project_discovery.py: evidence-based existing-project adoption.
+- doc_bootstrap.py and docs_templates_en.py/docs_templates_es.py:
+  deterministic Aikya living documentation.
+- docs_language.py: EN/ES living-doc policy under .aikya/docs-policy.json.
+- scripts/ci/: release, asset, metadata and quality validation.
+- tests/: compatibility, regression, safety and project profiles.
+- examples/: approved example decisions, not fabricated applications.
+
+## 4. Development workflow
+1. Branch from develop or the approved target feature branch.
+2. Define observable acceptance criteria and verify existing behavior.
+3. Make small scoped changes with automated tests and documentation.
+4. Preserve compatibility with existing profiles and customized agents/skills.
+5. Run the configured tests, catalog validation and profile smoke checks.
+6. Submit a reviewable pull request into the agreed base branch.
+7. Never create tags/releases or execute remote deployments from ordinary PRs.
+
+## 5. Engineering conventions
+- English is mandatory for code comments, docstrings, prompts, runtime messages,
+  agents, skills, CLI, GitHub community files and public repository documentation.
+- ONLY markdown documentation generated or maintained under aikya/docs/ may use
+  en or es, selected through /aikya-init or /aikya-analyze.
+- Preserve JSON keys, public command names, version identifiers, stable paths,
+  existing user files and historical change-log IDs.
+- Accept Spanish and English **user input** in classifiers while keeping
+  engineering instructions in English.
+- Favor stdlib utilities, explicit errors, deterministic behavior, minimal
+  dependencies, and clear approval boundaries.
+
+## 6. Agents and Agent Skills
+Use Claude Code's native .claude/agents/*.md and .claude/skills/*/SKILL.md
+formats. Do not add Managed Agents API resources, remote provisioning or a
+custom Messages API tool-use loop.
+
+Define narrow triggering descriptions, realistic tools, bounded delegation,
+evidence-based outputs and explicit restrictions on external actions.
+Read-only reviewers should not expose editing or arbitrary command tools.
+Add relevant positive, negative and permission-boundary tests.
+
+Ensure metadata passes scripts/ci/validate_agent_assets.py.
+
+## 7. Infrastructure and DevOps
+Terraform/OpenTofu/Ansible, Docker, Kubernetes, Helm and CI changes need
+source-specific validation and a clear rollback plan. Never commit Terraform
+state, credentials or production environment values. Remote operations require
+separate, informed approval.
+
+## 8. Tests
+Run the supported Python matrix, focused tests, example-profile smoke checks,
+asset synchronization, release contracts and any affected language/stack checks.
+Report checks you could not run as NOT_CONFIGURED or NOT_VERIFIED; never
+claim an unobserved success.
+
+## 9. Documentation
+Update affected README, CHANGELOG, architecture decisions and living docs.
+New Aikya living documentation must follow .aikya/docs-policy.json:
+only aikya/docs/ may be Spanish. Historical Spanish documents and request
+inputs must remain readable; do not silently overwrite custom documents.
+
+## 10. Commits and pull requests
+Use meaningful focused commit messages and provide scope, rationale,
+compatibility, actual validation, risk assessment and rollback notes.
+Pull requests must not automatically publish releases or deploy infrastructure.
+
+## 11. Security and responsible disclosure
+Follow SECURITY.md for private vulnerability reporting. Do not file public
+exploit demonstrations or include real secrets in issues and test fixtures.
+
+## 12. Licensing and intellectual property
+Contributors must have rights to their submissions under the project's MIT
+license. Check licenses, attribution, redistribution conditions and provenance
+for any imported third-party agents, skills, documentation or code.
+
+## 13. Code of conduct
+All contributors must follow CODE_OF_CONDUCT.md and maintain respectful,
+evidence-based technical collaboration.
+
+## 14. Thanks
+Every contribution—from a corrected document to a safe infrastructure
+integration—helps make Aikya more useful and trustworthy.

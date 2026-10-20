@@ -34,7 +34,7 @@ class V52(unittest.TestCase):
             self.assertIn('aikya-infra-project',inv)
             self.assertIn('aikya-skills-install',inv)
             self.assertIn('aikya-feature',inv)
-            self.assertIn('no es un histórico de invocaciones',inv.lower())
+            self.assertIn('not a history of model invocations',inv.lower())
             self.assertIn('skills.md',(root/'aikya/docs/README.md').read_text())
             self.assertFalse((root/'.claude/skills/aikya-project-bootstrap').exists())
             self.assertFalse((root/'.claude/skills/aikya-skills').exists())

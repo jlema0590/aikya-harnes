@@ -1,7 +1,19 @@
-# Routing y presupuesto de contexto (Harness v4)
+# Context routing and token budget
 
-- Para cambios de código: reutilización y mínima complejidad según Ponytail si está instalado; no sacrificar validación, seguridad, rendimiento ni accesibilidad.
-- Para relaciones entre componentes en repositorios grandes: Graphify CLI local si índice presente y vigente. Consulta específica, valida contra archivos reales; nunca cargues todo `graph.json` ni el informe entero.
-- Para cambios de interfaz web o móvil: UI UX Pro Max si está instalado; documenta decisiones de diseño en `aikya/docs/design/design-system.md`, comprueba accesibilidad y pruebas reales.
-- Si una skill externa falta, continúa con las skills propias e informa cómo instalarla; nunca lances descargas silenciosas.
-- Evita delegación y lecturas masivas si el alcance es reducido. Guía completa bajo `aikya/docs/harness/token-policy.md`, sólo si se necesita.
+- Prefer existing implementation, minimum complexity and stable public contracts.
+  Do not sacrifice security, quality, performance or accessibility to save tokens.
+- For large dependency graphs, use trusted local Graphify indexes only if available.
+  Query relevant paths instead of loading the entire graph.json or full report.
+- For UI or mobile changes, use optional UI UX Pro Max only when installed and
+  appropriate. Document real design decisions under aikya/docs/design/design-system.md.
+- Missing external skills must not trigger hidden downloads or installations.
+- Avoid broad repository reads and unnecessary delegation for small tasks.
+
+## Tool output hygiene (Aikya v6)
+- Use scoped Read ranges, rg, Glob or specific sed ranges instead of dumping files.
+- Use explicit gh api --jq fields and git diff --stat before full path-specific diffs.
+- Preserve actual failures and diagnostic context while filtering irrelevant logs.
+- Batch large reads and summarize grounded evidence; deterministic filters are
+  preferable to LLM delegation when sufficient.
+- Compact context based on task phase and actual limits, never a universal
+  token threshold. Preserve requirements, decisions and unverified checks.

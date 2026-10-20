@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Preparación revisable del próximo VERSION y CHANGELOG, sin publicar nada."""
+"""Prepare a reviewable VERSION/CHANGELOG change without publishing."""
 from __future__ import annotations
 import argparse
 import re
@@ -16,27 +16,27 @@ TAG=re.compile(r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z")
 
 def prepare(root:Path, name:str, date:str|None=None) -> tuple[str,str]:
     if not TAG.fullmatch(name):
-        raise ReleaseError("La versión debe tener formato vX.Y.Z sin sufijos")
+        raise ReleaseError("Version must use vX.Y.Z without suffixes")
     next_version=name[1:]
     current,parsed=read_version(root)
     if parse_version(next_version)<=parsed:
-        raise ReleaseError(f"La versión nueva {name} debe superar v{current}")
+        raise ReleaseError(f"New version {name} must be higher than v{current}")
     changelog=root/"CHANGELOG.md"
     if not changelog.is_file() or changelog.is_symlink():
-        raise ReleaseError("Falta CHANGELOG.md")
+        raise ReleaseError("CHANGELOG.md is missing")
     content=changelog.read_text(encoding="utf-8")
     if re.search(r"(?m)^##\s+"+re.escape(name)+r"(?=\s|$)",content):
-        raise ReleaseError("Versión ya incluida en el changelog")
-    heading=re.search(r"(?m)^## Sin publicar\s*$",content)
+        raise ReleaseError("Version already exists in CHANGELOG.md")
+    heading=re.search(r"(?m)^## (?:Unreleased|Sin publicar)\s*$",content)
     if heading is None:
-        raise ReleaseError("Añade un encabezado ## Sin publicar con notas revisadas antes de versionar")
+        raise ReleaseError("Add a ## Unreleased heading with reviewed notes before versioning")
     rest=content[heading.end():]
     nxt=re.search(r"(?m)^## ",rest)
     notes=rest[:nxt.start()] if nxt else rest
     if not re.search(r"(?m)^\s*[-*]\s+\S",notes):
-        raise ReleaseError("No hay cambios listados bajo ## Sin publicar")
+        raise ReleaseError("No changes listed under ## Unreleased")
     today=date or datetime.now(timezone.utc).date().isoformat()
-    replacement=f"## Sin publicar\n\n## {name} — {today}"
+    replacement=f"## Unreleased\n\n## {name} — {today}"
     revised=content[:heading.start()]+replacement+content[heading.end():]
     from release_contract import notes_from_changelog
     notes_from_changelog(revised,next_version)

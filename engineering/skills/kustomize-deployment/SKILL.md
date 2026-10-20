@@ -1,23 +1,12 @@
 ---
 name: kustomize-deployment
-description: "Definir manifests Kubernetes con bases y overlays Kustomize por entorno, sin acceso a clústeres."
+description: Review safe Kubernetes base and overlay configurations for different environments without cluster access.
 ---
 
-# kustomize-deployment
+# Kustomize engineering
+1. Inspect bases, overlays, resource patches, generators and API-version compatibility.
+2. Avoid environment drift, privilege escalation and plain-text secrets.
+3. Validate rendered configuration locally when tools are available; preserve existing manifests unless changes are approved.
+4. Never run kubectl apply/delete/patch or contact live clusters automatically.
+5. Record manifest paths, local validation and pending approvals in project living documentation.
 
-Esta skill es una capacidad selectiva de Aikya Engineering: se activa según el stack y el perfil Infrastructure & DevOps. No ejecuta cambios remotos por sí sola.
-
-## Diseño
-- Mantén `base/` libre de secretos y `overlays/<entorno>/` con diferencias mínimas.
-- Usa `kustomization.yaml`, recursos versionados y transformaciones justificadas; no dupliques manifiestos enteros.
-- Confirma imagen con tag/digest inmutable y puerto real; no supongas DNS, paths de probes o storage.
-- Asegura requests/limits, capabilities mínimas, RBAC y namespaces existentes.
-## Validación
-- Ejecuta `kustomize build` en local y valida el YAML resultante con la herramienta de esquema disponible.
-- No ejecutes `kubectl apply` ni acciones en clusters durante validación sin aprobación.
-- Documenta diff de overlays, rollback y dependencias externas.
-
-## Guardrails
-- Analiza fuentes reales y declara hipótesis; no inventes pruebas ni métricas.
-- No ejecutes herramientas remotas ni comandos destructivos sin consentimiento específico.
-- Respeta archivos personalizados y produce documentación en `aikya/docs/infrastructure/` cuando cambia la infraestructura.

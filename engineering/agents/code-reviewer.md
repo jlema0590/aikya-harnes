@@ -1,12 +1,12 @@
 ---
 name: code-reviewer
 description: Reviews changes for correctness, maintainability, architecture, performance, and regressions. Use after implementing features or before merging pull requests.
-tools: Read, Grep, Glob, LSP, Bash
+tools: Read, Grep, Glob, LSP
 skills:
   - code-review
 model: sonnet
 effort: high
-permissionMode: default
+permissionMode: plan
 maxTurns: 45
 ---
 

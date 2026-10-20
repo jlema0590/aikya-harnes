@@ -142,7 +142,7 @@ class AikyaLayoutTests(unittest.TestCase):
             with patch('sys.stdin',io.StringIO(event)),contextlib.redirect_stdout(out):
                 code=aikya_session.main()
             self.assertEqual(0,code)
-            self.assertIn('Bienvenido a Aikya Harness',json.loads(out.getvalue())['systemMessage'])
+            self.assertIn('Welcome to Aikya Harness',json.loads(out.getvalue())['systemMessage'])
 
     def test_migrate_only_original_v55_hooks(self):
         with tempfile.TemporaryDirectory() as d:

@@ -11,6 +11,6 @@
   "ci": "github-actions",
   "deployment": "app-stores",
   "package_manager": "none",
-  "notes": "Android Studio + Kotlin; validar JDK/AGP/Android SDK antes de generar proyecto.",
+  "notes": "Android Studio and Kotlin; verify JDK, Android Gradle Plugin and Android SDK compatibility before generating a project.",
   "repository_layout": "singlerepo"
 }

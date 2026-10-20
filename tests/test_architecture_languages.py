@@ -28,8 +28,9 @@ ARCHITECTURES={
 
 class SpecialistIntegrationTests(unittest.TestCase):
     def test_catalog_has_expected_names_and_disallows_prohibited_material(self):
-        self.assertEqual((27,29),(len(catalog.AGENTS),len(catalog.SKILLS)))
-        self.assertEqual(27,len(list((ROOT/'engineering/agents').glob('*.md'))))
+        self.assertEqual(27, len(catalog.AGENTS - {'log-summarizer','aikya-auxiliary-analyzer','aikya-docs-assistant'}))
+        self.assertEqual(29, len(catalog.SKILLS))
+        self.assertEqual(30,len(list((ROOT/'engineering/agents').glob('*.md'))))
         self.assertEqual(29,len(list((ROOT/'engineering/skills').glob('*/SKILL.md'))))
         for entry in (ROOT/'engineering').rglob('*.md'):
             body=entry.read_text(encoding='utf8')

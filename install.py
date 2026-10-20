@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Instalador/entrevista de Aikya Harness. Python 3.9+, solo stdlib.
+"""Aikya Harness installer and technical interview. Python stdlib only.
 
-Scaffolding de aplicaciones es asistido. Skills de terceros requieren aprobación explícita; no lee secretos ni modifica Git.
+Application scaffolding is approval-gated. Third-party skills require explicit authorization; do not inspect secrets or mutate Git.
 """
 from __future__ import annotations
 import argparse
@@ -60,7 +60,7 @@ def read_json_safe(path: Path) -> dict[str, Any]:
 
 
 def detect_project(root: Path) -> dict[str, Any]:
-    """Detección conservadora basada en nombres/manifiestos; no ejecuta comandos."""
+    """Conservative manifest/name-based detection that never executes commands."""
     modules: list[dict[str, Any]] = []
     findings: list[str] = []
     seen: set[tuple[str, str, str]] = set()
@@ -98,13 +98,13 @@ def detect_project(root: Path) -> dict[str, Any]:
         if (folder / 'pyproject.toml').is_file() or (folder / 'requirements.txt').is_file():
             add('backend', 'python', folder, 'Verificar framework y entorno virtual')
         if (folder / 'pom.xml').exists():
-            add('backend', 'java', folder, 'Maven; confirmar tipo de aplicación')
+            add('backend', 'java', folder, 'Maven; confirm actual application type')
         if (folder / 'build.gradle').exists() or (folder / 'build.gradle.kts').exists():
             is_android = (folder / 'app/src/main/AndroidManifest.xml').exists() or (folder / 'src/main/AndroidManifest.xml').exists()
             if is_android:
                 add('mobile', 'android', folder)
             elif not (folder / 'pom.xml').exists():
-                add('backend', 'java', folder, 'Gradle; confirmar tipo de aplicación')
+                add('backend', 'java', folder, 'Gradle; confirm actual application type')
         if (folder / 'app/src/main/AndroidManifest.xml').exists():
             add('mobile', 'android', folder)
         for project in sorted(folder.glob('*.csproj'))[:5]:
@@ -123,14 +123,14 @@ def choice(question: str, values: list[str], default: str) -> str:
         print(f'\n{question}')
         for idx, value in enumerate(values, 1):
             print(f'  {idx}. {value}' + (' [por defecto]' if value == default else ''))
-        entered = input('Selecciona número o nombre (Enter = recomendado): ').strip().lower()
+        entered = input('Select number or name (Enter = recommended): ').strip().lower()
         if not entered:
             return default
         if entered.isdigit() and 1 <= int(entered) <= len(values):
             return values[int(entered)-1]
         if entered in values:
             return entered
-        print('Opción no válida; vuelve a intentarlo.')
+        print('Invalid option; try again.')
 
 
 def ask(question: str, default: str = '') -> str:
@@ -140,45 +140,45 @@ def ask(question: str, default: str = '') -> str:
 
 def yesno(question: str, default: bool = True) -> bool:
     while True:
-        value = input(f'{question} [{"S/n" if default else "s/N"}]: ').strip().lower()
+        value = input(f'{question} [{"Y/n" if default else "y/N"}]: ').strip().lower()
         if not value:
             return default
         if value in ('s', 'si', 'sí', 'y', 'yes'):
             return True
         if value in ('n', 'no'):
             return False
-        print('Responde s o n.')
+        print('Answer y or n.')
 
 
 def specialized_interview(target: Path, detected: dict[str, Any], kind: str, mode: str) -> dict[str, Any]:
-    """Entrevista autónoma, sin preguntas ni generadores de aplicaciones."""
-    name=ask('Nombre del proyecto',target.name)
-    provider=choice('Cloud / on-prem / híbrido',['none','aws','azure','gcp','on-prem','hybrid'],'none')
+    """Independent infrastructure interview without application generators."""
+    name=ask('Project name',target.name)
+    provider=choice('Cloud / on-prem / hybrid',['none','aws','azure','gcp','on-prem','hybrid'],'none')
     infra={'provider':provider,'iac':'none','configuration_management':'none',
            'containers':{'enabled':False,'compose':False},'orchestration':'none',
            'deployment_method':'none','environments':[],'image_repository':'',
            'container_port':None,'source_kind':'none',
            'helm_chart_mode':'create','helm_chart_path':''}
     if kind=='infrastructure':
-        infra['iac']=choice('Terraform / OpenTofu / existente / ninguno',['none','terraform','opentofu','existing'],'terraform')
-        infra['configuration_management']=choice('Ansible / existente / ninguno',['none','ansible','existing'],'none')
+        infra['iac']=choice('Terraform / OpenTofu / existing / none',['none','terraform','opentofu','existing'],'terraform')
+        infra['configuration_management']=choice('Ansible / existing / none',['none','ansible','existing'],'none')
     else:
-        infra['source_kind']=choice('Origen del despliegue',['source','image','chart','manifests'],'image')
-        docker=yesno('¿Generar Dockerfile desde el código fuente?',infra['source_kind']=='source')
-        compose=yesno('¿Generar Docker Compose para desarrollo local?',False)
+        infra['source_kind']=choice('Deployment source',['source','image','chart','manifests'],'image')
+        docker=yesno('Generate Dockerfile from actual source code?',infra['source_kind']=='source')
+        compose=yesno('Generate Docker Compose for local development?',False)
         infra['orchestration']=choice('Destino',['none','kubernetes','cloud-managed','vm'],'kubernetes')
         infra['containers']={'enabled':docker or compose,'compose':compose}
         if infra['orchestration']=='kubernetes':
-            infra['deployment_method']=choice('Kubernetes: método',['helm','kustomize','yaml'],'helm')
+            infra['deployment_method']=choice('Kubernetes deployment method',['helm','kustomize','yaml'],'helm')
             if infra['deployment_method']=='helm':
-                infra['helm_chart_mode']=choice('Helm: crear o reutilizar chart',['create','existing'],'create')
+                infra['helm_chart_mode']=choice('Helm: create or reuse chart',['create','existing'],'create')
                 if infra['helm_chart_mode']=='existing':
-                    infra['helm_chart_path']=ask('Ruta relativa del chart existente','infra/helm/charts/app')
+                    infra['helm_chart_path']=ask('Relative path of existing chart','infra/helm/charts/app')
         if infra['containers']['enabled'] or infra['orchestration']=='kubernetes':
-            infra['image_repository']=ask('Imagen versionada sin credenciales (vacío=pendiente)','')
-            port=ask('Puerto interno validado (vacío=pendiente)','')
+            infra['image_repository']=ask('Versioned image without credentials (blank=pending)','')
+            port=ask('Verified internal port (blank=pending)','')
             infra['container_port']=int(port) if port.isdecimal() else (port or None)
-    environments=ask('Entornos separados por coma','dev')
+    environments=ask('Comma-separated environments','dev')
     infra['environments']=[v.strip() for v in environments.split(',') if v.strip()]
     return {'project_type':kind,'mode':mode,'name':name,'repository_layout':'singlerepo',
             'backend':'none','frontend':'none','mobile':'none','mobile_framework':'none',
@@ -187,39 +187,39 @@ def specialized_interview(target: Path, detected: dict[str, Any], kind: str, mod
             'observability':'undecided','android_language':'none','ios_ui':'none',
             'architecture_patterns':[],'package_manager':'none','deployment':'none',
             'quality':'unit+integration','ci':choice('CI/CD',CIS,'undecided'),
-            'runtime_versions':'','notes':ask('Restricciones adicionales (opcional)',''),
+            'runtime_versions':'','notes':ask('Additional constraints (optional)',''),
             'infrastructure':infra}
 
 
 def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
-    print('\n=== ENTREVISTA TÉCNICA — AIKYA HARNESS ===')
-    print('Detección inicial (son indicios, no resultados de build ni pruebas):')
+    print('\n=== AIKYA HARNESS TECHNICAL INTERVIEW ===')
+    print('Initial observations (not verified builds or tests):')
     for finding in detected['findings']:
         print(' -', finding)
-    kind=choice('Tipo de proyecto Aikya',list(PROJECT_TYPES),'development')
-    nonempty = target.exists() and any(target.iterdir())
-    mode = choice('Repositorio nuevo o existente', ['existing', 'new'], 'existing' if nonempty else 'new')
+    kind=choice('Aikya project type',list(PROJECT_TYPES),'development')
+    # Greenfield interview only; legacy existing data remains valid for analyze.
+    mode = 'new'
     if kind!='development':
         return specialized_interview(target,detected,kind,mode)
     technologies = {role: next((m['technology'] for m in detected['modules'] if m['role'] == role), 'none')
                     for role in ('backend', 'frontend', 'mobile')}
     mobile_detected = technologies['mobile']
     mobile_default = 'both' if mobile_detected in ('flutter', 'react-native') else ('android' if mobile_detected == 'android' else ('ios' if mobile_detected == 'ios' else 'none'))
-    backend = choice('Backend principal', BACKENDS, technologies['backend'] if mode == 'existing' else 'none')
-    frontend = choice('Frontend web', FRONTENDS, technologies['frontend'] if mode == 'existing' else ('react' if backend == 'next' else 'none'))
-    mobile = choice('Plataformas móviles', MOBILES, mobile_default if mode == 'existing' else 'none')
+    backend = choice('Primary backend', BACKENDS, 'none')
+    frontend = choice('Frontend web', FRONTENDS, 'react' if backend == 'next' else 'none')
+    mobile = choice('Mobile platforms', MOBILES, 'none')
     framework = 'none'
     android_language = 'none'
     ios_ui = 'none'
     if mobile != 'none':
         default_framework = mobile_detected if mobile_detected in ('flutter','react-native') else 'native'
-        framework = choice('Estrategia de desarrollo móvil', FRAMEWORKS, default_framework)
+        framework = choice('Mobile development framework', FRAMEWORKS, default_framework)
         if framework == 'native' and mobile in ('android', 'both'):
-            android_language = choice('Lenguaje Android', ['kotlin', 'java'], 'kotlin')
+            android_language = choice('Android language', ['kotlin', 'java'], 'kotlin')
         if framework == 'native' and mobile in ('ios', 'both'):
-            ios_ui = choice('Tecnología interfaz iOS', ['swiftui', 'uikit'], 'swiftui')
+            ios_ui = choice('iOS UI framework', ['swiftui', 'uikit'], 'swiftui')
     if backend == 'none' and frontend == 'none' and mobile == 'none':
-        raise ValueError('Selecciona al menos un backend, frontend o plataforma móvil.')
+        raise ValueError('Select at least one backend, frontend or mobile platform.')
     frameworks = {
         'java': ['undecided','spring-boot','quarkus','micronaut'],
         'python': ['undecided','fastapi','django','flask'],
@@ -228,44 +228,44 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
         'next': ['next-app-router'],
         'none': ['none'],
     }
-    backend_framework = choice('Framework de backend', frameworks[backend], frameworks[backend][1] if backend in ('java','dotnet','next') else frameworks[backend][0]) if backend != 'none' else 'none'
-    api_style = choice('Estilo de API', API_STYLES, 'rest') if backend != 'none' else 'undecided'
-    frontend_rendering = choice('Estrategia de renderizado web', RENDERING, 'hybrid' if backend=='next' and frontend=='react' else 'spa') if frontend != 'none' else 'undecided'
-    layout = choice('Topología del repositorio', list(LAYOUTS),
+    backend_framework = choice('Backend framework', frameworks[backend], frameworks[backend][1] if backend in ('java','dotnet','next') else frameworks[backend][0]) if backend != 'none' else 'none'
+    api_style = choice('API style', API_STYLES, 'rest') if backend != 'none' else 'undecided'
+    frontend_rendering = choice('Web rendering strategy', RENDERING, 'hybrid' if backend=='next' and frontend=='react' else 'spa') if frontend != 'none' else 'undecided'
+    layout = choice('Repository layout', list(LAYOUTS),
                     'monorepo' if app_count({'backend':backend, 'frontend':frontend, 'mobile':mobile, 'mobile_framework':framework}) > 1 or (target/'apps').is_dir() else 'singlerepo')
-    arch = choice('Arquitectura preferida (en existing, se respeta la observada)', ARCHS,
-                  'existing' if mode == 'existing' else 'modular-monolith')
-    event_driven = yesno('¿El proyecto necesita eventos asíncronos como estilo complementario?', False)
-    database = choice('Base de datos', DATABASES, 'undecided')
-    ci = choice('Integración continua', CIS, 'undecided')
-    deployment = choice('Destino de despliegue', DEPLOYS, 'app-stores' if mobile != 'none' and backend == frontend == 'none' else 'undecided')
-    pkg_mgr = choice('Gestor JS (si aplica)', PACKAGES, 'npm') if backend in ('node','next') or frontend != 'none' or framework == 'react-native' else 'none'
-    auth = choice('Identidad/autenticación', AUTH, 'undecided')
+    arch = choice('Preferred architecture', [a for a in ARCHS if a != 'existing'],
+                  'modular-monolith')
+    event_driven = yesno('Does the project need asynchronous events as an additional architectural pattern?', False)
+    database = choice('Database', DATABASES, 'undecided')
+    ci = choice('Continuous integration', CIS, 'undecided')
+    deployment = choice('Deployment target', DEPLOYS, 'app-stores' if mobile != 'none' and backend == frontend == 'none' else 'undecided')
+    pkg_mgr = choice('JS package manager (when relevant)', PACKAGES, 'npm') if backend in ('node','next') or frontend != 'none' or framework == 'react-native' else 'none'
+    auth = choice('Identity/authentication', AUTH, 'undecided')
     telemetry = choice('Observabilidad', OBSERVABILITY, 'opentelemetry' if backend != 'none' else 'undecided')
-    quality = choice('Estrategia de pruebas', TEST_STYLES, 'unit+integration')
+    quality = choice('Test strategy', TEST_STYLES, 'unit+integration')
     infrastructure = {'provider':'none','iac':'none','configuration_management':'none',
                       'containers':{'enabled':False,'compose':False},
                       'orchestration':'none','deployment_method':'none','environments':[],
                       'image_repository':'','container_port':None}
-    if yesno('¿Configurar infraestructura y DevOps para este proyecto?', deployment in ('docker','kubernetes')):
-        infrastructure['provider'] = choice('Plataforma de infraestructura', ['none','aws','azure','gcp','on-prem','hybrid'], 'none')
-        infrastructure['iac'] = choice('Infraestructura como código', ['none','terraform','opentofu','existing'], 'none')
-        infrastructure['configuration_management'] = choice('Configuración de servidores', ['none','ansible','existing'], 'none')
-        enabled = yesno('¿Crear contenedores Docker?', deployment in ('docker','kubernetes'))
-        compose = yesno('¿Docker Compose para desarrollo local?', False) if enabled else False
+    if yesno('Configure infrastructure and DevOps for this project?', deployment in ('docker','kubernetes')):
+        infrastructure['provider'] = choice('Infrastructure provider', ['none','aws','azure','gcp','on-prem','hybrid'], 'none')
+        infrastructure['iac'] = choice('Infrastructure as code', ['none','terraform','opentofu','existing'], 'none')
+        infrastructure['configuration_management'] = choice('Server configuration management', ['none','ansible','existing'], 'none')
+        enabled = yesno('Create Docker containers?', deployment in ('docker','kubernetes'))
+        compose = yesno('Use Docker Compose for local development?', False) if enabled else False
         infrastructure['containers'] = {'enabled': enabled, 'compose': compose}
-        infrastructure['orchestration'] = choice('Orquestación', ['none','kubernetes','cloud-managed','vm'], 'kubernetes' if deployment=='kubernetes' else 'none') if enabled else 'none'
+        infrastructure['orchestration'] = choice('Orchestration', ['none','kubernetes','cloud-managed','vm'], 'kubernetes' if deployment=='kubernetes' else 'none') if enabled else 'none'
         if infrastructure['orchestration'] == 'kubernetes':
-            infrastructure['deployment_method'] = choice('Formato de despliegue Kubernetes', ['helm','kustomize','yaml'], 'helm')
+            infrastructure['deployment_method'] = choice('Kubernetes manifest format', ['helm','kustomize','yaml'], 'helm')
         if infrastructure['iac'] not in ('none','existing') or infrastructure['configuration_management']=='ansible' or infrastructure['orchestration']=='kubernetes':
-            environments = ask('Entornos (separados por coma; ej. dev,staging,prod)', 'dev')
+            environments = ask('Environments (comma-separated; e.g. dev,staging,prod)', 'dev')
             infrastructure['environments'] = [e.strip() for e in environments.split(',') if e.strip()]
         if enabled:
-            infrastructure['image_repository'] = ask('Imagen del contenedor (opcional, sin credenciales)', '')
-            port = ask('Puerto interno de la aplicación (vacío si se desconoce)', '')
+            infrastructure['image_repository'] = ask('Container image (optional, no credentials)', '')
+            port = ask('Application internal port (blank if unknown)', '')
             infrastructure['container_port'] = int(port) if port.isdecimal() else (port or None)
-    versions = ask('Versiones/SDKs que necesitas fijar (vacío = por decidir)', '')
-    return {'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Nombre del producto/proyecto', target.name),
+    versions = ask('Versions/SDKs to pin (blank = undecided)', '')
+    return {'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Product/project name', target.name),
             'backend': backend, 'frontend': frontend, 'mobile': mobile,
             'mobile_framework': framework, 'backend_framework':backend_framework, 'api_style':api_style,
             'frontend_rendering':frontend_rendering, 'auth':auth, 'observability':telemetry,
@@ -274,7 +274,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
             'architecture_patterns':['event-driven'] if event_driven else [], 'database': database,
             'ci': ci, 'deployment': deployment, 'package_manager': pkg_mgr,
             'infrastructure': infrastructure,
-            'quality': quality, 'notes': ask('Restricciones técnicas o convenciones adicionales (opcional)', '')}
+            'quality': quality, 'notes': ask('Additional technical constraints or conventions (optional)', '')}
 
 
 def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
@@ -296,16 +296,16 @@ def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
     result = {**defaults, **data}
     for field, values in choices.items():
         if result[field] not in values:
-            raise ValueError(f'{field}={result[field]!r} no válido. Opciones: {values}')
+            raise ValueError(f'{field}={result[field]!r} invalid. Options: {values}')
     kind=result['project_type']
     if kind=='development':
         if not any(result[k]!='none' for k in ('backend','frontend','mobile')):
-            raise ValueError('Desarrollo requiere backend, frontend o móvil.')
+            raise ValueError('Development requires backend, frontend or mobile.')
     else:
         if any(result[k]!='none' for k in ('backend','frontend','mobile')):
-            raise ValueError('Infrastructure/DevOps autónomos no admiten stack de aplicación. Usa development para combinar.')
+            raise ValueError('Standalone infrastructure/DevOps profiles cannot include an application stack. Use development to combine them.')
         if result['mode']=='new' and result['repository_layout']!='singlerepo':
-            raise ValueError('Infrastructure/DevOps autónomos requieren raíz sin workspaces de aplicaciones.')
+            raise ValueError('Standalone infrastructure/DevOps requires a root without application workspaces.')
     if result['mobile'] == 'none':
         for k in ('mobile_framework','android_language','ios_ui'):
             result[k] = 'none'
@@ -316,9 +316,9 @@ def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
         result['ios_ui'] = 'none'
     patterns = result.get('architecture_patterns', [])
     if not isinstance(patterns, list) or any(v != 'event-driven' for v in patterns) or len(patterns) != len(set(patterns)):
-        raise ValueError('architecture_patterns sólo admite una lista sin duplicados de event-driven.')
+        raise ValueError('architecture_patterns only allows a duplicate-free list of event-driven.')
     if not isinstance(result['name'], str) or not result['name'].strip():
-        raise ValueError('name debe ser texto no vacío.')
+        raise ValueError('name must be a nonempty string.')
     if not isinstance(result['notes'], str) or not isinstance(result['runtime_versions'], str):
         raise ValueError('notes y runtime_versions deben ser texto.')
     frameworks = {'none':['none','undecided'], 'java':['undecided','spring-boot','quarkus','micronaut'],
@@ -409,7 +409,7 @@ def make_checks(root: Path, profile: dict[str, Any], modules: list[dict[str, Any
             else:
                 add(f'{suffix}:test', None, module['path'], True)
         elif tech == 'python':
-            # Sólo ejecutamos pytest cuando existe en la configuración conocida.
+            # Only run pytest when configured in a known project manifest.
             if (folder / 'pytest.ini').is_file() or (folder / 'pyproject.toml').is_file():
                 add(f'{suffix}:test', [sys.executable,'-m','pytest'], module['path'], True)
             else:
@@ -433,14 +433,14 @@ def safe_write(path: Path, content: str, actions: list[str], *, replace_managed:
     if path.exists():
         if replace_managed and path.is_file() and path.read_text(encoding='utf8').startswith('<!-- GENERATED BY AIKYA-HARNESS -->'):
             path.write_text(content, encoding='utf8')
-            actions.append('ACTUALIZADO ' + str(path))
+            actions.append('UPDATED ' + str(path))
         elif path.is_file() and path.read_text(encoding='utf8') == content:
             actions.append('IGUAL ' + str(path))
         else:
-            actions.append('CONSERVADO (sin sobrescribir) ' + str(path))
+            actions.append('PRESERVED (not overwritten) ' + str(path))
         return
     path.write_text(content, encoding='utf8')
-    actions.append('CREADO ' + str(path))
+    actions.append('CREATED ' + str(path))
 
 
 def merge_settings(target: Path, actions: list[str]) -> None:
@@ -455,7 +455,7 @@ def merge_settings(target: Path, actions: list[str]) -> None:
             raise ValueError('settings.json no es objeto JSON')
     except (ValueError, OSError, UnicodeError) as exc:
         safe_write(target / '.harness/settings.harness-proposed.json', json.dumps(source, indent=2)+'\n', actions)
-        actions.append(f'AVISO settings.json inválido: {exc}; no modificado')
+        actions.append(f'NOTICE invalid settings.json: {exc}; left unchanged')
         return
     merged = json.loads(json.dumps(local))
     perms = merged.setdefault('permissions', {})
@@ -488,7 +488,7 @@ def merge_settings(target: Path, actions: list[str]) -> None:
         path.write_text(json.dumps(merged, indent=2, ensure_ascii=False)+'\n', encoding='utf8')
         actions.append('FUSIONADO (sin eliminar reglas previas) ' + str(path))
     else:
-        actions.append('SIN CAMBIOS ' + str(path))
+        actions.append('UNCHANGED ' + str(path))
 
 
 def md_text(value: Any) -> str:
@@ -498,54 +498,107 @@ def md_text(value: Any) -> str:
 def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> str:
     rows = '\n'.join(f'- {md_text(m["role"])}: **{md_text(m["technology"])}** (`{md_text(m["path"])}`)' for m in modules)
     if not rows:
-        rows = '- Repositorio nuevo; aún no hay framework implementado ni comandos verificados.'
+        rows = '- New repository; no implemented framework or verified command yet.'
     return f'''<!-- GENERATED BY AIKYA-HARNESS -->
-# Perfil técnico — {md_text(profile['name'])}
+# Technical project profile — {md_text(profile['name'])}
 
-> Entrevista de instalación. El perfil expresa **decisiones**, no garantiza dependencias instaladas ni que el código exista.
+> Onboarding captures technical decisions and observations; it does not prove that code, dependencies or deployments exist.
 
-| Aspecto | Decisión |
+| Attribute | Value |
 |---|---|
-| Modalidad | {md_text(profile['mode'])} |
-| Tipo de proyecto | {md_text(profile.get('project_type','development'))} |
-| Topología del repositorio | {md_text(layout_of(profile))} |
-| Infraestructura (proveedor/IaC/configuración) | {md_text(profile['infrastructure']['provider'])} / {md_text(profile['infrastructure']['iac'])} / {md_text(profile['infrastructure']['configuration_management'])} |
-| DevOps (contenedores/orquestación/despliegue) | {md_text(profile['infrastructure']['containers'])} / {md_text(profile['infrastructure']['orchestration'])} / {md_text(profile['infrastructure']['deployment_method'])} |
+| Mode | {md_text(profile['mode'])} |
+| Project type | {md_text(profile.get('project_type','development'))} |
+| Repository layout | {md_text(layout_of(profile))} |
+| Infrastructure (provider/IaC/configuration) | {md_text(profile['infrastructure']['provider'])} / {md_text(profile['infrastructure']['iac'])} / {md_text(profile['infrastructure']['configuration_management'])} |
+| DevOps (containers/orchestration/deployment) | {md_text(profile['infrastructure']['containers'])} / {md_text(profile['infrastructure']['orchestration'])} / {md_text(profile['infrastructure']['deployment_method'])} |
 | Backend | {md_text(profile['backend'])} |
-| Framework backend | {md_text(profile['backend_framework'])} |
-| Estilo de API | {md_text(profile['api_style'])} |
-| Frontend web | {md_text(profile['frontend'])} |
-| Renderizado web | {md_text(profile['frontend_rendering'])} |
-| Plataforma móvil | {md_text(profile['mobile'])} |
-| Framework móvil | {md_text(profile['mobile_framework'])} |
+| Backend framework | {md_text(profile['backend_framework'])} |
+| API style | {md_text(profile['api_style'])} |
+| Web frontend | {md_text(profile['frontend'])} |
+| Web rendering | {md_text(profile['frontend_rendering'])} |
+| Mobile platform | {md_text(profile['mobile'])} |
+| Mobile framework | {md_text(profile['mobile_framework'])} |
 | Android | {md_text(profile['android_language'])} |
 | UI iOS | {md_text(profile['ios_ui'])} |
-| Arquitectura | {md_text(profile['architecture'])} |
-| Patrones complementarios | {md_text(', '.join(profile.get('architecture_patterns', [])) or 'ninguno')} |
-| Versiones/SDK | {md_text(profile['runtime_versions']) or 'Por decidir'} |
-| Autenticación | {md_text(profile['auth'])} |
-| Observabilidad | {md_text(profile['observability'])} |
-| Persistencia | {md_text(profile['database'])} |
+| Architecture | {md_text(profile['architecture'])} |
+| Architecture patterns | {md_text(', '.join(profile.get('architecture_patterns', [])) or 'none')} |
+| Versions/SDK | {md_text(profile['runtime_versions']) or 'To be confirmed'} |
+| Authentication | {md_text(profile['auth'])} |
+| Observability | {md_text(profile['observability'])} |
+| Persistence | {md_text(profile['database'])} |
 | CI | {md_text(profile['ci'])} |
-| Despliegue | {md_text(profile['deployment'])} |
-| Gestor JS | {md_text(profile['package_manager'])} |
-| Estrategia de pruebas | {md_text(profile['quality'])} |
+| Deployment | {md_text(profile['deployment'])} |
+| JS package manager | {md_text(profile['package_manager'])} |
+| Test strategy | {md_text(profile['quality'])} |
 
-## Módulos detectados durante instalación (indicios, no validación)
+## Detected modules (indicators only, not verified)
 {rows}
 
-## Restricciones acordadas
-{md_text(profile['notes']) or 'No declaradas.'}
+## Recorded technical constraints
+{md_text(profile['notes']) or 'Not declared.'}
 
-## Instrucciones permanentes para Claude Code
-- En repositorio existente: inspeccionar el código real antes de proponer cambios; si contradice el perfil, comunicar la divergencia.
-- En proyecto nuevo: establecer primero estructura, contratos, versiones y comandos de scaffold; solicitar confirmación antes de ejecutar creadores remotos o instalar dependencias.
-- Crear apps/, contracts/ y packages/ únicamente en monorepo; en singlerepo generar la única aplicación en la raíz y mantener Aikya en aikya/.
-- Para Next.js, usar Route Handlers / Server Actions según arquitectura y exposición, no asumir que equivale a un backend independiente por defecto.
-- Para Android, usar convenciones Kotlin/Java y lifecycle; para iOS, Swift, signing y Xcode; para Flutter/React Native, contemplar ambas plataformas y pruebas reales.
-- No atribuir éxito a builds, testing de simulador, firma o publicación sin ejecutarlos.
-- Los tests exigidos no configurados deben quedar como **NO VERIFICADO**.
+## Permanent Claude Code instructions
+- Existing repositories: inspect actual code before proposing changes; report divergences from the profile.
+- New projects: define structure, contracts, versions and scaffold plans; request approval before external generators or dependency installation.
+- Create apps/, contracts/ and packages/ only for monorepos; for a singlerepo, place the application at the root and Aikya under aikya/.
+- For Next.js use Route Handlers and Server Actions according to the actual architecture; do not assume an independently deployed backend.
+- For Android verify Kotlin/Java and lifecycle; for iOS verify Swift, signing and Xcode; for Flutter/React Native validate both platforms.
+- Never claim a build, simulator test, signing or publication succeeded without running it.
+- Required but unconfigured checks must be reported as **NOT VERIFIED**.
 '''
+
+
+def project_bootstrap_en(profile: dict[str, Any]) -> str:
+    """English engineering guidance written only inside Aikya living documentation."""
+    kind = profile.get("project_type", "development")
+    lines = [
+        "<!-- GENERATED BY AIKYA-HARNESS -->",
+        "# Project bootstrap", "",
+        "This page is a plan, not proof of generated or deployed applications.",
+        "Review project manifests, dependency versions and SDK requirements before building.",
+        "Use /aikya-doctor for local diagnostics and /aikya-scaffold plan for proposals.",
+        "Do not run application generators, install tools or access cloud resources without approval.",
+        "", "## Project profile", "",
+        "- Project type: " + kind,
+        "- Mode: " + profile["mode"],
+        "- Backend: " + profile["backend"],
+        "- Backend framework: " + profile["backend_framework"],
+        "- Frontend: " + profile["frontend"],
+        "- Mobile: " + profile["mobile"],
+        "- Architecture: " + profile["architecture"],
+        "", "## Execution constraints", "",
+        "- Plan and review files before writing or executing generated scaffolding.",
+        "- Keep existing application source, infrastructure and CI unchanged during adoption.",
+        "- Verify actual build, tests, security and deployment separately.",
+    ]
+    if kind != "development":
+        lines.extend(("", "## Infrastructure / DevOps", "",
+                      "Use /aikya-infra-project plan before generating infrastructure.",
+                      "External deployment requires separate explicit authorization."))
+    backend = profile.get("backend", "none")
+    if kind == "development":
+        lines.extend(("", "## Framework-specific generators (plan only)", ""))
+        if backend == "dotnet":
+            lines.extend(("Suggested .NET Web API generator: dotnet new webapi",
+                          "Check installed dotnet SDK and selected target framework before running."))
+        elif backend == "java":
+            lines.extend(("Choose a supported Spring Boot, Quarkus or Micronaut project generator.",
+                          "Verify JDK, Maven/Gradle and framework versions first."))
+        elif backend == "python":
+            lines.append("Choose a project tool and verify FastAPI, Django or Flask versions.")
+        elif backend in ("node", "next"):
+            lines.append("Review package manager and framework generator before running.")
+    frontend = profile.get("frontend", "none")
+    if frontend == "vue":
+        lines.append("Vue frontend: verify package manager, Vue Router and Vite setup before generation.")
+    elif frontend == "angular":
+        lines.append("Angular frontend: verify Angular CLI, dependency versions and workspace layout.")
+    elif frontend == "react":
+        lines.append("React frontend: verify bundler and component conventions.")
+    if profile.get("mobile", "none") != "none":
+        lines.append("Android: verify JDK, Gradle, SDK target, lifecycle and platform tests.")
+        lines.append("iOS: verify Xcode, Swift, signing and simulator/physical-device tests.")
+    return "\n".join(lines) + "\n"
 
 
 def project_bootstrap(profile: dict[str, Any]) -> str:
@@ -628,7 +681,7 @@ def project_bootstrap(profile: dict[str, Any]) -> str:
 
 
 def copy_legacy_docs(target: Path, actions: list[str]) -> None:
-    """Copiar documentación anterior sin eliminar ni sobrescribir fuentes del usuario."""
+    """Copy legacy documentation without deleting or overwriting user sources."""
     source_dir = target/'docs'
     target_dir = target/'aikya/docs'
     if not source_dir.is_dir() or source_dir.is_symlink():
@@ -638,11 +691,11 @@ def copy_legacy_docs(target: Path, actions: list[str]) -> None:
             continue
         new = target_dir / old.relative_to(source_dir)
         if new.exists() or any(x.is_symlink() for x in (new, *new.parents) if x != target.parent and target in (x, *x.parents)):
-            actions.append('CONSERVADO legacy sin migrar: '+str(old))
+            actions.append('PRESERVED unmigrated legacy file: '+str(old))
             continue
         new.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(old,new)
-        actions.append('COPIADO docs legacy a aikya/docs (original conservado): '+str(new))
+        actions.append('COPIED legacy docs to aikya/docs (original preserved): '+str(new))
 
 
 def migrate_v55_project_config(target: Path, actions: list[str]) -> None:
@@ -654,7 +707,7 @@ def migrate_v55_project_config(target: Path, actions: list[str]) -> None:
         if (old.is_file() and newer.is_file() and current.is_file()
                 and not current.is_symlink() and current.read_bytes()==old.read_bytes()):
             shutil.copy2(newer,current)
-            actions.append('ACTUALIZADO HOOK AIKYA LEGACY '+str(current))
+            actions.append('UPDATED LEGACY AIKYA HOOK '+str(current))
     config=target/'harness.json'
     if config.is_symlink() or not config.is_file():
         return
@@ -680,23 +733,30 @@ def migrate_v55_project_config(target: Path, actions: list[str]) -> None:
         actions.append('MIGRADOS quality gates anteriores sin alterar checks personalizados.')
 
 
-def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False) -> list[str]:
+def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry_run: bool=False, *, adopt_existing: bool=False, docs_lang: str | None = None) -> list[str]:
     """Instala sin sobrescribir archivos de usuario. Para dry-run no muta."""
     actions: list[str] = []
+    if adopt_existing and profile.get('mode') != 'existing':
+        raise ValueError('adopt_existing requires a legacy-compatible existing profile')
+    from docs_language import resolve as resolve_docs_language
+    documentation_language = resolve_docs_language(target, docs_lang)
     validate_layout(profile)
-    # También se admiten llamadas directas desde harnesses antiguos sin validated().
+    # Older installed harnesses may invoke this function without validated().
     profile = {**profile, 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
     if dry_run:
         return [f'PLAN: instalar harness en {target}', 'PLAN: crear aikya/docs/, aikya/test/, aikya/scripts/ según '+layout_of(profile)+' y CI/infra', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
     target.mkdir(parents=True, exist_ok=True)
-    # Guardar un perfil estructurado: en reruns sólo actualizar si es del instalador.
+    from docs_language import write_approved as save_docs_language
+    if save_docs_language(target, documentation_language):
+        actions.append('CREATED .aikya/docs-policy.json')
+    # Save a structured profile; update only installer-owned profiles on repeated runs.
     profile_path = target / '.harness/project-profile.json'
     payload = {'_generated_by':'claude-dev-harness-interactive', 'schema_version':1,
                'decisions':profile, 'detected':detected}
     if profile_path.exists():
         old = read_json_safe(profile_path)
-        if old.get('_generated_by') != 'claude-dev-harness-interactive':
-            actions.append('CONSERVADO perfil ajeno: '+str(profile_path))
+        if adopt_existing or old.get('_generated_by') != 'claude-dev-harness-interactive': 
+            actions.append('PRESERVED non-Aikya profile: '+str(profile_path))
         else:
             profile_path.write_text(json.dumps(payload,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
             actions.append('ACTUALIZADO '+str(profile_path))
@@ -706,7 +766,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         if not source.is_file() or '__pycache__' in source.parts or source.suffix == '.pyc':
             continue
         rel = source.relative_to(TEMPLATE)
-        if rel.as_posix() in ('CLAUDE.md','harness.json','.claude/settings.json'):
+        if rel.as_posix() in ('CLAUDE.md','harness.json','.claude/settings.json') or (adopt_existing and (rel.parts[0] in ('.github', 'infra') or rel.name in ('.gitignore', 'Dockerfile', 'compose.yml', 'compose.yaml', 'docker-compose.yml', 'docker-compose.yaml') or rel.suffix in ('.tf', '.tfvars'))):
             continue
         dest = target / (Path('aikya/scripts') / Path(*rel.parts[1:]) if rel.parts[0]=='scripts' else Path('aikya/test') / Path(*rel.parts[1:]) if rel.parts[0]=='tests' else rel)
         if dest.exists():
@@ -717,24 +777,39 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                 if not backup.exists():
                     shutil.copy2(dest, backup)
                 shutil.copy2(source,dest)
-                actions.append('ACTUALIZADO DESDE v3 (backup creado) '+str(dest))
+                actions.append('UPDATED FROM v3 (backup created) '+str(dest))
             else:
-                actions.append('CONSERVADO (sin sobrescribir) '+str(dest))
+                actions.append('PRESERVED (sin sobrescribir) '+str(dest))
         else:
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, dest)
             actions.append('CREADO '+str(dest))
-    migrate_v55_project_config(target,actions)
-    # Alias prefijados: se conservan los comandos heredados para compatibilidad.
+    if not adopt_existing:
+        migrate_v55_project_config(target,actions)
+    # v6: retain legacy commands with lightweight aliases.
+    from aikya_setup import BOOTSTRAP_COMMANDS
     for original in sorted((TEMPLATE/'.claude/skills').glob('*/SKILL.md')):
-        old_name=original.parent.name
-        if old_name == 'project-bootstrap':
-            continue  # Comando público renombrado a aikya-infra-project.
-        if old_name.startswith('aikya-'):
+        old_name = original.parent.name
+        if old_name == 'project-bootstrap' or old_name.startswith('aikya-'):
             continue
-        alias='aikya-'+old_name
-        content=original.read_text(encoding='utf8').replace('name: '+old_name+'\n','name: '+alias+'\n',1)
-        safe_write(target/'.claude/skills'/alias/'SKILL.md',content,actions)
+        alias = 'aikya-' + old_name
+        # Public wrappers are registered below. Never shadow them with copied skills.
+        if alias in BOOTSTRAP_COMMANDS:
+            continue
+        destination = target/'.claude/skills'/alias/'SKILL.md'
+        body = ('---\nname: '+alias+'\ndescription: Alias de compatibilidad para /'+old_name+
+                '.\ndisable-model-invocation: true\n---\n'
+                '<!-- AIKYA BOOTSTRAP MANAGED -->\n'
+                '# /'+alias+'\nConsulta la skill de proyecto /'+old_name+
+                ' y aplica el procedimiento original con los mismos permisos.\n')
+        if destination.is_file() and not destination.is_symlink():
+            legacy = original.read_text(encoding='utf8').replace(
+                'name: '+old_name+'\n','name: '+alias+'\n',1)
+            if destination.read_text(encoding='utf8') == legacy:
+                destination.write_text(body,encoding='utf8')
+                actions.append('MIGRADO alias gestionado '+str(destination))
+                continue
+        safe_write(destination,body,actions)
     # Registrar todos los comandos gestionados Aikya cuando el proyecto se inicializa.
     # Los wrappers tienen la marca AIKYA BOOTSTRAP MANAGED y no sustituyen skills personalizadas.
     from aikya_setup import BOOTSTRAP_COMMANDS
@@ -746,16 +821,16 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         if dst.exists() and not dst.is_symlink() and 'AIKYA BOOTSTRAP MANAGED' in dst.read_text(encoding='utf8'):
             if dst.read_bytes()!=src.read_bytes():
                 dst.write_bytes(src.read_bytes())
-                actions.append('ACTUALIZADO skill gestionada '+str(dst))
+                actions.append('UPDATED managed skill '+str(dst))
         elif not dst.exists():
             safe_write(dst,src.read_text(encoding='utf8'),actions)
-    # Migrar únicamente wrappers anteriores que coinciden con los originales de Aikya.
+    # Migrate old wrappers only when they match the exact original managed asset.
     from aikya_setup import retire_legacy_commands
     for _scope in (target/'.aikya/runtime', HERE):
         if (_scope/'bootstrap_skills').is_dir():
             retire_legacy_commands(target/'.claude/skills',_scope,actions)
             break
-    # v4 también generaba un alias sin marca gestionada, a partir de la skill interna.
+    # v4 also generated an unmarked alias from an internal skill.
     old_alias=target/'.claude/skills/aikya-project-bootstrap/SKILL.md'
     original=TEMPLATE/'.claude/skills/project-bootstrap/SKILL.md'
     if old_alias.is_file() and not old_alias.is_symlink() and original.is_file():
@@ -772,7 +847,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     if requirements_file.is_file():
         requirements_target=target/'aikya/scripts/harness/aikya_requirements.py'
         contents=requirements_file.read_bytes()
-        # v5.6 instalado: sustituir sólo la copia exacta y conservar backup.
+        # For installed v5.6, replace only the exact managed copy and retain a backup.
         legacy_blob='97c43d8df0c471e1492eaac4ebc7f13a13967cf8'
         if requirements_target.is_file() and not requirements_target.is_symlink():
             raw=requirements_target.read_bytes()
@@ -788,19 +863,34 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                 safe_write(requirements_target,contents.decode('utf8'),actions)
         else:
             safe_write(requirements_target,contents.decode('utf8'),actions)
-        # Necesaria también cuando el detector se ejecuta desde el proyecto instalado.
+        # Also required when the detector runs within an installed project.
         local_profile=HERE/'infrastructure_profile.py'
         if local_profile.is_file():
             safe_write(target/'aikya/scripts/harness/infrastructure_profile.py',
                        local_profile.read_text(encoding='utf8'),actions)
 
-    merge_settings(target, actions)
+    # v6: install model/token utilities without changing global configuration.
+    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py', 'docs_language.py', 'docs_templates_en.py', 'docs_templates_es.py'):
+        source = HERE / utility
+        if source.is_file():
+            safe_write(target/'aikya/scripts/harness'/utility,
+                       source.read_text(encoding='utf8'), actions)
+    # Keep the v5.9.1 profile unchanged. The optional v6 model policy is external to answers.json.
+    model_policy = target/'.aikya/model-policy.json'
+    if not model_policy.exists():
+        from token_policy import DEFAULT
+        safe_write(model_policy, json.dumps(DEFAULT,ensure_ascii=False,indent=2)+'\n', actions)
+
+    if not adopt_existing or not (target/'.claude/settings.json').exists():
+        merge_settings(target, actions)
+    else:
+        actions.append('PRESERVED existing settings.json during adoption')
     claude = target / 'CLAUDE.md'
     if not claude.exists():
         safe_write(claude, (TEMPLATE/'CLAUDE.md').read_text(encoding='utf8') + '\n' +
                    '## Perfil técnico\nLee `.claude/rules/00-project-profile.md` antes de diseñar o modificar la aplicación.\n', actions)
     else:
-        actions.append('CONSERVADO CLAUDE.md existente; el perfil se encuentra en .claude/rules/00-project-profile.md')
+        actions.append('PRESERVED existing CLAUDE.md; profile is available at .claude/rules/00-project-profile.md')
     safe_write(target/'.claude/rules/00-project-profile.md', context_markdown(profile,detected['modules']), actions, replace_managed=True)
     checks = [{'name':'docs:structure', 'command':['python3','aikya/scripts/harness/docs_guard.py','base'], 'cwd':'.', 'required':True}, {'name':'skills:format', 'command':['python3','aikya/scripts/harness/skills_lint.py'], 'cwd':'.', 'required':True}] + make_checks(target,profile,detected['modules'])
     if selected_infrastructure(profile['infrastructure']):
@@ -808,17 +898,21 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                        'command':['python3','aikya/scripts/harness/infrastructure.py','validate'],
                        'cwd':'.','required':False})
     safe_write(target/'harness.json',json.dumps({'schema_version':2,'checks':checks},indent=2,ensure_ascii=False)+'\n',actions)
-    safe_write(target/'aikya/docs/harness/bootstrap.md',project_bootstrap(profile)+
-        '\n## Bootstrap ejecutable, opcional\n\n'
-        'Desde Claude Code utiliza `/aikya-scaffold plan` para revisar generadores soportados. '
-        'La skill `/aikya-scaffold` ejecutará los generadores **sólo con aprobación expresa**: pueden descargar dependencias y crear código. '
-        'Java y proyectos móviles nativos pueden requerir sus generadores gráficos oficiales.\n',
+    safe_write(target/'aikya/docs/harness/bootstrap.md',(project_bootstrap_en(profile) if documentation_language == 'en' else project_bootstrap(profile))+
+        (('\n## Optional executable scaffolding\n\n'
+          'Use /aikya-scaffold plan to review supported generators. '
+          'Scaffolding requires explicit approval: generators may download dependencies '
+          'and create source code. Native platforms may require official IDE tools.\n')
+         if documentation_language == 'en' else
+         ('\n## Bootstrap ejecutable, opcional\n\n'
+          'Desde Claude Code utiliza /aikya-scaffold plan para revisar generadores soportados. '
+          'El scaffolding requiere autorización expresa y puede descargar dependencias.\n')),
         actions,replace_managed=False)
     copy_legacy_docs(target,actions)
-    for rel, content in doc_pages(profile,detected['modules']).items():
+    for rel, content in doc_pages(profile,detected['modules'],documentation_language).items():
         safe_write(target/rel,content,actions)
-    # Catálogo técnico importado y curado: copia assets sin ejecutarlos y activa sólo
-    # los agentes/skills adecuados a las decisiones confirmadas de la entrevista.
+    # Curated technical catalog: copy assets without executing them and activate only
+    # the agents/skills relevant to the validated project decisions.
     from engineering_catalog import discover, install_selected
     for original in sorted((HERE/'engineering').rglob('*')):
         if original.is_file() and not original.is_symlink():
@@ -837,7 +931,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     from skills_registry import write_inventory
     ok, note = write_inventory(target,profile)
     actions.append(('INVENTARIO ' if ok else 'AVISO ') + note)
-    for rel, content in infra_files(profile).items():
+    for rel, content in ({} if adopt_existing else infra_files(profile)).items():
         if rel == '.gitignore':
             ignore = target/'.gitignore'
             if not ignore.exists():
@@ -855,7 +949,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         else:
             safe_write(target/rel,content,actions)
     from infrastructure_profile import selected
-    if selected(profile['infrastructure']):
+    if selected(profile['infrastructure']) and not adopt_existing:
         from importlib.util import spec_from_file_location, module_from_spec
         infra_module = TEMPLATE/'scripts/harness/infrastructure.py'
         if infra_module.is_file():
@@ -867,11 +961,16 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                        '<!-- GENERATED BY AIKYA-HARNESS -->\n'+summary, actions,
                        replace_managed=True)
     safe_write(target/'aikya/docs/harness/installer-readme.md',
-        '<!-- GENERATED BY AIKYA-HARNESS -->\n# Instalación del harness\n\n'
-        'Perfil de decisiones: `.harness/project-profile.json`.\n\n'
-        'Reglas contextuales: `.claude/rules/00-project-profile.md`.\n\n'
-        'Quality gates: `harness.json` y `/aikya-quality` dentro de Claude Code.\n\n'
-        'Si ya existía `CLAUDE.md`, se ha conservado. Si existía `harness.json`, se ha conservado: revisa los checks manualmente.\n',
+        (('<!-- GENERATED BY AIKYA-HARNESS -->\n# Harness installation\n\n'
+          'Decisions: .harness/project-profile.json.\n\n'
+          'Context rules: .claude/rules/00-project-profile.md.\n\n'
+          'Quality gates: harness.json and /aikya-quality in Claude Code.\n\n'
+          'Existing CLAUDE.md and harness.json configurations are preserved.\n')
+         if documentation_language == 'en' else
+         ('<!-- GENERATED BY AIKYA-HARNESS -->\n# Instalación del harness\n\n'
+          'Perfil: .harness/project-profile.json.\n'
+          'Reglas: .claude/rules/00-project-profile.md.\n'
+          'Quality gates: harness.json. Se conservan archivos personalizados.\n')),
         actions,replace_managed=True)
     return actions
 
@@ -916,60 +1015,68 @@ def only_aikya_bootstrap(target:Path) -> bool:
 
 
 def main(argv: list[str]|None=None) -> int:
-    parser=argparse.ArgumentParser(description='Entrevista técnica e instalador seguro para Claude Code')
+    parser=argparse.ArgumentParser(description='Technical interview and safe Claude Code installer')
     parser.add_argument('--target',type=Path,default=Path.cwd(),help='Repositorio existente o nuevo directorio')
-    parser.add_argument('--answers',type=Path,help='Respuestas JSON para instalación no interactiva')
+    parser.add_argument('--answers',type=Path,help='JSON answers for non-interactive installation')
     parser.add_argument('--dry-run',action='store_true',help='Mostrar plan sin escribir archivos')
-    parser.add_argument('--allow-bootstrap',action='store_true',help='Permitir new sólo con bootstrap Aikya verificado')
+    parser.add_argument('--allow-bootstrap',action='store_true',help='Allow new mode only with verified Aikya-only bootstrap')
     parser.add_argument('--display-name',default=None,help='Nombre local que se muestra en el saludo de Claude Code (no se versiona)')
-    parser.add_argument('--external',choices=['ask','install','plan','skip'],default=None,help='Skills de terceros: pedir consentimiento (terminal), instalar con consentimiento explícito, plan o saltar')
+    parser.add_argument('--docs-lang',choices=['en','es'],default=None,help='Language of Aikya living documentation only')
+    parser.add_argument('--external',choices=['ask','install','plan','skip'],default=None,help='Third-party skills: request consent, install only with approval, preview or skip')
     args=parser.parse_args(argv)
     target=args.target.expanduser().resolve()
     if target.exists() and not target.is_dir():
         parser.error('--target debe ser un directorio')
     detected=detect_project(target) if target.exists() else {'modules':[],'findings':['Directorio nuevo.']}
+    if not args.answers and target.exists() and any(target.iterdir()) and not (args.allow_bootstrap and only_aikya_bootstrap(target)):
+        print('ERROR: interactive init is only for new projects; use /aikya-analyze for existing repositories.',file=sys.stderr)
+        return 2
     try:
         if args.answers:
             answers=read_json_safe(args.answers)
             if not answers:
-                raise ValueError('Archivo --answers vacío/inválido o sin permisos.')
+                raise ValueError('--answers is empty, invalid or unreadable.')
             profile=validated(answers,target)
             welcome_name = args.display_name if args.display_name is not None else answers.get('welcome_name', '')
         else:
             profile=validated(interview(target,detected),target)
+            if args.docs_lang is None and not args.dry_run:
+                from docs_language import read as read_docs_language
+                if read_docs_language(target) is None:
+                    args.docs_lang=choice('Select the language of Aikya living documentation', ['en','es'], 'en')
             welcome_name = args.display_name if args.display_name is not None else ask(
-                'Nombre para la bienvenida en Claude Code (vacío = git user.name)', '')
+                'Name displayed in Claude Code welcome (blank = git user.name)', '')
     except (ValueError,KeyboardInterrupt,EOFError) as exc:
-        print(f'Entrevista cancelada o inválida: {exc}',file=sys.stderr)
+        print(f'Interview canceled or invalid: {exc}',file=sys.stderr)
         return 2
     if profile['mode']=='existing' and not target.exists():
         print('ERROR: mode=existing requiere una carpeta de proyecto existente.',file=sys.stderr)
         return 2
     if profile['mode']=='new' and target.exists() and any(target.iterdir()) and not (args.allow_bootstrap and only_aikya_bootstrap(target)):
         if args.answers:
-            print('ERROR: mode=new requiere un directorio vacío (protección anti-sobrescritura).',file=sys.stderr)
+            print('ERROR: mode=new requires an empty directory (overwrite protection).',file=sys.stderr)
             return 2
         print('El directorio de destino ya contiene archivos.')
-        if not yesno('¿Continuar manteniendo los archivos sin sobrescribirlos?',False):
+        if not yesno('Continue without overwriting existing files?',False):
             return 2
     print('\n=== RESUMEN DE DECISIONES ===')
     print(json.dumps(profile,indent=2,ensure_ascii=False))
-    if not args.answers and not args.dry_run and not yesno('¿Instalar el harness con este perfil?',True):
-        print('Instalación cancelada. No se han creado archivos.')
+    if not args.answers and not args.dry_run and not yesno('Install the harness with this profile?',True):
+        print('Installation canceled. No files were created.')
         return 0
     try:
-        actions=install(target,profile,detected,dry_run=args.dry_run)
+        actions=install(target,profile,detected,dry_run=args.dry_run,docs_lang=args.docs_lang)
     except (OSError,UnicodeError,ValueError) as exc:
-        print(f'ERROR durante la instalación: {exc}',file=sys.stderr)
+        print(f'ERROR during installation: {exc}',file=sys.stderr)
         return 1
     if not args.dry_run and welcome_name:
         if not isinstance(welcome_name, str) or not welcome_name.strip():
-            print('AVISO: nombre de bienvenida inválido; no guardado.', file=sys.stderr)
+            print('NOTICE: invalid welcome name; not saved.', file=sys.stderr)
         else:
             # La identidad es por usuario/equipo local, no forma parte del perfil compartido.
             welcome_file = target / '.harness/welcome.json'
             if welcome_file.is_symlink():
-                print('AVISO: welcome.json es enlace simbólico; no modificado.', file=sys.stderr)
+                print('NOTICE: welcome.json is a symlink; not modified.', file=sys.stderr)
             else:
                 welcome_file.parent.mkdir(parents=True, exist_ok=True)
                 welcome_file.write_text(json.dumps({'display_name': welcome_name.strip()[:48]},
@@ -986,7 +1093,7 @@ def main(argv: list[str]|None=None) -> int:
             for command in planned_commands(profile):
                 print('PLAN:', command)
         if policy == 'ask':
-            policy = 'install' if yesno('¿Autorizar descarga y ejecución de instaladores oficiales de terceros?',False) else 'plan'
+            policy = 'install' if yesno('Approve downloading and running official third-party installers?',False) else 'plan'
         if policy == 'install':
             print('\nInstalando skills externas seleccionadas ...')
             record = install_all(target, profile, permission=True)
@@ -994,7 +1101,7 @@ def main(argv: list[str]|None=None) -> int:
             if failed:
                 failed_external = True
                 print('AVISO: instalaciones externas pendientes: '+', '.join(failed),file=sys.stderr)
-                print('Desde Claude Code utiliza /aikya-skills-install, con autorización explícita.')
+                print('Use /aikya-skills-install from Claude Code with explicit approval.')
         elif policy == 'plan':
             print('Skills externas PENDIENTES; para instalarlas tras revisar procedencia:')
             print('Desde Claude Code utiliza /aikya-skills-install, con autorización explícita.')
