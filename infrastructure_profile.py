@@ -1,4 +1,4 @@
-"""Perfil de infraestructura Aikya v5.7: validación tipada y compatibilidad legado."""
+"""Aikya infrastructure profile v5.7: typed validation with legacy compatibility."""
 from __future__ import annotations
 import re
 from typing import Any
@@ -13,7 +13,7 @@ _REPO_RE = re.compile(r'^[a-zA-Z0-9._/@:-]+$')
 
 
 def defaults(profile: dict) -> dict[str, Any]:
-    """Perfiles previos no necesitan cambiar para seguir instalándose."""
+    """Older profiles do not require changes to remain installable."""
     deployment = profile.get('deployment')
     kubernetes = deployment == 'kubernetes'
     return {
@@ -48,7 +48,7 @@ def validated(profile: dict) -> dict[str, Any]:
         ('orchestration', ORCHESTRATION), ('deployment_method', METHODS),
     ):
         if not isinstance(result[key], str) or result[key] not in options:
-            raise ValueError('infrastructure.' + key + ': opción no válida')
+            raise ValueError('infrastructure.' + key + ': invalid option')
     containers = result['containers']
     if not isinstance(containers, dict) or set(containers) - {'enabled', 'compose'}:
         raise ValueError('infrastructure.containers debe contener enabled y compose')
@@ -63,15 +63,15 @@ def validated(profile: dict) -> dict[str, Any]:
     if result['orchestration'] == 'kubernetes':
         if result['deployment_method'] == 'none':
             raise ValueError('Selecciona helm, kustomize o yaml para Kubernetes')
-        # Kubernetes puede desplegar imágenes existentes sin Docker local.
+        # Kubernetes can deploy existing images without a local Docker installation.
     environments = result['environments']
     if not isinstance(environments, list) or any(not isinstance(e, str) or not _ENV_RE.fullmatch(e) for e in environments):
         raise ValueError('infrastructure.environments debe ser lista de nombres seguros')
     if len(set(environments)) != len(environments) or len(environments) > 12:
-        raise ValueError('Entornos duplicados o más de 12 entornos')
+        raise ValueError('Duplicate environments or more than twelve environments')
     repository = result['image_repository']
     if not isinstance(repository, str) or (repository and (len(repository) > 200 or not _REPO_RE.fullmatch(repository))):
-        raise ValueError('infrastructure.image_repository no válido')
+        raise ValueError('infrastructure.image_repository invalid')
     port = result['container_port']
     if port is not None and (type(port) is not int or not 1 <= port <= 65535):
         raise ValueError('infrastructure.container_port debe ser un puerto TCP 1-65535')
@@ -81,7 +81,7 @@ def validated(profile: dict) -> dict[str, Any]:
         raise ValueError('infrastructure.helm_chart_mode no válido')
     path=result['helm_chart_path']
     if not isinstance(path,str) or len(path)>180:
-        raise ValueError('infrastructure.helm_chart_path inválida')
+        raise ValueError('infrastructure.helm_chart_path invalid')
     if path and (path.startswith('/') or chr(92) in path or any(part in ('','.', '..') for part in path.split('/'))):
         raise ValueError('helm_chart_path debe ser relativa y sin saltos de directorio')
     if result['helm_chart_mode']=='existing' and (result['deployment_method']!='helm' or not path):
