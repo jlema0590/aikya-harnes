@@ -1,23 +1,30 @@
-# Ejemplos Aikya
+# Aikya example profiles
 
-Cada carpeta contiene `answers.json` con `repository_layout` (`monorepo` o `singlerepo`) y su README técnico. Usa `/aikya-answers` dentro de Claude Code para revisar un ejemplo; no se instalan dependencias ni se generan apps sólo por abrirlo.
+Each directory contains an `answers.json` technical-decision sample and a README. Use /aikya-answers in Claude Code to review declarative decisions; simply opening a sample never installs dependencies or generates applications. For new projects use /aikya-init; for real existing repositories use /aikya-analyze.
 
-- `next-react`: singlerepo, Next.js + React integrado en la raíz.
-- `android-kotlin`: singlerepo, Android nativo.
-- `existing-java-api`: singlerepo, sólo se analiza el repositorio existente sin reorganizarlo.
-- `java-react-clean`, `dotnet-vue`, `python-angular`, `node-react-microservices`: monorepos con apps separadas.
+## Development
 
-- `next-react-terraform-helm`: singlerepo, Next.js/React, Terraform, Docker/Compose y Helm.
-- `java-react-ansible-kustomize`: monorepo Java/React con Ansible y Kustomize.
+- `next-react`: singlerepo Next.js with integrated React.
+- `android-kotlin`: native Android application.
+- `existing-java-api`: historical existing Java API compatibility fixture; adopt actual repositories without reorganizing source.
+- `java-react-clean`: separate Spring Boot and React applications with Clean Architecture.
+- `dotnet-vue`: ASP.NET Core and Vue modular monolith.
+- `python-angular`: Python FastAPI and Angular.
+- `node-react-microservices`: Node backend and React with explicitly justified microservices.
 
-En estos dos ejemplos, los archivos de despliegue se generan sólo tras la aprobación del plan y cuando los requisitos de imágenes/puertos y versiones están confirmados.
+## Development with infrastructure
 
-## Modos autónomos v5.8
+- `next-react-terraform-helm`: Next.js/React, Terraform AWS, Docker/Compose, Helm.
+- `java-react-ansible-kustomize`: Java/React monorepo with Ansible and Kustomize.
 
-- `infra-terraform-only`: Terraform AWS sin aplicación.
-- `infra-ansible-only`: Ansible on-prem sin aplicación.
-- `devops-docker-compose`: Compose sobre una imagen existente.
-- `devops-helm-existing`: reutilización de chart local; requiere Chart.yaml existente en el proyecto destino.
-- `devops-kustomize`: Kubernetes con overlays y una imagen existente.
+Deployment files require a reviewed plan, confirmed versioned images and ports, and separate authorization. Samples contain no deployed services or working credentials.
 
-Elige el tipo de proyecto antes del resto de la entrevista. Los perfiles legacy siguen correspondiendo a development. Ningún ejemplo realiza despliegues.
+## Standalone infrastructure / DevOps
+
+- `infra-terraform-only`: AWS Terraform without application code.
+- `infra-ansible-only`: Ansible on-premises without invented hosts.
+- `devops-docker-compose`: Compose using an existing image.
+- `devops-helm-existing`: reuse an actual local chart; Chart.yaml must exist.
+- `devops-kustomize`: Kubernetes bases/overlays from an existing image.
+
+Historical profiles without project_type are treated as development. No example performs a remote deployment. All engineering content remains English. Only generated living documentation under aikya/docs/ supports en/es.
