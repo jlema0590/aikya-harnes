@@ -575,6 +575,19 @@ def project_bootstrap_en(profile: dict[str, Any]) -> str:
         lines.extend(("", "## Infrastructure / DevOps", "",
                       "Use /aikya-infra-project plan before generating infrastructure.",
                       "External deployment requires separate explicit authorization."))
+    backend = profile.get("backend", "none")
+    if kind == "development":
+        lines.extend(("", "## Framework-specific generators (plan only)", ""))
+        if backend == "dotnet":
+            lines.extend(("Suggested .NET Web API generator: dotnet new webapi",
+                          "Check installed dotnet SDK and selected target framework before running."))
+        elif backend == "java":
+            lines.extend(("Choose a supported Spring Boot, Quarkus or Micronaut project generator.",
+                          "Verify JDK, Maven/Gradle and framework versions first."))
+        elif backend == "python":
+            lines.append("Choose a project tool and verify FastAPI, Django or Flask versions.")
+        elif backend in ("node", "next"):
+            lines.append("Review package manager and framework generator before running.")
     return "\n".join(lines) + "\n"
 
 
