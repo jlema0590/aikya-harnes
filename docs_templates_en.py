@@ -51,7 +51,7 @@ Do not invent business requirements.
 ## Technical context
 - Project type: {kind}
 - Mode: {flat(profile['mode'])}
-- Repository layout: {flat(profile['repository_layout'])}
+- Repository layout: {flat(profile.get('repository_layout', 'monorepo'))}
 - Backend: {backend} ({flat(profile['backend_framework'])})
 - Frontend: {frontend}
 - Mobile: {mobile} ({flat(profile['mobile_framework'])})
