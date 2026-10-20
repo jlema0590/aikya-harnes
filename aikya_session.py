@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Bienvenida de Aikya en sesiones globales y aviso de inicio para nuevos proyectos.
+"""Aikya global session welcome and safe onboarding recommendations.
 
-SessionStart no inicia automáticamente la entrevista: espera /aikya-init.
+SessionStart never starts interviews automatically; it waits for an explicit command.
 No descarga recursos, no lee secretos y evita duplicar el saludo local.
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ def is_new_project(directory: Path, home: Path | None = None) -> bool:
                 'pom.xml','build.gradle','package.json','global.json','pubspec.yaml'))
 
 def has_local_welcome(root: Path) -> bool:
-    # Si el proyecto ya tiene su propio SessionStart de Aikya, no mostrar doble aviso.
+    # If the project has its own Aikya SessionStart hook, avoid duplicate notices.
     config=root/'.claude/settings.json'
     if not (root/'.claude/hooks/welcome.py').is_file():
         return False
@@ -45,7 +45,7 @@ def banner(root: Path) -> str:
         spec.loader.exec_module(mod)
         return mod.build_message(root)
     except (OSError,ValueError,AttributeError,TypeError):
-        return 'Bienvenido a Aikya Harness · '+root.name
+        return 'Welcome to Aikya Harness · '+root.name
 
 def main() -> int:
     try:data=json.load(sys.stdin)
@@ -60,10 +60,10 @@ def main() -> int:
     message=banner(root)
     payload={'systemMessage':message}
     if new:
-        payload['systemMessage'] += '\nProyecto sin inicializar. Ejecuta /aikya-init o /aikya-answers para comenzar.'
+        payload['systemMessage'] += '\nUnconfigured project. Use /aikya-init for a new project, /aikya-analyze for an existing repository, or /aikya-answers for a declarative profile.'
         if data.get('source','startup')=='startup':
             payload['hookSpecificOutput']={'hookEventName':'SessionStart',
-                'additionalContext':'Aikya está disponible. El usuario puede pedir /aikya-init o /aikya-answers; no generes código ni instales herramientas sin confirmación.'}
+                'additionalContext':'Aikya is available. The user can explicitly request /aikya-init (new) or /aikya-analyze (existing). Do not generate code or install tools without approval.'}
     print(json.dumps(payload,ensure_ascii=False))
     return 0
 
