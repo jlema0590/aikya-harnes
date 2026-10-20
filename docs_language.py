@@ -2,8 +2,6 @@
 from __future__ import annotations
 
 import json
-import os
-import tempfile
 from pathlib import Path
 
 POLICY_FILE = ".aikya/docs-policy.json"
@@ -39,14 +37,32 @@ def read(root: Path) -> str | None:
     return validate(obj["language"])
 
 
+def legacy_language(root: Path) -> str | None:
+    """Recognize the language of a legacy generated README without editing it."""
+    path = Path(root).absolute() / "aikya/docs/README.md"
+    if path.is_symlink() or not path.is_file():
+        return None
+    try:
+        head = path.read_text(encoding="utf8")[:600].lower()
+    except (OSError, UnicodeError):
+        return None
+    if ("# documentación" in head or "# documentaciÓn".lower() in head or
+            "política documental" in head or "documentación de este repositorio" in head):
+        return "es"
+    if "# living documentation" in head or "# documentation" in head:
+        return "en"
+    return None
+
+
 def resolve(root: Path, requested: str | None = None, *, default: str = "en") -> str:
     current = read(root)
+    legacy = legacy_language(root) if current is None else None
     if requested is not None:
         desired = validate(requested)
-        if current is not None and current != desired:
-            raise ValueError("Existing documentation language differs; use the approved documentation language migration workflow.")
+        if (current is not None and current != desired) or (legacy is not None and legacy != desired):
+            raise ValueError("Existing living documentation uses another language; request a reviewed migration before changing it.")
         return desired
-    return current or validate(default)
+    return current or legacy or validate(default)
 
 
 def write_approved(root: Path, language: str) -> bool:
