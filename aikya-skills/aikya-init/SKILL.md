@@ -14,3 +14,7 @@ disable-model-invocation: true
 6. Suggest /aikya-doctor, /aikya-scaffold plan and /aikya-quality.
 
 Respect user approvals, preserve custom files, do not install dependencies or access external systems without separate authorization. Report tests actually executed, blocked checks and evidence. Living documentation under aikya/docs/ follows .aikya/docs-policy.json; all other content is English.
+
+## Engineering methodology
+
+During the new-project interview, offer `standard` (default) or explicit `sdd` for every project type. Store the approved choice as `methodology` in the technical profile; do not infer it. SDD is not a fourth project type. After initialization guide the user through `/aikya-specify`, `/aikya-clarify`, `/aikya-plan`, `/aikya-tasks`, `/aikya-implement` and `/aikya-sdd-status`. Existing repositories must use `/aikya-analyze`, never this interview.

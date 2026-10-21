@@ -13,3 +13,7 @@ disable-model-invocation: true
 5. Update aikya/docs/quality/testing.md and request changes in the selected documentation language when code was changed.
 
 All instructions, reports and software-development assets outside aikya/docs/ remain in English.
+
+## SDD evidence
+
+For `methodology=sdd`, run the engine's `lint --root .` structural check and inspect the active specification with `/aikya-sdd-status`. Before claiming completion, require `completion --root . --id SPEC-NNN` plus separately observed technical checks. Draft validity is not completion; evidence records never certify tests or deployments independently.

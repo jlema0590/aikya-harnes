@@ -15,3 +15,7 @@ disable-model-invocation: true
 7. Do not build, execute Terraform, run Docker or deploy during onboarding. Changing an existing documentation language requires a separate approved migration.
 
 Respect user approvals, preserve custom files, do not install dependencies or access external systems without separate authorization. Report tests actually executed, blocked checks and evidence. Living documentation under aikya/docs/ follows .aikya/docs-policy.json; all other content is English.
+
+## Optional SDD adoption
+
+Accept `--methodology sdd` only as an explicit choice, include it in the dry-run preview and preserve it on the approved call. Without that option retain an existing methodology; newly adopted repositories default to standard. Do not add a technical interview or overwrite custom profiles, generators or quality gates. Changes requiring manual integration must return NEEDS_REVIEW, not successful activation. Disabling an existing SDD methodology requires a separately reviewed migration.

@@ -14,3 +14,7 @@ disable-model-invocation: true
 6. Record architecture/roadmap decisions under aikya/docs/ only when requested and in the chosen locale.
 
 Never claim an external action or test was performed unless verified.
+
+## Explicit SDD workflow
+
+If the technical profile selects `methodology=sdd`, require the active SPEC-NNN and TASK-NNN and hand implementation to `/aikya-implement`. Do not modify source before its authorization check and scoped user consent. In standard mode retain the workflow above.

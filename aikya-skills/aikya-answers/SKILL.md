@@ -14,3 +14,7 @@ disable-model-invocation: true
 6. Preview file changes, obtain approval, install only approved harness components and report the results.
 
 Never claim an external action or test was performed unless verified.
+
+## Methodology preservation
+
+Validate `methodology` as standard or sdd. Enable SDD only from a reviewed profile and explicit approval. Show the engine/generator upgrades and quality-gate backup before writes. Preserve an existing SDD selection; disabling it requires a separate migration. Never claim activation if a custom asset blocks installation.

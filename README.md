@@ -93,6 +93,7 @@ It previews Aikya-owned changes before adoption. Ambiguous repositories return
 | `--focus infrastructure` | Focus on infrastructure evidence. |
 | `--focus operations` | Focus on operational evidence. |
 | `--scope <relative-path>` | Limit discovery to a component, such as a monorepo workspace. |
+| `--methodology sdd` | Explicitly opt into SDD with a reviewed adoption plan. |
 | `--refresh` | Refresh only verifiably managed analysis assets. |
 | `--docs-lang en` or `--docs-lang es` | Choose the living documentation language. |
 
@@ -106,6 +107,38 @@ Examples—run each separately as needed:
 
 Discovery does not build applications, execute application scripts or deploy
 infrastructure. Adoption preserves application code and customized configurations.
+
+### Optional Spec-Driven Development (SDD)
+
+Keep `standard` for the existing workflow, or explicitly select `sdd` during the
+new-project interview. For an existing repository, preview adoption first:
+
+```text
+/aikya-analyze --dry-run --methodology sdd --docs-lang en
+```
+
+Review the file plan, generator upgrades and quality-gate backup before approving
+adoption. Without an explicit choice, new profiles remain standard and existing
+SDD selections are retained. Disabling SDD requires a separately reviewed migration.
+
+The SDD workflow is:
+
+```text
+/aikya-specify
+/aikya-clarify
+/aikya-plan
+/aikya-tasks
+/aikya-implement
+/aikya-sdd-status
+```
+
+Specification, plan and tasks each need their own approval. Implementation and
+generation require an active **SPEC-NNN + TASK-NNN**, plus consent for the actual
+changes. An old approved specification does not authorize a different task.
+SDD works with development, infrastructure and DevOps; it is a methodology, not
+a fourth project type or a replacement application architecture.
+
+See [the SDD workflow](docs/SDD.md) for input schemas, migration and evidence limits.
 
 ### Documentation language
 
@@ -123,7 +156,7 @@ reviewed migration.
 
 | Path | Purpose |
 |---|---|
-| `aikya-skills/` | Source of the 21 public Claude Code slash commands. |
+| `aikya-skills/` | Source of the 27 public Claude Code slash commands. |
 | `engineering/agents/` | Curated specialist agent definitions. |
 | `engineering/skills/` | Curated technical skills. |
 | `template/` | Base project agents, skills, rules and harness utilities. |
@@ -174,6 +207,13 @@ Existing projects are not reorganized automatically.
 | /aikya-models | Review optional model routing policy |
 | /aikya-tokens | Inspect token usage and estimated API costs |
 
+| /aikya-specify | Create a draft specification and acceptance criteria |
+| /aikya-clarify | Resolve specification questions and record explicit approval |
+| /aikya-plan | Draft a technical design and testing plan |
+| /aikya-tasks | Define requirement-linked tasks and dependencies |
+| /aikya-implement | Execute the active approved specification/task with scoped consent |
+| /aikya-sdd-status | Inspect SDD state, traceability and recorded evidence |
+
 The project-local skills architecture also includes base feature, bugfix,
 verification, documentation and architecture-review workflows. Do not invoke
 optional external tools automatically.
@@ -181,6 +221,10 @@ optional external tools automatically.
 ## 5. Documentation, audits and Git history
 
 ![Documentation traceability in Aikya](docs/images/documentation-traceability-en.png)
+
+SDD adds versioned specifications under `aikya/docs/specs/<project_type>/SPEC-NNN/`,
+including Markdown documents and a machine-readable `state.json`. The latter stores
+workflow state; documentation does not consist exclusively of Markdown.
 
 Material technical changes update the affected `.md` pages under `aikya/docs/`
 and create a `changes/REQ-*.md` record with **Changes**, **Evidence** and

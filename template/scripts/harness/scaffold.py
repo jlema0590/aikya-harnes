@@ -165,7 +165,18 @@ def _single_scaffold(p: dict, root: Path, item: dict, runner) -> int:
     return 0
 
 
-def apply(p:dict, root:Path, assume_yes:bool=False, runner=subprocess.run) -> int:
+def sdd_approved(root: Path, profile: dict, spec_id=None, task_id=None) -> bool:
+    """Require the selected specification and task; historical approvals do not count."""
+    if profile.get("methodology", "standard") != "sdd": return True
+    try:
+        from sdd_engine import require_approved_task
+        require_approved_task(root, spec_id, task_id)
+        return True
+    except (ImportError, ValueError, OSError, TypeError, KeyError):
+        return False
+
+
+def apply(p:dict, root:Path, assume_yes:bool=False, runner=subprocess.run, *, spec_id=None, task_id=None) -> int:
     cmds,manual=command_plans(p)
     root=root.resolve()
     if p.get('project_type','development')!='development':
@@ -173,6 +184,9 @@ def apply(p:dict, root:Path, assume_yes:bool=False, runner=subprocess.run) -> in
         return 2
     if p.get('mode')!='new':
         print('No ejecutar scaffold sobre proyecto existente.',file=sys.stderr)
+        return 2
+    if not sdd_approved(root,p,spec_id,task_id):
+        print('SDD requires an approved --spec-id and --task-id before scaffolding.',file=sys.stderr)
         return 2
     if not cmds:
         print(plan(p))
@@ -231,12 +245,14 @@ def main(argv=None):
     parser=argparse.ArgumentParser(description='Planificar o ejecutar generadores oficiales de apps')
     parser.add_argument('mode',choices=['plan','apply'])
     parser.add_argument('--yes',action='store_true',help='Confirmación explícita para ejecución desatendida; puede acceder a Internet')
+    parser.add_argument('--spec-id')
+    parser.add_argument('--task-id')
     args=parser.parse_args(argv)
     try:
         p=load_profile(ROOT)
         if args.mode=='plan':
             print(plan(p)); return 0
-        return apply(p,ROOT,args.yes)
+        return apply(p,ROOT,args.yes,spec_id=args.spec_id,task_id=args.task_id)
     except (OSError,ValueError,KeyboardInterrupt,EOFError) as exc:
         print('ERROR: '+str(exc),file=sys.stderr)
         return 2

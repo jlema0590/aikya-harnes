@@ -180,7 +180,7 @@ def specialized_interview(target: Path, detected: dict[str, Any], kind: str, mod
             infra['container_port']=int(port) if port.isdecimal() else (port or None)
     environments=ask('Comma-separated environments','dev')
     infra['environments']=[v.strip() for v in environments.split(',') if v.strip()]
-    return {'project_type':kind,'mode':mode,'name':name,'repository_layout':'singlerepo',
+    return {'methodology':choice('Engineering methodology', ['standard','sdd'], 'standard'), 'project_type':kind,'mode':mode,'name':name,'repository_layout':'singlerepo',
             'backend':'none','frontend':'none','mobile':'none','mobile_framework':'none',
             'backend_framework':'none','architecture':'undecided','database':'undecided',
             'api_style':'undecided','frontend_rendering':'undecided','auth':'undecided',
@@ -265,7 +265,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
             port = ask('Application internal port (blank if unknown)', '')
             infrastructure['container_port'] = int(port) if port.isdecimal() else (port or None)
     versions = ask('Versions/SDKs to pin (blank = undecided)', '')
-    return {'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Product/project name', target.name),
+    return {'methodology':choice('Engineering methodology', ['standard','sdd'], 'standard'), 'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Product/project name', target.name),
             'backend': backend, 'frontend': frontend, 'mobile': mobile,
             'mobile_framework': framework, 'backend_framework':backend_framework, 'api_style':api_style,
             'frontend_rendering':frontend_rendering, 'auth':auth, 'observability':telemetry,
@@ -278,14 +278,14 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
 
 
 def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
-    choices = {'project_type': list(PROJECT_TYPES), 'mode': ['existing','new'], 'repository_layout': list(LAYOUTS), 'backend': BACKENDS, 'frontend': FRONTENDS,
+    choices = {'methodology':['standard','sdd'], 'project_type': list(PROJECT_TYPES), 'mode': ['existing','new'], 'repository_layout': list(LAYOUTS), 'backend': BACKENDS, 'frontend': FRONTENDS,
                'mobile': MOBILES, 'mobile_framework': ['none']+FRAMEWORKS,
                'android_language':['none','kotlin','java'], 'ios_ui':['none','swiftui','uikit'],
                'architecture': ARCHS, 'database':DATABASES, 'ci':CIS,
                'deployment':DEPLOYS, 'package_manager':['none']+PACKAGES,
                'api_style': API_STYLES, 'auth':AUTH, 'observability':OBSERVABILITY,
                'quality':TEST_STYLES, 'frontend_rendering':RENDERING}
-    defaults = {'project_type':'development', 'mode':'new', 'repository_layout':'monorepo', 'backend':'none', 'frontend':'none', 'mobile':'none',
+    defaults = {'methodology':'standard', 'project_type':'development', 'mode':'new', 'repository_layout':'monorepo', 'backend':'none', 'frontend':'none', 'mobile':'none',
                 'mobile_framework':'none', 'android_language':'none', 'ios_ui':'none',
                 'architecture':'undecided', 'database':'undecided', 'ci':'undecided',
                 'deployment':'undecided', 'package_manager':'npm',
@@ -507,6 +507,7 @@ def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> 
 | Attribute | Value |
 |---|---|
 | Mode | {md_text(profile['mode'])} |
+| Methodology | {md_text(profile.get('methodology','standard'))} |
 | Project type | {md_text(profile.get('project_type','development'))} |
 | Repository layout | {md_text(layout_of(profile))} |
 | Infrastructure (provider/IaC/configuration) | {md_text(profile['infrastructure']['provider'])} / {md_text(profile['infrastructure']['iac'])} / {md_text(profile['infrastructure']['configuration_management'])} |
@@ -742,10 +743,39 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     documentation_language = resolve_docs_language(target, docs_lang)
     validate_layout(profile)
     # Older installed harnesses may invoke this function without validated().
-    profile = {**profile, 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
+    profile = {**profile, 'methodology':profile.get('methodology','standard'), 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
+    if profile['methodology'] not in ('standard', 'sdd'):
+        raise ValueError('Invalid engineering methodology')
+    previous_profile = read_json_safe(target/'.harness/project-profile.json')
+    previous_decisions = previous_profile.get('decisions', {})
+    if isinstance(previous_decisions, dict) and previous_decisions.get('methodology') == 'sdd':
+        profile['methodology'] = 'sdd'  # Disabling SDD requires a separately reviewed migration.
+    if profile['methodology'] == 'sdd' and previous_profile and previous_profile.get('_generated_by') != 'claude-dev-harness-interactive':
+        raise ValueError('Review the custom technical profile before enabling SDD')
+    sdd_operations = []
+    if profile['methodology'] == 'sdd':
+        from sdd_assets import prepare as prepare_sdd_assets
+        from sdd_engine import rel_file
+        rel_file(target, 'harness.json')
+        sdd_operations = prepare_sdd_assets(target, HERE)
+    if profile['methodology'] == 'sdd' and (target/'harness.json').exists():
+        manifest = target/'harness.json'
+        if manifest.is_symlink(): raise ValueError('Symlinked quality manifest is not supported')
+        current = read_json_safe(manifest)
+        gate = {'name':'sdd:traceability', 'command':['python3','aikya/scripts/harness/sdd_engine.py','lint','--root','.'], 'cwd':'.', 'required':True}
+        existing = current.get('checks')
+        if current.get('schema_version') != 2 or not isinstance(existing, list):
+            raise ValueError('Review the custom quality manifest before enabling SDD')
+        gates = [c for c in existing if isinstance(c, dict) and c.get('name') == 'sdd:traceability']
+        if gates and gates != [gate]: raise ValueError('Customized SDD gate requires review')
+        for part in (target/'.harness/backup-v611', target/'.harness/backup-v611/harness.json'):
+            if part.is_symlink(): raise ValueError('Symlinked SDD backup is not supported')
     if dry_run:
         return [f'PLAN: instalar harness en {target}', 'PLAN: crear aikya/docs/, aikya/test/, aikya/scripts/ según '+layout_of(profile)+' y CI/infra', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
     target.mkdir(parents=True, exist_ok=True)
+    if sdd_operations:
+        from sdd_assets import apply as apply_sdd_assets
+        apply_sdd_assets(target, sdd_operations, actions)
     from docs_language import write_approved as save_docs_language
     if save_docs_language(target, documentation_language):
         actions.append('CREATED .aikya/docs-policy.json')
@@ -755,7 +785,11 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                'decisions':profile, 'detected':detected}
     if profile_path.exists():
         old = read_json_safe(profile_path)
-        if adopt_existing or old.get('_generated_by') != 'claude-dev-harness-interactive': 
+        if adopt_existing and old.get('_generated_by') == 'claude-dev-harness-interactive' and old.get('decisions', {}).get('methodology', 'standard') != profile['methodology']:
+            old['decisions']['methodology'] = profile['methodology']
+            profile_path.write_text(json.dumps(old, indent=2, ensure_ascii=False)+'\n', encoding='utf8')
+            actions.append('UPDATED explicitly selected methodology in managed profile')
+        elif adopt_existing or old.get('_generated_by') != 'claude-dev-harness-interactive':
             actions.append('PRESERVED non-Aikya profile: '+str(profile_path))
         else:
             profile_path.write_text(json.dumps(payload,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
@@ -897,7 +931,30 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         checks.append({'name':'infra:static',
                        'command':['python3','aikya/scripts/harness/infrastructure.py','validate'],
                        'cwd':'.','required':False})
+    if profile['methodology'] == 'sdd':
+        checks.append({'name':'sdd:traceability', 'command':['python3','aikya/scripts/harness/sdd_engine.py','lint','--root','.'], 'cwd':'.', 'required':True})
     safe_write(target/'harness.json',json.dumps({'schema_version':2,'checks':checks},indent=2,ensure_ascii=False)+'\n',actions)
+    if profile['methodology'] == 'sdd':
+        manifest = target/'harness.json'
+        if manifest.is_symlink(): raise ValueError('Symlinked quality manifest is not supported')
+        current = read_json_safe(manifest)
+        if current.get('schema_version') != 2 or not isinstance(current.get('checks'), list):
+            raise ValueError('Review the custom quality manifest before enabling SDD')
+        gate = checks[-1]
+        existing_gates = [c for c in current['checks'] if isinstance(c, dict) and c.get('name') == 'sdd:traceability']
+        if existing_gates and existing_gates != [gate]:
+            raise ValueError('Customized SDD gate requires review; no checks were replaced')
+        if not existing_gates:
+            backup = target/'.harness/backup-v611/harness.json'
+            if backup.is_symlink() or backup.parent.is_symlink(): raise ValueError('Symlinked SDD backup is not supported')
+            backup.parent.mkdir(parents=True, exist_ok=True)
+            if not backup.exists(): shutil.copy2(manifest, backup)
+            current['checks'].append(gate)
+            manifest.write_text(json.dumps(current, indent=2, ensure_ascii=False)+'\n', encoding='utf8')
+            actions.append('ADDED SDD traceability check; original quality manifest backed up')
+        for sdd_module in ('sdd_engine.py', 'sdd_localization.py'):
+            safe_write(target/'aikya/scripts/harness'/sdd_module, (HERE/sdd_module).read_text(encoding='utf8'), actions)
+
     safe_write(target/'aikya/docs/harness/bootstrap.md',(project_bootstrap_en(profile) if documentation_language == 'en' else project_bootstrap(profile))+
         (('\n## Optional executable scaffolding\n\n'
           'Use /aikya-scaffold plan to review supported generators. '

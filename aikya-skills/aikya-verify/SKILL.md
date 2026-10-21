@@ -13,3 +13,7 @@ disable-model-invocation: true
 5. Report failures, skipped checks and unresolved risks precisely.
 
 Keep engineering instructions in English. Living documentation language is restricted to aikya/docs/.
+
+## SDD evidence
+
+For `methodology=sdd`, run the engine's `lint --root .` structural check and inspect the active specification with `/aikya-sdd-status`. Before claiming completion, require `completion --root . --id SPEC-NNN` plus separately observed technical checks. Draft validity is not completion; evidence records never certify tests or deployments independently.

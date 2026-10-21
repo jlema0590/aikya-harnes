@@ -14,3 +14,7 @@ disable-model-invocation: true
 6. Update relevant Aikya living docs in en or es according to the project policy.
 
 Never claim an external action or test was performed unless verified.
+
+## Explicit SDD workflow
+
+If the technical profile selects `methodology=sdd`, require the active SPEC-NNN and TASK-NNN and hand implementation to `/aikya-implement`. Do not modify source before its authorization check and scoped user consent. In standard mode retain the workflow above.

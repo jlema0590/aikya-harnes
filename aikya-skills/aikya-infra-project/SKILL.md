@@ -14,3 +14,7 @@ disable-model-invocation: true
 6. Update relevant aikya/docs/infrastructure and operations pages in the selected docs language.
 
 Preserve project instructions and customized assets. Never claim tests, security reviews or deployments succeeded without execution. Scope external operations separately. Living docs follow .aikya/docs-policy.json; other engineering text stays English.
+
+## SDD generation context
+
+In `methodology=sdd`, pass `--spec-id SPEC-NNN --task-id TASK-NNN` for the active approved task when invoking the underlying generator. Stop on a failed authorization check. Plan remains read-only; generator approval is separate from SDD approval and does not authorize remote operations.

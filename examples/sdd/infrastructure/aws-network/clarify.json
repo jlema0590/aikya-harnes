@@ -1,0 +1,5 @@
+{
+  "answers": {
+    "Which CIDR ranges and region are approved?": "Use the team-approved region and CIDR ranges; unresolved values block generation."
+  }
+}

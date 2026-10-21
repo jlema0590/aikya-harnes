@@ -5,6 +5,15 @@
 - English-only engineering core with configurable English/Spanish living documentation under aikya/docs/.
 - Claude Code Agent Skills and subagent quality, permissions and routing standardization.
 
+## v6.1.1 — 2026-10-21
+
+- Integrated opt-in Spec-Driven Development for development, infrastructure and DevOps while retaining the standard workflow and new/existing onboarding separation.
+- Added six SDD commands, a portable specification lifecycle engine and localized living documentation with versioned state and requirement/task/evidence records.
+- Bound generation to the active approved specification and task, revalidated persisted references and dependencies, and separated structural lint from recorded completion readiness.
+- Added reviewed adoption through --methodology sdd, conservative known-asset upgrades with backups, custom-asset blocking, and global/project runtime support.
+- Preserved current analysis, model and token commands; updated the bilingual README, workflow documentation and catalog inventory for 27 public commands.
+- Added regression coverage for approval scope, malformed state, migration, runtime isolation, documentation languages and quality-manifest safety; corrected the inherited symbolic-link test.
+
 ## v6.0.1 — 2026-10-21
 
 - Removed README links to deleted onboarding and model-policy documents.

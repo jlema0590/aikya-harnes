@@ -1,0 +1,5 @@
+{
+  "answers": {
+    "What is the actual readiness endpoint?": "Use the application-owned readiness endpoint; do not invent its URL."
+  }
+}
