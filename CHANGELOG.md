@@ -5,6 +5,16 @@
 - English-only engineering core with configurable English/Spanish living documentation under aikya/docs/.
 - Claude Code Agent Skills and subagent quality, permissions and routing standardization.
 
+## v6.0.1 — 2026-10-21
+
+- Removed README links to deleted onboarding and model-policy documents.
+- Replaced the hard-coded release-version test with SemVer and matching release-note validation.
+- Restructured the English README and added a Spanish README with language navigation.
+- Simplified installation instructions to use the default branch and clarified global/project registration scope and supported CLI syntax.
+- Separated new-project onboarding with /aikya-init from existing-repository adoption with /aikya-analyze, including documented analysis options.
+- Added verified component, recursion and documentation traceability diagrams, with conceptual workflows explicitly labeled.
+- Promoted living documentation, audit evidence and Git history to a dedicated section; clarified optional external skills and the Aikya safety approach.
+
 ## v6.0.0 — Token Efficiency & Observability (in development)
 
 - Conservative validated per-role model policy: Opus for planning/orchestration, inherit for routine work, and user-approved optional Haiku.
