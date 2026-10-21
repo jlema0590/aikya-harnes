@@ -183,7 +183,7 @@ Las herramientas externas opcionales no deben invocarse automáticamente.
 
 ## 5. Documentación, auditorías e historial de Git
 
-![Trazabilidad documental en Aikya](docs/images/documentation-traceability.png)
+![Trazabilidad documental en Aikya](docs/images/documentation-traceability-en.png)
 
 Los cambios técnicos relevantes actualizan las páginas `.md` afectadas de `aikya/docs/`
 y crean un registro `changes/REQ-*.md` con **Cambios**, **Evidencias** y
