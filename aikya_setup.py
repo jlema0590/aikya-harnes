@@ -19,8 +19,9 @@ BOOTSTRAP_COMMANDS=(
     'aikya-feature', 'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
     'aikya-skills-status', 'aikya-skills-plan', 'aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
     'aikya-documentation-sync', 'aikya-verify', 'aikya-models', 'aikya-tokens',
+    'aikya-specify', 'aikya-clarify', 'aikya-plan', 'aikya-tasks', 'aikya-implement', 'aikya-sdd-status',
 )
-CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py','token_policy.py','token_report.py','model_capabilities.py','aikya_router.py','project_discovery.py','profile_builder.py','analysis_manifest.py','aikya_analyze.py','docs_language.py','docs_templates_en.py','docs_templates_es.py')
+CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py','token_policy.py','token_report.py','model_capabilities.py','aikya_router.py','project_discovery.py','profile_builder.py','analysis_manifest.py','aikya_analyze.py','docs_language.py','docs_templates_en.py','docs_templates_es.py','sdd_engine.py','sdd_assets.py','sdd_localization.py')
 
 
 def files_to_copy(source:Path):

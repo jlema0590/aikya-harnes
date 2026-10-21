@@ -17,7 +17,13 @@ def pages(profile: dict, modules: list[dict], language: str = "en") -> dict[str,
         from docs_templates_es import pages as localized
     else:
         from docs_templates_en import pages as localized
-    return localized(profile, modules)
+    result = localized(profile, modules)
+    if profile.get('methodology', 'standard') == 'sdd':
+        title = 'SDD: specifications and traceability' if language == 'en' else 'SDD: especificaciones y trazabilidad'
+        note = ('Explicit approval is required for specification, plan and tasks. Recorded evidence is not an independently executed check.' if language == 'en' else 'La especificación, el plan y las tareas requieren aprobación explícita. Registrar evidencias no equivale a ejecutar comprobaciones independientes.')
+        result['aikya/docs/specs/README.md'] = MARK + '# ' + title + '\n\n' + note + '\n\n' + ' → '.join('/aikya-' + c for c in ('specify', 'clarify', 'plan', 'tasks', 'implement', 'sdd-status')) + '\n\n' + '`specs/<project_type>/SPEC-NNN/`\n'
+        result['aikya/docs/README.md'] += '\n- [' + title + '](specs/README.md)\n'
+    return result
 
 
 def infra_files(p:dict) -> dict[str,str]:

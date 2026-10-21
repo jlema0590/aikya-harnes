@@ -14,3 +14,7 @@ disable-model-invocation: true
 6. Update affected documentation under aikya/docs/ in the configured en/es language, without changing the English engineering rules.
 
 Respect user approvals, preserve custom files, do not install dependencies or access external systems without separate authorization. Report tests actually executed, blocked checks and evidence. Living documentation under aikya/docs/ follows .aikya/docs-policy.json; all other content is English.
+
+## Explicit SDD workflow
+
+If the technical profile selects `methodology=sdd`, require the active SPEC-NNN and TASK-NNN and hand implementation to `/aikya-implement`. Do not modify source before its authorization check and scoped user consent. In standard mode retain the workflow above.

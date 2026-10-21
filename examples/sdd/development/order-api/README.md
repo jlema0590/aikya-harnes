@@ -1,0 +1,5 @@
+# Java order API — SDD example
+
+Reviewed input fixtures for development. Follow [the SDD lifecycle](../../../../docs/SDD.md).
+These files are examples, not evidence of generated applications, successful checks or deployments.
+Replace unresolved environment values with approved project data before actual generation.
