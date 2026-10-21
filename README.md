@@ -262,6 +262,4 @@ secure or replace project-specific security review.
 - [Contribution guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)
-- [Init/analyze separation](docs/INIT_ANALYZE_SEPARATION.md)
-- [v6 model and compatibility policy](docs/V6_TOKEN_COMPATIBILITY.md)
 - [GitHub workflow contracts](.github/workflows.md)

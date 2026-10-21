@@ -267,6 +267,4 @@ de una aplicación ni sustituyen la revisión de seguridad específica de cada p
 - [Guía de contribución](CONTRIBUTING.md)
 - [Política de seguridad](SECURITY.md)
 - [Código de conducta](CODE_OF_CONDUCT.md)
-- [Separación entre init y analyze](docs/INIT_ANALYZE_SEPARATION.md)
-- [Política de modelos y compatibilidad de v6](docs/V6_TOKEN_COMPATIBILITY.md)
 - [Contratos de los workflows de GitHub](.github/workflows.md)

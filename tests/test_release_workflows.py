@@ -150,8 +150,10 @@ class VersionContractTests(unittest.TestCase):
         self.assertNotIn("contents: write",yaml)
 
     def test_version_and_release_notes_in_repo(self):
-        self.assertEqual("6.0.0",(ROOT/"VERSION").read_text().strip())
+        version = (ROOT/"VERSION").read_text().strip()
+        self.assertRegex(version, r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
         changelog=(ROOT/"CHANGELOG.md").read_text()
+        self.assertTrue(contract.notes_from_changelog(changelog, version))
         self.assertIn("## v5.9.1",changelog)
         self.assertIn("GitHub Actions fixes and automation",changelog)
 
