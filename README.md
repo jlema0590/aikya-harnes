@@ -1,8 +1,10 @@
 # Aikya Harness
 
+[English](README.md) | [Español](README.es.md)
+
 **One engineering workflow. Multiple AI agents. Consistent quality.**
 
-![Aikya Harness](./Aikya-Harness.png)
+![Aikya Harness](docs/images/aikya-harness.png)
 
 Aikya Harness is a Claude Code engineering environment combining safe project
 onboarding, application scaffolding, infrastructure-as-code planning, curated
@@ -18,84 +20,135 @@ third-party downloads, SDK installation or external operations.
 
 ## 1. Quick start
 
-Open Claude Code in the target project and request:
+Open Claude Code in your target directory and paste:
 
-> Install Aikya Harness from https://github.com/jlema0590/aikya-harness.git,
-> branch develop, in global scope. Review the source and request approval before
-> any downloads or configuration changes. Register its skills, hooks and
-> welcome message without changing unrelated repositories or installing SDKs.
-> Then explain /aikya-init and /aikya-analyze.
+```text
+Install Aikya Harness from https://github.com/jlema0590/aikya-harness.git --scope global
+```
 
-Start a new Claude Code session to load the commands and welcome hook.
+> **Installation scope:** request `global` for your Claude Code user, or `project` for the current repository.
+> This block is a natural-language request to Claude Code. The internal registration script,
+> `aikya_setup.py`, accepts `--scope global` or `--scope project`; `scope=global` is not a CLI argument.
+> Installation scope is separate from `/aikya-analyze --scope <relative-path>`, which selects a directory to inspect.
 
-Choose one onboarding flow:
+| Value | Where it is registered | When to choose it |
+|---|---|---|
+| `global` | For the current Claude Code user, using a shared runtime. Projects are initialized separately. | You want Aikya commands available across your projects. |
+| `project` | In the current repository, with a local runtime under `.aikya/runtime/`. | You want registration limited to one repository. |
 
-- **New project:** /aikya-init — interview and creation of the new technical profile.
-- **Existing repository:** /aikya-analyze — evidence-based detection and safe adoption
-  without a project interview.
+Start a new Claude Code session, then choose the onboarding command below.
 
-| Installation scope | Behavior |
+## 2. Onboarding
+
+| Starting point | Command | How it works |
+|---|---|---|
+| **New project** | **`/aikya-init`** | Interview, technical decisions and approved initialization. |
+| **Existing repository** | **`/aikya-analyze`** | Discover the stack from repository evidence and preview safe adoption. |
+
+### New projects → `/aikya-init`
+
+```text
+/aikya-init
+```
+
+Use an empty project directory. The command always selects `mode=new` and guides
+you through the required choices. If existing code is detected, use `/aikya-analyze`.
+
+| Project type | Choices covered during onboarding |
 |---|---|
-| Global | Registers commands for the current Claude Code user with a shared runtime; does not initialize projects. |
-| Project | Registers only within the current repository with a local runtime under .aikya/runtime/. |
+| `development` | Stack, repository layout, architecture, testing and optional infrastructure/platform support. |
+| `infrastructure` | Terraform/OpenTofu, Ansible, provider, environments and constraints. |
+| `devops` | Docker, image/source, existing Helm chart, Kubernetes and YAML/Kustomize. |
 
-Both modes preserve customized skills and configurations.
+The interview also asks for the living documentation language. Review the file
+plan before approving changes. Then check prerequisites and plan scaffolding:
+
+```text
+/aikya-doctor
+/aikya-scaffold plan
+```
+
+For infrastructure or DevOps generation, start with `/aikya-infra-project plan`.
+Generators, downloads and external operations require their applicable approvals.
+
+### Existing projects → `/aikya-analyze`
+
+Start with a read-only preview:
+
+```text
+/aikya-analyze --dry-run --docs-lang en
+```
+
+Aikya detects the existing stack and architecture without a technical interview.
+It previews Aikya-owned changes before adoption. Ambiguous repositories return
+`PARTIAL` or `NEEDS_REVIEW` and require review before proceeding.
+
+| Option | Purpose |
+|---|---|
+| `--dry-run` | Preview detection and planned changes without installing. |
+| `--report-only` | Return an analysis report without writing artifacts. |
+| `--focus general` | General analysis; the default focus. |
+| `--focus security` | Focus on security evidence. |
+| `--focus architecture` | Focus on architecture evidence. |
+| `--focus infrastructure` | Focus on infrastructure evidence. |
+| `--focus operations` | Focus on operational evidence. |
+| `--scope <relative-path>` | Limit discovery to a component, such as a monorepo workspace. |
+| `--refresh` | Refresh only verifiably managed analysis assets. |
+| `--docs-lang en` or `--docs-lang es` | Choose the living documentation language. |
+
+Examples—run each separately as needed:
+
+```text
+/aikya-analyze --report-only --focus security
+/aikya-analyze --dry-run --focus architecture --scope apps/api --docs-lang en
+/aikya-analyze --refresh
+```
+
+Discovery does not build applications, execute application scripts or deploy
+infrastructure. Adoption preserves application code and customized configurations.
 
 ### Documentation language
 
-Only Aikya living docs under **aikya/docs/** can be generated in English or Spanish:
+`en` is the default; `es` is also available **only for living Markdown documents
+under `aikya/docs/`**. The preference is stored in `.aikya/docs-policy.json`.
+All agents, skills, rules, source and documentation outside that directory remain
+in English. Changing an existing documentation language requires a separately
+reviewed migration.
 
-- **en** (English, default)
-- **es** (Spanish)
+## 3. Components and project structure
 
-The choice is requested during /aikya-init. For existing projects,
-use /aikya-analyze --docs-lang en or /aikya-analyze --docs-lang es;
-without a configured preference, the Claude Code command asks this single
-language question before an approved installation.
+![Aikya components: commands, agents, skills, templates, model policies and GitHub Actions](docs/images/aikya-components.png)
 
-The preference is stored in .aikya/docs-policy.json, not in the legacy
-technical profile. All agents, skills, source, CLI, hooks, project rules,
-root documentation and files outside aikya/docs/ remain **English**.
-Spanish/English user requests are both supported by task classifiers.
+### Harness source
 
-Changing an existing documentation language is a separate reviewed migration:
-it is never triggered silently by refreshing Aikya.
+| Path | Purpose |
+|---|---|
+| `aikya-skills/` | Source of the 21 public Claude Code slash commands. |
+| `engineering/agents/` | Curated specialist agent definitions. |
+| `engineering/skills/` | Curated technical skills. |
+| `template/` | Base project agents, skills, rules and harness utilities. |
 
-## 2. Onboarding modes and project types
+### Project artifacts
 
-**/aikya-init is exclusively for new projects.** It always selects
-mode=new and uses an interview to establish project_type and required choices.
+| Path | Purpose |
+|---|---|
+| `.aikya/answers.json` | Technical decisions for compatible profiles. |
+| `.aikya/docs-policy.json` | Living documentation language. |
+| `.aikya/model-policy.json` | Optional per-role model policy. |
+| `.aikya/analysis/` | Evidence-based inventory for existing repositories. |
+| `.harness/project-profile.json` | Normalized, legacy-compatible technical profile. |
+| `.harness/engineering-catalog.json` | Managed skill and agent provenance. |
+| `.claude/agents/` and `.claude/skills/` | Specialists and capabilities selected for the actual stack. |
+| `.claude/rules/` and `CLAUDE.md` | Engineering contracts and project instructions. |
+| `aikya/docs/` | Living documentation and per-request change records. |
+| `aikya/scripts/` and `aikya/test/` | Internal harness utilities and tests. |
+| `harness.json` | Configured quality checks and `NOT_CONFIGURED` behavior. |
 
-**/aikya-analyze is exclusively for existing projects.** It discovers the
-stack and architecture from repository evidence, chooses mode=existing and
-previews Aikya-only file changes. It never invents an ambiguous backend.
+New monorepos can plan application workspaces under `apps/`, with shared
+`packages/` and `contracts/`. A singlerepo keeps its application at the root.
+Existing projects are not reorganized automatically.
 
-| Project type | Technical intake | Result |
-|---|---|---|
-| development | Stack, application layout, architecture, testing and optional platform support | Application plan, Aikya quality/docs and scoped infrastructure |
-| infrastructure | Terraform/OpenTofu, Ansible, provider, environments and constraints | Infrastructure planning without invented application modules |
-| devops | Docker, image/source, existing Helm chart, Kubernetes, YAML/Kustomize | Container and delivery plans without replacing existing resources |
-
-Existing v5.9.1 profiles without project_type remain compatible as development
-profiles. The internal installer continues accepting mode=existing for legacy
-declarative configuration, but /aikya-init no longer exposes that option.
-
-### Existing repositories: safety-first adoption
-
-/aikya-analyze --dry-run previews detection without installing anything.
-/aikya-analyze --report-only returns a report without writing artifacts.
-/aikya-analyze --refresh updates only verifiably managed analysis assets.
-
-Optional focus values: security, architecture, infrastructure or operations.
-Use --scope with a relative project path to inspect one component of a monorepo.
-Ambiguous repositories return PARTIAL or NEEDS_REVIEW. Approval is required
-before incorporation; application code, Terraform, Docker, GitHub workflows
-and customized configurations are not overwritten.
-
-The discovery phase does not build applications, run Terraform, contact
-cloud infrastructure, execute application scripts or deploy containers.
-
-## 3. Claude Code commands
+## 4. Claude Code commands
 
 | Command | Purpose |
 |---|---|
@@ -125,111 +178,88 @@ The project-local skills architecture also includes base feature, bugfix,
 verification, documentation and architecture-review workflows. Do not invoke
 optional external tools automatically.
 
-## 4. Generated project structure
+## 5. Documentation, audits and Git history
 
-- aikya-skills/ — source of the 21 public Claude Code slash commands.
-- engineering/agents/ and engineering/skills/ — curated specialist definitions.
-- .aikya/answers.json — technical decisions for compatible profiles.
-- .aikya/docs-policy.json — living documentation language (en/es).
-- .aikya/model-policy.json — optional per-role model policy.
-- .aikya/analysis/ — English evidence-based inventory for existing repositories.
-- .harness/project-profile.json — legacy-compatible normalized profile.
-- .harness/engineering-catalog.json — managed skill/agent provenance.
-- .claude/agents/ and .claude/skills/ — selected specialists and capabilities.
-- .claude/rules/ and CLAUDE.md — English engineering contracts.
-- aikya/docs/ — living docs in the selected en/es language.
-- aikya/scripts/ and aikya/test/ — internal harness utilities and tests.
-- harness.json — configured quality checks, including NOT_CONFIGURED behavior.
+![Documentation traceability in Aikya](docs/images/documentation-traceability-en.png)
 
-For a new monorepo, application workspaces can be planned under apps/ with
-shared packages/ and contracts/. A singlerepo keeps its single application
-at the root. Existing projects are not reorganized automatically.
-
-## 5. Infrastructure and DevOps
-
-The infrastructure workflows support Terraform/OpenTofu, Ansible, Docker,
-Docker Compose, Kubernetes YAML, Helm and Kustomize. Plan is read-only;
-generate requires explicit approval; validate only reports verified local
-results. Applying cloud infrastructure, remote state migrations or cluster
-deployments requires separate authorization.
-
-In DevOps-only profiles, an existing versioned image or Helm chart may be used
-without creating a fictional application or Dockerfile. Infrastructure manifests
-are not evidence that cloud resources are deployed.
+Material technical changes update the affected `.md` pages under `aikya/docs/`
+and create a `changes/REQ-*.md` record with **Changes**, **Evidence** and
+**Updated documents**. `docs_guard` checks documentation requirements.
+When committed with the project, these files provide reviewable history and diffs
+for audits and version tracking. Read-only consultations do not require artificial
+records; full prompts, secrets and private data must not be recorded.
 
 ## 6. Engineering agents and Agent Skills
 
-Aikya provides a curated technical catalog spanning architecture, Java, .NET,
-Python, Kotlin, Flutter, Node, Vue, Angular, React, Astro/Next.js, cloud,
-Terraform, Ansible, Docker, Kubernetes, CI/CD, security, testing and review.
+Aikya selects specialists according to the actual stack: architecture, backend,
+frontend, mobile, cloud, infrastructure, CI/CD, security, testing and code review.
+**Planner** and **Orchestrator** support complex cross-stack work when needed.
+Reviewers operate within their defined permissions; modifying specialists stay
+within the approved scope. An installed agent is not proof that it has run.
 
-Planner and Orchestrator are used selectively for complex cross-stack work.
-Architecture and security reviewers are read-only. Code-modifying specialists
-only change approved scope; independent operations still require authorization.
+### Optional external skills
 
-Agent definitions and Agent Skills follow Claude Code's local file format.
-Agents and skills are selected by the actual stack, not installed indiscriminately.
-An installed agent is not proof that it has been invoked.
+| External integration | Registered source | Availability in Aikya |
+|---|---|---|
+| Ponytail | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | Optional; included in the external integration plan. |
+| Graphify CLI | [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) | Optional; CLI and project skill integration. |
+| UI UX Pro Max | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Optional; included in the plan for frontend or mobile profiles. |
 
-### External skills
+Review availability and installation impact from Claude Code:
 
-Ponytail, Graphify CLI and UI UX Pro Max are optional. Source provenance,
-license, tools, network access and version/commit must be reviewed before
-installation. /aikya-skills-plan provides a preview; /aikya-skills-install
-requires explicit approval. Never execute third-party installer hooks silently.
+```text
+/aikya-skills-status
+/aikya-skills-plan
+```
 
-## 7. Model and token policy (v6.0.0)
+After reviewing the plan, use `/aikya-skills-install` with explicit approval.
+Review source provenance, license, tools, network access and version/commit before
+installation. Third-party installer hooks must not run silently.
 
-Aikya retains the user's active Claude Code model by default. Opus may be
-recommended for genuinely complex planning/orchestration; routine agents
-inherit their configured role model. Haiku 5.5 is optional for bounded extraction,
-routing advice and documentation drafts only, subject to explicit user approval,
-provider access and compatible client capabilities.
+### Recursion: conceptual workflow views
 
-Haiku must not be the final authority for security findings, critical
-architectural decisions or production operations. Token reports distinguish
-actual usage records from estimated API prices and uncertain caching effects.
-Existing v5.9.1 policy v1 and Haiku 4.5 choices are preserved.
+The following diagrams explain two levels of refinement. They are conceptual
+views grounded in task review and harness maintenance, not additional Aikya
+commands or a claim of autonomous self-modification.
 
-Managed Agents API and a custom Messages API tool-use loop are not part of Aikya.
+**Task-level recursion** refines implementation within one task using verification
+findings and acceptance criteria.
 
-## 8. Versioning and publication
+![Task-level recursion](docs/images/task-level-recursion.png)
 
-VERSION and CHANGELOG.md define version candidates and release notes.
-Pull requests into develop run tests and smoke checks; an approved merge into
-main uses guarded release workflows for tags, checksums and GitHub Releases.
-No workflow should reuse an existing version tag pointing to a different commit.
-The release contract preserves legacy Spanish changelog headings while English
-Unreleased is the standard for new notes.
+**Harnessing-level recursion** improves reusable agents, skills, templates and
+rules through reviewed source changes and validation for future tasks.
 
-See .github/workflows.md and docs/INIT_ANALYZE_SEPARATION.md for details.
+![Harnessing-level recursion](docs/images/harnessing-level-recursion.png)
 
-## 9. Safety guarantees and limits
+The next diagram extends that conceptual model: **parallel recursion** explores
+candidate harnesses and composes refinements from execution evidence;
+**sequential recursion** carries the refined harness and accumulated evidence
+through successive **Propose → Probe → Compose** steps. These are explanatory
+patterns, not verified built-in execution modes.
 
-- Preserve custom project files, agents, skills, instructions and secrets.
-- No automatic SDK installation, dependency download or production deployment.
-- No Terraform apply/destroy, remote cluster writes or destructive migration without approval.
-- Report actual PASS, FAIL, SKIPPED and NOT_CONFIGURED outcomes; never invent results.
-- Keep source and infrastructure evidence separate from live production state.
-- Guard documentation changes through project-specific policies and traceability.
-- Assess optional vendors before installation and do not expose credentials.
+![Scaling task-level recursion through parallel and sequential refinement](docs/images/scale-task-level-recursion.png)
 
-## 10. Examples
+## 7. Our safety approach with Aikya
 
-Example decision files are provided for Java/React, Python/Angular,
-Next.js/React, .NET/Vue, Node/React microservices, Android/Kotlin and
-infrastructure-only and DevOps-only profiles.
+Aikya's documented workflow centers on scoped changes, explicit approvals and
+verifiable evidence:
 
-Browse [examples](examples/README.md) for scenario descriptions and
-approved /aikya-answers usage. They are **decision examples**, not claims
-that applications, SDKs or cloud resources have been created or verified.
+- Preserve customized project files, agents, skills, instructions and secrets.
+- Ask for approval before SDK installation, dependency downloads and external operations.
+- Require separate authorization for deployments, Terraform apply/destroy, remote cluster writes and destructive migrations.
+- Report actual `PASS`, `FAIL`, `SKIPPED` and `NOT_CONFIGURED` outcomes.
+- Distinguish source manifests and plans from verified live infrastructure state.
+- Enforce applicable documentation requirements and retain change traceability.
+- Review optional third-party sources before installation and protect credentials.
 
-## 11. Further documentation
+These controls guide Aikya's behavior; they do not certify an application as
+secure or replace project-specific security review.
+
+## 8. Further documentation
 
 - [Changelog](CHANGELOG.md)
 - [Contribution guide](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)
-- [Init/analyze separation](docs/INIT_ANALYZE_SEPARATION.md)
-- [v6 model and compatibility policy](docs/V6_TOKEN_COMPATIBILITY.md)
 - [GitHub workflow contracts](.github/workflows.md)
