@@ -23,10 +23,7 @@ third-party downloads, SDK installation or external operations.
 Open Claude Code in your target directory and paste:
 
 ```text
-Install Aikya Harness from https://github.com/jlema0590/aikya-harness.git,
-using global installation scope.
-Review the source and ask for approval before downloads or configuration changes.
-Register commands, skills, hooks and the welcome message.
+Install Aikya Harness from https://github.com/jlema0590/aikya-harness.git --scope global
 ```
 
 > **Installation scope:** request `global` for your Claude Code user, or `project` for the current repository.

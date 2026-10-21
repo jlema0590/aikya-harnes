@@ -24,10 +24,7 @@ recursos de terceros, instalar SDK o realizar operaciones externas.
 Abre Claude Code en el directorio de destino y pega:
 
 ```text
-Instala Aikya Harness desde https://github.com/jlema0590/aikya-harness.git,
-con ámbito de instalación global.
-Revisa el código fuente y solicita aprobación antes de descargar recursos o cambiar la configuración.
-Registra los comandos, skills, hooks y el mensaje de bienvenida.
+Instala Aikya Harness desde https://github.com/jlema0590/aikya-harness.git --scope global
 ```
 
 > **Ámbito de instalación:** solicita `global` para tu usuario de Claude Code o `project` para el repositorio actual.
@@ -186,7 +183,7 @@ Las herramientas externas opcionales no deben invocarse automáticamente.
 
 ## 5. Documentación, auditorías e historial de Git
 
-![Trazabilidad documental en Aikya](docs/images/trazabilidad-documental.png)
+![Trazabilidad documental en Aikya](docs/images/documentation-traceability.png)
 
 Los cambios técnicos relevantes actualizan las páginas `.md` afectadas de `aikya/docs/`
 y crean un registro `changes/REQ-*.md` con **Cambios**, **Evidencias** y
