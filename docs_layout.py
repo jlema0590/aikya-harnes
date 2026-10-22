@@ -37,6 +37,15 @@ def stamp(body: str) -> str:
     return content(body)+'\n\n'+FOOTER+'\n'
 
 
+def asset_bytes(relative: str | Path, raw: bytes, *, suffix: str='') -> bytes:
+    """Finish first-party Markdown artifacts without altering code or config bytes."""
+    if Path(relative).suffix.lower() != '.md':
+        return raw+suffix.encode('utf8')
+    body=content(raw.decode('utf8'))
+    if suffix:body+='\n'+suffix
+    return stamp(body).encode('utf8')
+
+
 def substantive(body: str) -> bool:
     return any(line.strip() and not line.lstrip().startswith(('#','<!--','|---'))
                and line.strip() not in (FOOTER,'---','TODO','TBD','Pending','Pendiente')

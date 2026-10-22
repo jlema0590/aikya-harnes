@@ -217,6 +217,8 @@ def install_selected(root: Path, selection: dict[str, list[str]], source: Path |
                     raw = text.encode('utf8')
                 except (OSError, UnicodeError, ValueError) as exc:
                     logs.append(f'AVISO model policy: {exc}')
+            from docs_layout import asset_bytes
+            raw=asset_bytes(dest,raw)
             key = dest.relative_to(root).as_posix()
             if dest.exists():
                 if not dest.is_file():

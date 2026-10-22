@@ -20,7 +20,7 @@ def pages(profile: dict, modules: list[dict], language: str = "en") -> dict[str,
     return localized(profile, modules)
 
 
-def infra_files(p:dict) -> dict[str,str]:
+def _infra_files(p:dict) -> dict[str,str]:
     if p.get('project_type','development')!='development':
         return {'.gitignore': (
             '# Estado, credenciales e infraestructura local Aikya\n'
@@ -154,3 +154,8 @@ jobs:
   # run_checks.py requires real runtimes and dependencies; do not assume them on the Python runner.
 '''
     return outputs
+
+
+def infra_files(profile: dict) -> dict[str,str]:
+    from docs_layout import stamp
+    return {name:stamp(body) if name.endswith('.md') else body for name,body in _infra_files(profile).items()}

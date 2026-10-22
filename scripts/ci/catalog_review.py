@@ -8,10 +8,13 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT))
+from docs_layout import stamp
 
 
 def main() -> int:
@@ -63,8 +66,8 @@ def main() -> int:
         "",
         "No files are modified by this review, other than the report in the output directory.",
     ]
-    (out / "REVIEW.md").write_text("\n".join(report) + "\n", encoding="utf-8")
-    print("\n".join(report))
+    (out / "REVIEW.md").write_text(stamp("\n".join(report)), encoding="utf-8")
+    print(stamp("\n".join(report)))
     return 0
 
 

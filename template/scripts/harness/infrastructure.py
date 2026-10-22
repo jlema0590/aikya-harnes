@@ -14,6 +14,10 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+# The source template resolves the shared helper from its distribution root.
+if not (Path(__file__).resolve().parent/'docs_layout.py').is_file():
+    sys.path.insert(0,str(Path(__file__).resolve().parents[3]))
+from docs_layout import stamp
 
 ROOT = Path(__file__).resolve().parents[3] if Path(__file__).resolve().parents[2].name == 'aikya' else Path.cwd()
 ENV_PATTERN = re.compile(r'^[a-z][a-z0-9-]{0,30}$')
@@ -207,7 +211,7 @@ Nunca ejecutar init contra un backend remoto, plan o apply sin revisar su destin
                 '# Helm chart existente\n\n'
                 'La estrategia reutiliza el chart local del perfil sin instalarlo. '
                 'Revisa values, namespaces, permisos, secrets, probes y rollback.\n')
-            return files,pending
+            return {name:stamp(body) if name.endswith('.md') else body for name,body in files.items()},pending
         files['infra/kubernetes/README.md']=f'# Kubernetes: {method}\n\nRevisar image digest, puertos, secrets, RBAC, recursos, probes, políticas de red y rollback; no conectar a clusters sin autorización.\n'
         image=infra['image_repository'];port=infra['container_port']
         if not (image and port and (':' in image or '@sha256:' in image)):
@@ -272,7 +276,7 @@ spec:
                 files[chart+'templates/service.yaml']=service.replace('name: app','name: {{ .Release.Name }}').replace('app: app','app: {{ .Release.Name }}').replace('port: '+str(port),'port: {{ .Values.service.port }}').replace('targetPort: '+str(port),'targetPort: {{ .Values.service.port }}')
                 for env in environments:
                     files[chart+f'values-{env}.yaml']=MARK+'# Valores del entorno; sin secretos ni credenciales.\n'
-    return files,pending
+    return {name:stamp(body) if name.endswith('.md') else body for name,body in files.items()},pending
 
 
 def plan(root: Path, profile: dict) -> str:
@@ -284,7 +288,7 @@ def plan(root: Path, profile: dict) -> str:
     result += ['','## Pendientes y límites','']+[ '- '+x for x in pending] if pending else ['','## Pendientes y límites','','- Sin requisitos de infraestructura adicionales detectados.']
     result+=['','Generación: /aikya-infra-project generate (pide aprobación y no sobrescribe archivos).',
              'Validación: /aikya-infra-project validate. No ejecutar apply, destroy, push ni cambios en clusters sin aprobación específica.','']
-    return '\n'.join(result)
+    return stamp('\n'.join(result))
 
 
 def generate(root: Path, profile: dict, approved: bool=False) -> tuple[int,list[str]]:

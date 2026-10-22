@@ -32,10 +32,11 @@ def _metadata(file: Path) -> tuple[str, str]:
 def render(root: Path, profile: dict|None=None, language: str|None=None) -> str:
     """Enumera skills locales y estados de integraciones con traza de procedencia."""
     root=root.resolve()
+    from docs_layout import stamp
     from docs_language import resolve as documentation_language
     from docs_language import validate as validate_docs_language
     if (validate_docs_language(language) if language is not None else documentation_language(root)) == "en":
-        return _render_english(root)
+        return stamp(_render_english(root))
     profile=profile or {}
     skill_root=root/'.claude/skills'
     discovered: dict[str,tuple[str,str]] = {}
@@ -82,7 +83,7 @@ def render(root: Path, profile: dict|None=None, language: str|None=None) -> str:
         # Pendientes por defecto no se presentan como skills activas.
         pass
     rows='\n'.join(rows) or '| — | — | Sin skills locales inventariadas | — | — |'
-    return f'''{MARKER}
+    return stamp(f'''{MARKER}
 # Skills utilizadas y disponibles — Aikya Harness
 
 Este inventario describe las **skills registradas en el proyecto** y su disponibilidad para Claude Code. **No es un histórico de invocaciones**: una skill instalada puede no haberse ejecutado nunca. La selección contextual evita cargar skills no pertinentes.
@@ -105,7 +106,7 @@ Este inventario describe las **skills registradas en el proyecto** y su disponib
 - `/aikya-skills-install`: instalar únicamente tras aprobación y actualizar esta tabla.
 - Las skills externas son código de terceros: revisar licencia, contenido, procedencia y permisos antes de instalarlas.
 - Registrar el uso **real** sólo si existen evidencias de ejecución; nunca inferirlo por la mera presencia de un archivo.
-'''
+''')
 
 
 def _render_english(root: Path) -> str:

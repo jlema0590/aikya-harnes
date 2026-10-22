@@ -56,6 +56,8 @@ def apply_assets(root: Path, contents: dict[str, str], *, refresh: bool = False,
                  dry_run: bool = True, status: str = "READY",
                  source_revision: str | None = None) -> dict:
     root = root.absolute()
+    from docs_layout import stamp
+    contents={name:stamp(body) if Path(name).suffix.lower()=='.md' else body for name,body in contents.items()}
     previous = owned_state(root)
     operations = []
     owned = dict(previous.get("managed_paths", {}))
