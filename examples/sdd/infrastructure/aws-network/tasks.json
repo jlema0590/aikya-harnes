@@ -1,0 +1,12 @@
+{
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "description": "Implement INF-001 within approved scope, with focused checks and actual evidence.",
+      "requirements": [
+        "INF-001"
+      ],
+      "depends_on": []
+    }
+  ]
+}

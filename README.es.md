@@ -95,6 +95,7 @@ ambiguos devuelven `PARTIAL` o `NEEDS_REVIEW` y requieren revisión antes de con
 | `--focus infrastructure` | Centrarse en evidencias de infraestructura. |
 | `--focus operations` | Centrarse en evidencias operativas. |
 | `--scope <relative-path>` | Limitar la detección a un componente, como un espacio de trabajo de un monorepo. |
+| `--methodology sdd` | Activar SDD explícitamente mediante un plan de incorporación revisado. |
 | `--refresh` | Actualizar únicamente los recursos de análisis cuya gestión por Aikya pueda verificarse. |
 | `--docs-lang en` o `--docs-lang es` | Elegir el idioma de la documentación viva. |
 
@@ -108,6 +109,39 @@ Ejemplos: ejecuta cada uno por separado según lo necesites.
 
 La detección no compila aplicaciones, ejecuta scripts de la aplicación ni despliega
 infraestructura. La incorporación conserva el código de la aplicación y las configuraciones personalizadas.
+
+### Desarrollo guiado por especificaciones (SDD), opcional
+
+Mantén `standard` para el flujo actual o selecciona explícitamente `sdd` durante la
+entrevista de un proyecto nuevo. En repositorios existentes, empieza por una vista previa:
+
+```text
+/aikya-analyze --dry-run --methodology sdd --docs-lang en
+```
+
+Revisa el plan de archivos, la actualización de generadores y la copia de seguridad
+de los controles de calidad antes de aprobar la incorporación. Los perfiles nuevos
+siguen en modo estándar sin elección explícita, y las selecciones SDD existentes se
+conservan. Desactivar SDD requiere una migración revisada por separado.
+
+El flujo SDD es:
+
+```text
+/aikya-specify
+/aikya-clarify
+/aikya-plan
+/aikya-tasks
+/aikya-implement
+/aikya-sdd-status
+```
+
+La especificación, el plan y las tareas requieren aprobaciones independientes.
+La implementación y generación exigen **SPEC-NNN + TASK-NNN** activos, además del
+consentimiento para los cambios concretos. Una especificación antigua aprobada no
+autoriza otra tarea. SDD funciona en desarrollo, infraestructura y DevOps: es una
+metodología, no un cuarto tipo de proyecto ni una arquitectura de aplicación sustitutiva.
+
+Consulta [el flujo SDD, en inglés](docs/SDD.md) para esquemas, migraciones y límites de las evidencias.
 
 ### Idioma de la documentación
 
@@ -126,7 +160,7 @@ requiere una migración revisada por separado.
 
 | Ruta | Finalidad |
 |---|---|
-| `aikya-skills/` | Fuente de los 22 comandos públicos de Claude Code. |
+| `aikya-skills/` | Fuente de los 28 comandos públicos de Claude Code. |
 | `engineering/agents/` | Definiciones del catálogo de agentes especialistas. |
 | `engineering/skills/` | Catálogo de skills técnicas. |
 | `template/` | Agentes base, skills, reglas y utilidades del harness para los proyectos. |
@@ -178,6 +212,13 @@ Los proyectos existentes no se reorganizan automáticamente.
 | /aikya-models | Revisar la política opcional de selección de modelos |
 | /aikya-tokens | Consultar el consumo de tokens y los costes estimados de API |
 
+| /aikya-specify | Crear una especificación y criterios de aceptación |
+| /aikya-clarify | Resolver dudas y registrar aprobación explícita |
+| /aikya-plan | Preparar el diseño técnico y la estrategia de pruebas |
+| /aikya-tasks | Definir tareas vinculadas a requisitos y dependencias |
+| /aikya-implement | Implementar la especificación y tarea activas con aprobación y alcance definido |
+| /aikya-sdd-status | Consultar el estado SDD, la trazabilidad y las evidencias registradas |
+
 Las skills locales del proyecto también incluyen flujos base de funcionalidades,
 corrección de errores, verificación, documentación y revisión de arquitectura.
 Las herramientas externas opcionales no deben invocarse automáticamente.
@@ -185,6 +226,10 @@ Las herramientas externas opcionales no deben invocarse automáticamente.
 ## 5. Documentación, auditorías e historial de Git
 
 ![Trazabilidad documental en Aikya](docs/images/documentation-traceability-en.png)
+
+SDD añade especificaciones versionadas en `aikya/docs/specs/<project_type>/SPEC-NNN/`,
+con documentos Markdown y un `state.json` legible por máquinas. Este último almacena
+el estado del flujo: la documentación no se limita exclusivamente a Markdown.
 
 Los cambios técnicos relevantes actualizan las páginas `.md` afectadas de `aikya/docs/`
 y crean un registro `changes/REQ-*.md` con **Cambios**, **Evidencias** y
@@ -288,3 +333,10 @@ de una aplicación ni sustituyen la revisión de seguridad específica de cada p
 - [Política de seguridad](SECURITY.md)
 - [Código de conducta](CODE_OF_CONDUCT.md)
 - [Contratos de los workflows de GitHub](.github/workflows.md)
+
+
+### Plantillas de Spec Coding
+
+SDD incorpora nueve adaptaciones locales de Aikya de la [biblioteca Spec Coding](https://spec-coding.dev/templates/): funcionalidad, API, base de datos, especificación, diseño, tareas, evidencias, revisión y reglas de ingeniería. Los documentos del proyecto se generan con contenido revisado. Todo Markdown generado lleva el pie de Aikya y los documentos vivos existentes se enumeran en indice.md. Consulta la [guía de plantillas](docs/SPEC_CODING_TEMPLATES.md).
+
+GENERATED BY AIKYA HARNESS

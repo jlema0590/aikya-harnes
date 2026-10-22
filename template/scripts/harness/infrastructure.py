@@ -291,9 +291,22 @@ def plan(root: Path, profile: dict) -> str:
     return stamp('\n'.join(result))
 
 
-def generate(root: Path, profile: dict, approved: bool=False) -> tuple[int,list[str]]:
+def sdd_approved(root: Path, profile: dict, spec_id=None, task_id=None) -> bool:
+    """Require the selected specification and task; historical approvals do not count."""
+    if profile.get("methodology", "standard") != "sdd": return True
+    try:
+        from sdd_engine import require_approved_task
+        require_approved_task(root, spec_id, task_id)
+        return True
+    except (ImportError, ValueError, OSError, TypeError, KeyError):
+        return False
+
+
+def generate(root: Path, profile: dict, approved: bool=False, *, spec_id=None, task_id=None) -> tuple[int,list[str]]:
     if not approved:
         return 2,['Aprobación explícita requerida. Usa generate --approved sólo tras mostrar el plan.']
+    if not sdd_approved(root,profile,spec_id,task_id):
+        return 2,['SDD requires an approved --spec-id and --task-id before generation.']
     specs_map,pending=specs(root,profile)
     existing=[str(path) for rel in specs_map if (path:=root/rel).exists() and path.is_symlink()]
     existing += [str(path) for rel in specs_map for path in (root/rel).parents if root in (path,*path.parents) and path.is_symlink()]
@@ -370,6 +383,8 @@ def main(argv=None) -> int:
     parser.add_argument('action',choices=['plan','generate','validate'])
     parser.add_argument('--target',type=Path,default=ROOT)
     parser.add_argument('--approved',action='store_true')
+    parser.add_argument('--spec-id')
+    parser.add_argument('--task-id')
     a=parser.parse_args(argv)
     root=a.target.expanduser().resolve()
     try:
@@ -377,7 +392,7 @@ def main(argv=None) -> int:
         if a.action=='plan':
             print(plan(root,profile));return 0
         if a.action=='generate':
-            status,rows=generate(root,profile,a.approved)
+            status,rows=generate(root,profile,a.approved,spec_id=a.spec_id,task_id=a.task_id)
         else:
             status,rows=validate(root,profile)
         print('\n'.join(rows))

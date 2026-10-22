@@ -1,0 +1,5 @@
+# Controlled Helm configuration — SDD example
+
+Reviewed input fixtures for devops. Follow [the SDD lifecycle](../../../../docs/SDD.md).
+These files are examples, not evidence of generated applications, successful checks or deployments.
+Replace unresolved environment values with approved project data before actual generation.

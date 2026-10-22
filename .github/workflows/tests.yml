@@ -40,7 +40,7 @@ jobs:
             aikya_cli.py aikya_layout.py aikya_requirements.py \
             aikya_session.py aikya_setup.py doc_bootstrap.py \
             engineering_catalog.py external_skills.py \
-            infrastructure_profile.py install.py skills_registry.py \
+            infrastructure_profile.py install.py skills_registry.py sdd_engine.py sdd_assets.py sdd_localization.py sdd_templates.py \
             docs_language.py docs_templates_en.py docs_templates_es.py \
             docs_layout.py docs_migration_hashes.py \
             template/scripts/harness scripts/ci

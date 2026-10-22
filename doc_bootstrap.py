@@ -17,7 +17,14 @@ def pages(profile: dict, modules: list[dict], language: str = "en") -> dict[str,
         from docs_templates_es import pages as localized
     else:
         from docs_templates_en import pages as localized
-    return localized(profile, modules)
+    result = localized(profile, modules)
+    if profile.get('methodology', 'standard') == 'sdd':
+        from docs_layout import stamp, content
+        title = 'SDD: specifications and traceability' if language == 'en' else 'SDD: especificaciones y trazabilidad'
+        note = ('Explicit approval is required for specification, plan and tasks. Recorded evidence is not an independently executed check.' if language == 'en' else 'La especificación, el plan y las tareas requieren aprobación explícita. Registrar evidencias no equivale a ejecutar comprobaciones independientes.')
+        result['aikya/docs/specs/README.md'] = stamp('# ' + title + '\n\n' + note + '\n\n' + ' → '.join('/aikya-' + c for c in ('specify', 'clarify', 'plan', 'tasks', 'implement', 'sdd-status')) + '\n\n' + '`aikya/docs/specs/<project_type>/SPEC-NNN/`\n\n' + ('Nine offline Aikya adaptations reference [Spec Coding](https://spec-coding.dev/templates/). Show a starter with `sdd_engine.py templates --template <name>`. Review template fields before writing; omitted sections do not create empty documents.' if language=='en' else 'Nueve adaptaciones locales de Aikya referencian [Spec Coding](https://spec-coding.dev/templates/). Consulta una plantilla con `sdd_engine.py templates --template <nombre>`. Revisa los campos antes de escribir; las secciones omitidas no generan documentos vacíos.'))
+        result['aikya/docs/README.md'] = stamp(content(result['aikya/docs/README.md'])+'\n\n- [' + title + '](specs/README.md)')
+    return result
 
 
 def _infra_files(p:dict) -> dict[str,str]:

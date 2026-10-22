@@ -99,6 +99,14 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
     docs_profile['_documentation_testing_evidence'] = [p for p in ('tests','test','src/test') if (target/p).is_dir()]
     candidates.update(pages(docs_profile, inventory["modules"]).keys())
     candidates.add('aikya/docs/indice.md')
+    if profile.get('methodology') == 'sdd':
+        candidates.add('aikya/scripts/harness/sdd_engine.py')
+        candidates.add('aikya/scripts/harness/sdd_templates.py')
+        candidates.update('aikya/scripts/harness/sdd-templates/'+p.name for p in (install.HERE/'sdd-templates').glob('*.md'))
+        if (target/'harness.json').is_file():
+            current = install.read_json_safe(target/'harness.json')
+            if not any(isinstance(c, dict) and c.get('name') == 'sdd:traceability' for c in current.get('checks', [])):
+                candidates.add('.harness/backup-v611/harness.json')
     candidates.update(".claude/skills/" + n + "/SKILL.md" for n in BOOTSTRAP_COMMANDS)
     for file in install.TEMPLATE.rglob("*"):
         if not file.is_file() or file.is_symlink() or file.suffix == ".pyc":
@@ -131,6 +139,18 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
     for relative in sorted(candidates):
         path = target / relative
         action = "BLOCKED" if path.is_symlink() else "KEEP_EXISTING" if path.exists() else "CREATE_MANAGED"
+        if profile.get('methodology') == 'sdd' and action == 'KEEP_EXISTING':
+            if relative == 'harness.json':
+                current = install.read_json_safe(path)
+                gate = {'name':'sdd:traceability', 'command':['python3','aikya/scripts/harness/sdd_engine.py','lint','--root','.'], 'cwd':'.', 'required':True}
+                checks = current.get('checks')
+                gates = [c for c in checks if isinstance(c, dict) and c.get('name') == 'sdd:traceability'] if isinstance(checks, list) else []
+                if current.get('schema_version') != 2 or not isinstance(checks, list) or (gates and gates != [gate]): action = 'BLOCKED'
+                elif not gates: action = 'UPDATE_MANAGED_SDD_GATE_WITH_BACKUP'
+            elif relative == '.harness/project-profile.json':
+                old = install.read_json_safe(path)
+                if old.get('_generated_by') != 'claude-dev-harness-interactive': action = 'BLOCKED'
+                elif old.get('decisions', {}).get('methodology', 'standard') != 'sdd': action = 'UPDATE_MANAGED_METHODOLOGY'
         results.append({"path": relative, "action": action})
     from docs_layout import migration_plan
     for op in migration_plan(target):
@@ -145,12 +165,24 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
     results.extend(updates.values())
     results.extend({'path':op['backup'],'action':'CREATE_MANAGED'} for op in runtime_ops if op.get('backup'))
     results.extend(install.managed_path_conflicts(target))
+    if profile.get('methodology') == 'sdd':
+        try:
+            from sdd_assets import prepare
+            upgrades = prepare(target, install.HERE)
+            by_path = {r['path']: r for r in results}
+            for op in upgrades:
+                by_path[op['path']] = {'path':op['path'], 'action':op['action']}
+                if op['action'] == 'UPDATE_KNOWN_SDD_ASSET_WITH_BACKUP':
+                    by_path[op['backup']] = {'path':op['backup'], 'action':'CREATE_MANAGED' if not (target/op['backup']).exists() else 'KEEP_EXISTING'}
+            results = list(by_path.values())
+        except ValueError as exc:
+            results.append({'path':'SDD runtime assets', 'action':'BLOCKED', 'reason':str(exc)})
     return results
 
 
 def execute(target: Path, *, scope: str = ".", focus: str = "general",
             approved: bool = False, dry_run: bool = False, report_only: bool = False,
-            refresh: bool = False, docs_lang: str | None = None) -> dict:
+            refresh: bool = False, docs_lang: str | None = None, methodology: str | None = None) -> dict:
     import install
     target = Path(target).absolute()
     if focus not in FOCUSES:
@@ -163,7 +195,19 @@ def execute(target: Path, *, scope: str = ".", focus: str = "general",
     if inventory["paths_examined"] == 0 and not inventory["evidence_paths"]:
         return {"status": "EMPTY", "recommended_command": "/aikya-init",
                 "writes": False, "reason": "No project files found in scope"}
+    if methodology not in (None, 'standard', 'sdd'):
+        raise ValueError('Invalid engineering methodology')
+    previous = install.read_json_safe(target/'.harness/project-profile.json')
+    previous_method = previous.get('decisions', {}).get('methodology', 'standard') if isinstance(previous.get('decisions', {}), dict) else 'standard'
+    if methodology == 'standard' and previous_method == 'sdd':
+        raise ValueError('Disabling SDD requires a separately reviewed migration')
+    selected_method = methodology or previous_method
     projection = build(target, inventory)
+    if projection['profile'] is not None:
+        projection['profile']['methodology'] = selected_method
+        if selected_method == 'sdd' and previous and previous.get('_generated_by') != 'claude-dev-harness-interactive':
+            projection['status'] = 'NEEDS_REVIEW'
+            projection['unresolved'].append('Review the custom technical profile before enabling SDD')
     docs = documents(inventory, projection, focus)
     plan = apply_assets(target, docs, refresh=refresh, dry_run=True)
     installation = installation_preview(target, projection["profile"], inventory) if projection["profile"] else []

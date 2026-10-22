@@ -1,0 +1,10 @@
+{
+  "design": "Existing versioned image with reviewed Helm values and no cluster writes.",
+  "decisions": [
+    "Keep operation approval separate from specification approval."
+  ],
+  "risks": [
+    "Validate actual toolchain availability and project-specific constraints."
+  ],
+  "testing": "Run focused local checks and retain their real outputs; no deployment is implied."
+}

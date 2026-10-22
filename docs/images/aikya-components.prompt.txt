@@ -1,0 +1,1 @@
+Built-in ImageGen edit, 2026-10-21. Preserve the Aikya Components layout, logo, colors and all other cards. Change 21 slash commands to 27 slash commands; replace the final command examples with /aikya-specify and /aikya-implement; change the footer to Source inventory · VERSION 6.1.1. Reference: prior verified Aikya Components infographic.

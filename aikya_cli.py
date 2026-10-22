@@ -34,6 +34,7 @@ def main(argv=None):
     parser.add_argument('--scope',default='.')
     parser.add_argument('--focus',choices=['general','security','architecture','infrastructure','operations'],default='general')
     parser.add_argument('--docs-lang',choices=['en','es'],default=None,help='Aikya living documentation language')
+    parser.add_argument('--methodology', choices=['standard', 'sdd'], default=None)
     parser.add_argument('--refresh',action='store_true')
     parser.add_argument('--report-only',action='store_true')
     parser.add_argument('--approved',action='store_true',help='Explicit approval to create Aikya-owned files')
@@ -44,7 +45,7 @@ def main(argv=None):
         try:
             result=execute(target,scope=args.scope,focus=args.focus,
                            approved=args.approved,refresh=args.refresh,
-                           dry_run=args.dry_run,report_only=args.report_only,docs_lang=args.docs_lang)
+                           dry_run=args.dry_run,report_only=args.report_only,docs_lang=args.docs_lang,methodology=args.methodology)
         except (ValueError,OSError,UnicodeError,TypeError) as exc:
             print('ERROR during analysis:',exc,file=sys.stderr)
             return 2
