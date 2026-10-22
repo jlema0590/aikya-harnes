@@ -566,8 +566,7 @@ def context_markdown(profile: dict[str, Any], modules: list[dict[str, Any]]) -> 
 - Existing repositories: inspect actual code before proposing changes; report divergences from the profile.
 - New projects: define structure, contracts, versions and scaffold plans; request approval before external generators or dependency installation.
 - Create apps/, contracts/ and packages/ only for monorepos; for a singlerepo, place the application at the root and Aikya under aikya/.
-- For Next.js use Route Handlers and Server Actions according to the actual architecture; do not assume an independently deployed backend.
-- For Android verify Kotlin/Java and lifecycle; for iOS verify Swift, signing and Xcode; for Flutter/React Native validate both platforms.
+- Use only the selected stack and inspect its actual framework, lifecycle and runtime constraints.
 - Never claim a build, simulator test, signing or publication succeeded without running it.
 - Required but unconfigured checks must be reported as **NOT VERIFIED**.
 ''')
@@ -749,6 +748,7 @@ def documentation_runtime_plan(target: Path) -> list[dict]:
     from docs_migration_hashes import ASSETS
     operations=[]
     for relative,record in ASSETS.items():
+        if relative=='CLAUDE.md':continue  # Existing repository instructions stay owner-controlled.
         destination=target/relative;source=HERE/record['source']
         if not source.is_file():continue
         if any(p.is_symlink() for p in (destination,*destination.parents) if p==target or target in p.parents):
@@ -840,6 +840,8 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         profile['methodology'] = 'sdd'  # Disabling SDD requires a separately reviewed migration.
     if profile['methodology'] == 'sdd' and previous_profile and previous_profile.get('_generated_by') != 'claude-dev-harness-interactive':
         raise ValueError('Review the custom technical profile before enabling SDD')
+    from claude_templates import render as render_claude
+    claude_contract=render_claude(profile,detected['modules']) if not (target/'CLAUDE.md').exists() else None
     sdd_operations = []
     if profile['methodology'] == 'sdd':
         from sdd_assets import prepare as prepare_sdd_assets
@@ -1018,8 +1020,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         actions.append('PRESERVED existing settings.json during adoption')
     claude = target / 'CLAUDE.md'
     if not claude.exists():
-        safe_write(claude,asset_bytes(claude,(TEMPLATE/'CLAUDE.md').read_bytes(),
-                   suffix='\n## Perfil técnico\nLee `.claude/rules/00-project-profile.md` antes de diseñar o modificar la aplicación.\n').decode('utf8'),actions)
+        safe_write(claude,claude_contract,actions)
     else:
         actions.append('PRESERVED existing CLAUDE.md; profile is available at .claude/rules/00-project-profile.md')
     safe_write(target/'.claude/rules/00-project-profile.md', context_markdown(profile,detected['modules']), actions, replace_managed=True)
