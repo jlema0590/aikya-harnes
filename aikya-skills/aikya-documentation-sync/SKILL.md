@@ -19,7 +19,7 @@ All instructions, reports and software-development assets outside aikya/docs/ re
 
 Create only documents backed by actual decisions, implementation or analysis evidence.
 Use lowercase feature folders under `aikya/docs/features/<feature-name>/`; never create
-feature folders at the docs root. Keep `03.-arquitectura.md` in `aikya/docs/architecture/`
+feature folders at the docs root. Keep `architecture-overview.md` in `aikya/docs/architecture/`
 and test plans in `aikya/docs/plan/testing.md`. Initialization belongs in root overview.md.
 Use the installed `python3 aikya/scripts/harness/docs_layout.py write --root . --path <relative-md> --input <reviewed-content> --approved`
 for approved document writes; it routes feature/architecture paths and adds the exact

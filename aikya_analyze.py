@@ -127,8 +127,11 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
     for name in ("engineering_catalog.py", "infrastructure_profile.py",
                  "token_policy.py", "token_report.py", "model_capabilities.py",
                  "aikya_router.py", "project_discovery.py", "profile_builder.py",
-                 "analysis_manifest.py", "aikya_analyze.py", "docs_layout.py", "docs_language.py", "docs_templates_en.py", "docs_templates_es.py", "docs_migration_hashes.py", "aikya_requirements.py"):
+                 "analysis_manifest.py", "aikya_analyze.py", "docs_layout.py", "docs_language.py", "docs_templates_en.py", "docs_templates_es.py", "docs_migration_hashes.py", "aikya_requirements.py", "documentation_templates.py"):
         candidates.add("aikya/scripts/harness/" + name)
+    for asset in (install.HERE/'documentation-templates').rglob('*'):
+        if asset.is_file() and not asset.is_symlink():
+            candidates.add((Path('aikya/scripts/harness/documentation-templates')/asset.relative_to(install.HERE/'documentation-templates')).as_posix())
     selected = engineering_catalog.discover(target, profile, inventory["modules"])
     for agent in selected["agents"]:
         candidates.add(".claude/agents/" + agent + ".md")

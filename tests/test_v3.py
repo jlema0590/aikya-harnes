@@ -99,7 +99,7 @@ class V3Tests(unittest.TestCase):
         (self.root/'apps/api/index.ts').write_text('export const login = ()=> true;')
         ok,msgs=GUARD.validate_request(state)
         self.assertFalse(ok)
-        self.assertTrue(any('aikya/docs/bugs/index.md' in m for m in msgs))
+        self.assertTrue(any('aikya/docs/bugs/bugs.md' in m for m in msgs))
 
     def test_security_path_requires_security_page(self):
         self.install()

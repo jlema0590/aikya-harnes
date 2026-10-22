@@ -26,7 +26,7 @@ CONFIG_FILES = {'pom.xml','build.gradle','build.gradle.kts','package.json',
                 'settings.gradle','settings.gradle.kts', 'pubspec.yaml',
                 'global.json', 'gradle.properties'}
 DOCS_REQUIRED = ('aikya/docs/overview.md','aikya/docs/indice.md',
-                 'aikya/docs/architecture/03.-arquitectura.md','aikya/docs/tools/token-policy.md')
+                 'aikya/docs/architecture/architecture-overview.md','aikya/docs/tools/token-policy.md')
 
 
 def normalized_session(session: str) -> str:
@@ -164,11 +164,11 @@ def affected_docs(kind: str, paths: list[str]) -> list[str]:
     if 'feature' in kinds:
         required.update(('aikya/docs/features/index.md','aikya/docs/plan/roadmap.md'))
     if 'bug' in kinds:
-        required.add('aikya/docs/bugs/index.md')
+        required.add('aikya/docs/bugs/bugs.md')
     if 'security' in kinds:
         required.add('aikya/docs/security/security.md')
     if 'architecture' in kinds:
-        required.add('aikya/docs/architecture/03.-arquitectura.md')
+        required.add('aikya/docs/architecture/architecture-overview.md')
     if 'operations' in kinds:
         required.add('aikya/docs/operations/deployment.md')
     for path in paths:
@@ -189,7 +189,7 @@ def affected_docs(kind: str, paths: list[str]) -> list[str]:
         if any(w in p for w in ('telemetry','observab','tracing','metrics')):
             required.add('aikya/docs/operations/observability.md')
         if any(w in p for w in ('architecture','module','schema','migration')):
-            required.add('aikya/docs/architecture/03.-arquitectura.md')
+            required.add('aikya/docs/architecture/architecture-overview.md')
     if not required:
         required.add('aikya/docs/overview.md')
     return sorted(required)

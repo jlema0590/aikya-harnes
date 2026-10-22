@@ -35,7 +35,7 @@ class DocumentationLayoutTests(unittest.TestCase):
         install.install(self.root,self.profile(),{'modules':[]},docs_lang='en')
         docs=self.root/'aikya/docs'
         self.assertFalse((docs/'harness').exists())
-        self.assertTrue((docs/'architecture/03.-arquitectura.md').is_file())
+        self.assertTrue((docs/'architecture/architecture-overview.md').is_file())
         self.assertTrue((docs/'plan/testing.md').is_file())
         self.assertTrue((docs/'tools/agents.md').is_file())
         self.assertTrue((docs/'tools/token-policy.md').is_file())
@@ -49,7 +49,7 @@ class DocumentationLayoutTests(unittest.TestCase):
         preview=execute(self.root,dry_run=True,docs_lang='en')
         self.assertFalse(preview['writes']);self.assertFalse((self.root/'aikya/docs').exists())
         planned={x['path'] for x in preview['plan']}
-        self.assertIn('aikya/docs/architecture/03.-arquitectura.md',planned)
+        self.assertIn('aikya/docs/architecture/architecture-overview.md',planned)
         self.assertIn('aikya/docs/indice.md',planned)
         self.assertNotIn('aikya/docs/bugs/index.md',planned)
         self.assertNotIn('aikya/docs/harness/bootstrap.md',planned)
@@ -58,7 +58,7 @@ class DocumentationLayoutTests(unittest.TestCase):
         docs=self.root/'aikya/docs'
         for name in ['bugs/index.md','features/index.md','design/design-system.md','harness/skills-comparison.md','operations/observability.md','plan/testing.md']:
             self.assertFalse((docs/name).exists(),name)
-        self.assertTrue((docs/'architecture/03.-arquitectura.md').is_file())
+        self.assertTrue((docs/'architecture/architecture-overview.md').is_file())
         self.assertNotIn('bugs/index.md',(docs/'indice.md').read_text())
 
     def test_feature_writer_routes_lowercase_and_architecture_into_main_directory(self):
@@ -67,11 +67,11 @@ class DocumentationLayoutTests(unittest.TestCase):
         written=docs_layout.write_document(self.root,'Feature-V2/01.-Scope.md','# Actual feature\n\nApproved user scope.\n')
         self.assertEqual('aikya/docs/features/feature-v2/01.-scope.md',written)
         architecture=docs_layout.write_document(self.root,'features/Feature-V2/03.-arquitectura.md','# Architecture\n\nVerified module boundaries.\n')
-        self.assertEqual('aikya/docs/architecture/03.-arquitectura.md',architecture)
+        self.assertEqual('aikya/docs/architecture/architecture-overview.md',architecture)
         self.assertFalse((self.root/'aikya/docs/feature-v2').exists())
         index=(self.root/'aikya/docs/indice.md').read_text()
         self.assertIn('features/feature-v2/01.-scope.md',index)
-        self.assertIn('architecture/03.-arquitectura.md',index)
+        self.assertIn('architecture/architecture-overview.md',index)
 
     def test_writer_skips_heading_only_and_rejects_custom_collision_and_symlink(self):
         self.assertIsNotNone(importlib.util.find_spec('docs_layout'))
@@ -103,7 +103,7 @@ class DocumentationMigrationTests(unittest.TestCase):
             planned=docs_layout.migrate(root)
             self.assertTrue(planned);self.assertFalse((docs/'tools').exists())
             docs_layout.migrate(root,approved=True)
-            for name in ['overview.md','tools/agents.md','tools/token-policy.md','plan/testing.md','architecture/03.-arquitectura.md','indice.md']:
+            for name in ['overview.md','tools/agents.md','tools/token-policy.md','plan/testing.md','architecture/architecture-overview.md','indice.md']:
                 self.assertTrue((docs/name).is_file(),name)
                 self.assertTrue((docs/name).read_text().rstrip().endswith(FOOTER),name)
             self.assertFalse((docs/'harness').exists())

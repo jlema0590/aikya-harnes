@@ -1003,11 +1003,14 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                        local_profile.read_text(encoding='utf8'),actions)
 
     # v6: install model/token utilities without changing global configuration.
-    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py', 'docs_language.py', 'docs_templates_en.py', 'docs_templates_es.py', 'docs_layout.py', 'docs_migration_hashes.py'):
+    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py', 'docs_language.py', 'docs_templates_en.py', 'docs_templates_es.py', 'docs_layout.py', 'docs_migration_hashes.py','documentation_templates.py'):
         source = HERE / utility
         if source.is_file():
             safe_write(target/'aikya/scripts/harness'/utility,
                        source.read_text(encoding='utf8'), actions)
+    for asset in sorted((HERE/'documentation-templates').rglob('*')):
+        if asset.is_file() and not asset.is_symlink():
+            safe_write(target/'aikya/scripts/harness/documentation-templates'/asset.relative_to(HERE/'documentation-templates'),asset.read_text(encoding='utf8'),actions)
     # Keep the v5.9.1 profile unchanged. The optional v6 model policy is external to answers.json.
     model_policy = target/'.aikya/model-policy.json'
     if not model_policy.exists():
