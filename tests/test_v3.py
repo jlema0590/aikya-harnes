@@ -84,8 +84,9 @@ class V3Tests(unittest.TestCase):
         self.assertTrue(any('aikya/docs/plan/roadmap.md' in m for m in errors))
         self.assertTrue(any('REQ-' in m for m in errors))
         for doc in ('aikya/docs/features/index.md','aikya/docs/plan/roadmap.md'):
+            (self.root/doc).parent.mkdir(parents=True,exist_ok=True)
             with (self.root/doc).open('a') as f:
-                f.write('\nSe añade endpoint catálogo con criterios de aceptación y regresión.\n')
+                f.write('\nSe añade endpoint catálogo con criterios de aceptación y regresión; el alcance confirmado incluye la ruta y los resultados de pruebas.\n')
         req=self.root/'aikya/docs/changes'/f'{state["request_id"]}.md'
         req.write_text(f'''# {state["request_id"]} — catálogo\n\n## Cambios\n- `apps/api/server.ts`: se implementa endpoint catálogo.\n\n## Evidencias\n- No ejecutado: falta SDK de la aplicación, pendiente de configurar.\n\n## Documentos actualizados\n- `aikya/docs/features/index.md`: nueva ruta.\n- `aikya/docs/plan/roadmap.md`: nueva tarea.\n''')
         ok,messages=GUARD.validate_request(state)

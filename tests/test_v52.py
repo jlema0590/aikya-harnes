@@ -35,7 +35,7 @@ class V52(unittest.TestCase):
             self.assertIn('aikya-skills-install',inv)
             self.assertIn('aikya-feature',inv)
             self.assertIn('not a history of model invocations',inv.lower())
-            self.assertIn('skills.md',(root/'aikya/docs/README.md').read_text())
+            self.assertIn('skills.md',(root/'aikya/docs/indice.md').read_text())
             self.assertFalse((root/'.claude/skills/aikya-project-bootstrap').exists())
             self.assertFalse((root/'.claude/skills/aikya-skills').exists())
             self.assertTrue((root/'aikya/scripts/harness/skills_registry.py').is_file())
@@ -139,6 +139,6 @@ class V52(unittest.TestCase):
         module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         self.assertTrue(module.is_source('.claude/skills/new-skill/SKILL.md'))
         self.assertIn('aikya/docs/skills.md',module.affected_docs('feature',['.claude/skills/new-skill/SKILL.md']))
-        self.assertIn('aikya/docs/skills.md',module.DOCS_REQUIRED)
+        self.assertNotIn('aikya/docs/skills.md',module.DOCS_REQUIRED)
 
 if __name__=='__main__': unittest.main()

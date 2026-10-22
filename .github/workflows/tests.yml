@@ -42,6 +42,7 @@ jobs:
             engineering_catalog.py external_skills.py \
             infrastructure_profile.py install.py skills_registry.py \
             docs_language.py docs_templates_en.py docs_templates_es.py \
+            docs_layout.py docs_migration_hashes.py \
             template/scripts/harness scripts/ci
 
       - name: Validate bundled Claude Code agents and Agent Skills

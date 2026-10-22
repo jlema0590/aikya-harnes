@@ -250,10 +250,12 @@ def install_selected(root: Path, selection: dict[str, list[str]], source: Path |
 
 
 def write_agents_doc(root: Path) -> None:
-    target = root / 'aikya/docs/agents.md'
+    from docs_layout import safe, write_document
+    target = safe(root, 'tools/agents.md')
     if target.is_symlink() or target.parent.is_symlink():
         return
-    if target.exists() and not target.read_text(encoding='utf8').startswith(MARKER):
+    from docs_layout import generated, stamp, update_index
+    if target.exists() and not generated(target.read_text(encoding='utf8')):
         return
     from docs_language import resolve as docs_language
     english = docs_language(root) == "en"
@@ -264,21 +266,22 @@ def write_agents_doc(root: Path) -> None:
             rows.append(f"| {name} | " + ("Available" if english else "Disponible")
                         + " | Aikya Engineering |")
     if english:
-        rows.append("| security-reviewer | Existing Aikya agent | Preserved, not duplicated |")
+        if (root/".claude/agents/security-reviewer.md").is_file():
+            rows.append("| security-reviewer | Existing Aikya agent | Preserved, not duplicated |")
         body = (MARKER + "\n# Available engineering agents\n\n"
                 "Agents are selected according to the project's real technology stack. "
                 "Available does not mean invoked.\n\n"
                 "| Agent | Status | Provenance |\n|---|---|---|\n"
                 + "\n".join(rows) + "\n")
     else:
-        rows.append("| security-reviewer | Agente Aikya existente | Se conserva, no se duplica |")
+        if (root/".claude/agents/security-reviewer.md").is_file():
+            rows.append("| security-reviewer | Agente Aikya existente | Se conserva, no se duplica |")
         body = (MARKER + "\n# Agentes técnicos disponibles\n\n"
                 "Catálogo seleccionado por stack; disponible no equivale a invocado.\n\n"
                 "| Agente | Estado | Procedencia |\n|---|---|---|\n"
                 + "\n".join(rows) + "\n")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    if not target.exists() or target.read_text(encoding="utf8") != body:
-        target.write_text(body, encoding="utf8")
+    if rows:
+        write_document(root, 'tools/agents.md', body, replace_generated=True)
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description='Catálogo técnico local Aikya (invocado desde Claude Code)')

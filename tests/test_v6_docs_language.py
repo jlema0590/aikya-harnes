@@ -81,7 +81,7 @@ class DocumentationLanguageTests(unittest.TestCase):
             install.install(root, profile(root), {"modules": [], "findings": []}, docs_lang="es")
             self.assertEqual(read(root), "es")
             self.assertIn("Visión general", (root / "aikya/docs/overview.md").read_text())
-            self.assertIn("Agentes técnicos disponibles", (root / "aikya/docs/agents.md").read_text())
+            self.assertIn("Agentes técnicos disponibles", (root / "aikya/docs/tools/agents.md").read_text())
             self.assertIn("Technical project profile", (root / ".claude/rules/00-project-profile.md").read_text())
             self.assertFalse((root / ".aikya/analysis/manifest.json").exists())
 
@@ -91,7 +91,7 @@ class DocumentationLanguageTests(unittest.TestCase):
             install.install(root, profile(root), {"modules": [], "findings": []}, docs_lang="en")
             self.assertEqual(read(root), "en")
             self.assertIn("Project overview", (root / "aikya/docs/overview.md").read_text())
-            self.assertIn("Available engineering agents", (root / "aikya/docs/agents.md").read_text())
+            self.assertIn("Available engineering agents", (root / "aikya/docs/tools/agents.md").read_text())
             self.assertIn("not a history of model invocations",
                           (root / "aikya/docs/skills.md").read_text().lower())
 

@@ -84,7 +84,7 @@ class ExternalIntegrationTests(unittest.TestCase):
         (bad/'SKILL.md').write_text('no frontmatter')
         self.assertTrue(LINTER.validate(self.root))
 
-    def test_install_creates_design_only_for_ui(self):
+    def test_install_omits_design_without_actual_decisions(self):
         for front in ('none','react'):
             with tempfile.TemporaryDirectory() as directory:
                 root=Path(directory)
@@ -93,7 +93,7 @@ class ExternalIntegrationTests(unittest.TestCase):
                     'package_manager':'npm'},root)
                 installer.install(root,profile,{'modules':[],'findings':[]})
                 design=(root/'aikya/docs/design/design-system.md').exists()
-                self.assertEqual(design,front=='react')
+                self.assertFalse(design)
                 self.assertTrue((root/'.claude/hooks/skills_ready.py').is_file())
                 self.assertTrue((root/'aikya/scripts/harness/external_skills.py').is_file())
                 self.assertEqual(subprocess.run([sys.executable,str(root/'aikya/scripts/harness/skills_lint.py')],

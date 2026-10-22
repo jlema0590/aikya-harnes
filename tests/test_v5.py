@@ -45,7 +45,7 @@ class AikyaV5(unittest.TestCase):
                                    '--target',str(repo),'--answers',str(repo/'.aikya/answers.json')],
                                    capture_output=True,text=True)
             self.assertEqual(0,result.returncode,result.stderr)
-            self.assertTrue((repo/'aikya/docs/harness/requirements.md').is_file())
+            self.assertTrue((repo/'aikya/docs/overview.md').is_file())
             self.assertTrue((repo/'.claude/skills/aikya-feature/SKILL.md').is_file())
             self.assertTrue((repo/'.claude/skills/feature/SKILL.md').is_file())
             self.assertTrue((repo/'aikya/scripts/harness/aikya_requirements.py').is_file())

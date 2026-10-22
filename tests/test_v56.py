@@ -76,10 +76,11 @@ class AikyaLayoutTests(unittest.TestCase):
             root=Path(d)
             old=root/'docs/overview.md'
             old.parent.mkdir()
-            old.write_text('# Documento editado por el equipo\n')
+            old.write_text('# Documento editado por el equipo\n\nAlcance confirmado por el equipo.\n')
             p=self.answers(root,mode='existing')
             install.install(root,p,{'modules':[],'findings':[]})
-            self.assertEqual(old.read_text(),(root/'aikya/docs/overview.md').read_text())
+            self.assertIn(old.read_text().strip(),(root/'aikya/docs/overview.md').read_text())
+            self.assertEqual('# Documento editado por el equipo\n\nAlcance confirmado por el equipo.\n',old.read_text())
             self.assertTrue(old.exists())
 
     def test_single_scaffold_stages_and_preserves_ignore(self):

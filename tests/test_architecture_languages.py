@@ -114,7 +114,7 @@ class SpecialistIntegrationTests(unittest.TestCase):
                 self.assertTrue((root/'.claude/skills'/name/'SKILL.md').is_file(),name)
             self.assertFalse((root/'.claude/agents/angular-developer.md').exists())
             self.assertTrue((root/'aikya/scripts/harness/engineering/agents/angular-developer.md').exists())
-            report=(root/'aikya/docs/agents.md').read_text()
+            report=(root/'aikya/docs/tools/agents.md').read_text()
             self.assertIn('java-developer',report)
             source=root/'.claude/agents/java-developer.md'
             source.write_text(source.read_text()+'\n# equipo: personalización\n')

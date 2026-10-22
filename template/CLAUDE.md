@@ -38,7 +38,7 @@ ONLY living documents under aikya/docs/ use the configured documentation languag
 either en or es. Record genuine changes; do not fabricate documentation updates.
 
 ## Bootstrap and toolchain
-For a new project, review /aikya-scaffold plan and aikya/docs/harness/bootstrap.md.
+For a new project, review /aikya-scaffold plan and aikya/docs/overview.md.
 Generators can download code/dependencies and require explicit approval.
 For an existing project use /aikya-analyze without reinitializing source.
 

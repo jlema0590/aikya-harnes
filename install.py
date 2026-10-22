@@ -681,21 +681,75 @@ def project_bootstrap(profile: dict[str, Any]) -> str:
 
 
 def copy_legacy_docs(target: Path, actions: list[str]) -> None:
-    """Copy legacy documentation without deleting or overwriting user sources."""
-    source_dir = target/'docs'
-    target_dir = target/'aikya/docs'
-    if not source_dir.is_dir() or source_dir.is_symlink():
-        return
-    for old in sorted(source_dir.rglob('*')):
-        if not old.is_file() or old.is_symlink():
+    """Import substantive legacy docs into canonical paths; preserve originals."""
+    from docs_layout import canonical, write_document, safe, substantive, ABSORB, RETIRE, append_section, remap_links
+    source_dir=target/'docs'
+    if not source_dir.is_dir() or source_dir.is_symlink():return
+    for old in sorted(source_dir.rglob('*.md')):
+        if not old.is_file() or any(p.is_symlink() for p in (old,*old.parents) if p==target or target in p.parents):continue
+        relative=old.relative_to(source_dir).as_posix()
+        body=old.read_text(encoding='utf8')
+        if not substantive(body) or relative in RETIRE:continue
+        if relative.startswith('harness/') and relative not in ABSORB and relative!='harness/token-policy.md':
+            actions.append('PRESERVED unrecognized legacy document: '+str(old));continue
+        if relative in ABSORB:
+            try:append_section(target,'overview.md','Legacy '+old.stem,remap_links(body,relative,'overview.md',asset_prefix='../../docs'))
+            except ValueError:actions.append('PRESERVED conflicting legacy document: '+str(old))
             continue
-        new = target_dir / old.relative_to(source_dir)
-        if new.exists() or any(x.is_symlink() for x in (new, *new.parents) if x != target.parent and target in (x, *x.parents)):
-            actions.append('PRESERVED unmigrated legacy file: '+str(old))
-            continue
-        new.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(old,new)
-        actions.append('COPIED legacy docs to aikya/docs (original preserved): '+str(new))
+        new=safe(target,canonical(relative))
+        if new.exists():
+            actions.append('PRESERVED unmigrated legacy file: '+str(old));continue
+        write_document(target,relative,remap_links(body,relative,canonical(relative),asset_prefix='../../docs'),index=False)
+        actions.append('COPIED canonical legacy docs (original preserved): '+str(new))
+
+
+def managed_path_conflicts(target: Path) -> list[dict]:
+    """Reject symbolic links, including dangling links, before managed writes."""
+    import os
+    conflicts=[]
+    for name in ('.claude','.aikya','.harness','aikya','CLAUDE.md','harness.json'):
+        base=target/name
+        if base.is_symlink():
+            conflicts.append({'path':name,'action':'BLOCKED','reason':'Symlinked managed path'});continue
+        if not base.is_dir():continue
+        for folder,dirs,files in os.walk(base,followlinks=False):
+            for entry in dirs+files:
+                path=Path(folder)/entry
+                if path.is_symlink():conflicts.append({'path':path.relative_to(target).as_posix(),'action':'BLOCKED','reason':'Symlinked managed path'})
+    return conflicts
+
+
+def documentation_runtime_plan(target: Path) -> list[dict]:
+    """Read-only known-hash update and backup preview."""
+    from docs_migration_hashes import ASSETS
+    operations=[]
+    for relative,record in ASSETS.items():
+        destination=target/relative;source=HERE/record['source']
+        if not source.is_file():continue
+        if any(p.is_symlink() for p in (destination,*destination.parents) if p==target or target in p.parents):
+            operations.append({'path':relative,'action':'BLOCKED','reason':'Symlinked runtime asset'});continue
+        if not destination.is_file():continue
+        raw=destination.read_bytes()
+        digest=hashlib.sha256(raw).hexdigest()
+        suffix=record.get('variants',{}).get(digest,'')
+        if raw==source.read_bytes() or (digest!=record['sha256'] and digest not in record.get('variants',{})):continue
+        backup=target/'.harness/backup-docs-layout/runtime'/relative
+        if any(p.is_symlink() for p in (backup,*backup.parents) if p==target or target in p.parents):
+            operations.append({'path':relative,'action':'BLOCKED','reason':'Symlinked runtime backup'});continue
+        operations.append({'path':relative,'source':record['source'],'action':'UPDATE_VERIFIED_RUNTIME','backup':backup.relative_to(target).as_posix(),'suffix':suffix})
+    return operations
+
+
+def upgrade_documentation_runtime(target: Path, actions: list[str]) -> None:
+    """Upgrade only byte-identical baseline assets, retaining local backups."""
+    operations=documentation_runtime_plan(target)
+    if any(op['action']=='BLOCKED' for op in operations):raise ValueError('Unsafe runtime update: '+json.dumps(operations))
+    for op in operations:
+        destination=target/op['path'];source=HERE/op['source'];backup=target/op['backup']
+        backup.parent.mkdir(parents=True,exist_ok=True)
+        if not backup.exists():shutil.copy2(destination,backup)
+        destination.write_bytes(source.read_bytes()+op.get('suffix','').encode('utf8'))
+        actions.append('UPDATED verified baseline runtime: '+op['path'])
 
 
 def migrate_v55_project_config(target: Path, actions: list[str]) -> None:
@@ -743,12 +797,25 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     validate_layout(profile)
     # Older installed harnesses may invoke this function without validated().
     profile = {**profile, 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
+    path_conflicts=managed_path_conflicts(target)
+    if path_conflicts:raise ValueError('Managed path review required: '+json.dumps(path_conflicts))
+    from docs_layout import migration_plan, migrate
+    doc_operations = migration_plan(target)
+    if any(op['action'] == 'BLOCKED' for op in doc_operations):
+        raise ValueError('Documentation layout migration requires review: '+json.dumps(doc_operations))
+    runtime_operations=documentation_runtime_plan(target)
+    if any(op['action']=='BLOCKED' for op in runtime_operations):
+        raise ValueError('Runtime migration requires review: '+json.dumps(runtime_operations))
     if dry_run:
         return [f'PLAN: instalar harness en {target}', 'PLAN: crear aikya/docs/, aikya/test/, aikya/scripts/ según '+layout_of(profile)+' y CI/infra', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
     target.mkdir(parents=True, exist_ok=True)
+    if doc_operations:
+        migrate(target, approved=True)
+        actions.append('MIGRATED managed documentation layout with backups')
     from docs_language import write_approved as save_docs_language
     if save_docs_language(target, documentation_language):
         actions.append('CREATED .aikya/docs-policy.json')
+    upgrade_documentation_runtime(target, actions)
     # Save a structured profile; update only installer-owned profiles on repeated runs.
     profile_path = target / '.harness/project-profile.json'
     payload = {'_generated_by':'claude-dev-harness-interactive', 'schema_version':1,
@@ -870,7 +937,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                        local_profile.read_text(encoding='utf8'),actions)
 
     # v6: install model/token utilities without changing global configuration.
-    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py', 'docs_language.py', 'docs_templates_en.py', 'docs_templates_es.py'):
+    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py', 'docs_language.py', 'docs_templates_en.py', 'docs_templates_es.py', 'docs_layout.py', 'docs_migration_hashes.py'):
         source = HERE / utility
         if source.is_file():
             safe_write(target/'aikya/scripts/harness'/utility,
@@ -898,19 +965,23 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                        'command':['python3','aikya/scripts/harness/infrastructure.py','validate'],
                        'cwd':'.','required':False})
     safe_write(target/'harness.json',json.dumps({'schema_version':2,'checks':checks},indent=2,ensure_ascii=False)+'\n',actions)
-    safe_write(target/'aikya/docs/harness/bootstrap.md',(project_bootstrap_en(profile) if documentation_language == 'en' else project_bootstrap(profile))+
-        (('\n## Optional executable scaffolding\n\n'
-          'Use /aikya-scaffold plan to review supported generators. '
-          'Scaffolding requires explicit approval: generators may download dependencies '
-          'and create source code. Native platforms may require official IDE tools.\n')
-         if documentation_language == 'en' else
-         ('\n## Bootstrap ejecutable, opcional\n\n'
-          'Desde Claude Code utiliza /aikya-scaffold plan para revisar generadores soportados. '
-          'El scaffolding requiere autorización expresa y puede descargar dependencias.\n')),
-        actions,replace_managed=False)
-    copy_legacy_docs(target,actions)
-    for rel, content in doc_pages(profile,detected['modules'],documentation_language).items():
-        safe_write(target/rel,content,actions)
+    from docs_layout import write_document, content, stamp, update_index
+    if not adopt_existing:
+        copy_legacy_docs(target,actions)
+    docs_profile = dict(profile)
+    docs_profile['_documentation_testing_evidence'] = [p for p in ('tests','test','src/test') if (target/p).is_dir()]
+    initialization = content(project_bootstrap_en(profile) if documentation_language == 'en' else project_bootstrap(profile))
+    initialization = '\n'.join(initialization.splitlines()[1:]).strip()
+    for rel, body in doc_pages(docs_profile,detected['modules'],documentation_language).items():
+        if rel == 'aikya/docs/overview.md':
+            heading = 'Initialization guide' if documentation_language == 'en' else 'Guía de inicialización'
+            body = content(body) + '\n\n## ' + heading + '\n\n' + initialization
+        destination = target/rel
+        if destination.exists():
+            actions.append('PRESERVED existing document: '+rel)
+        else:
+            write_document(target,rel,body,index=False)
+            actions.append('CREATED '+rel)
     # Curated technical catalog: copy assets without executing them and activate only
     # the agents/skills relevant to the validated project decisions.
     from engineering_catalog import discover, install_selected
@@ -958,20 +1029,9 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
             spec.loader.exec_module(module)
             summary = module.plan(target, profile)
             safe_write(target/'aikya/docs/infrastructure/plan.md',
-                       '<!-- GENERATED BY AIKYA-HARNESS -->\n'+summary, actions,
+                       stamp(summary), actions,
                        replace_managed=True)
-    safe_write(target/'aikya/docs/harness/installer-readme.md',
-        (('<!-- GENERATED BY AIKYA-HARNESS -->\n# Harness installation\n\n'
-          'Decisions: .harness/project-profile.json.\n\n'
-          'Context rules: .claude/rules/00-project-profile.md.\n\n'
-          'Quality gates: harness.json and /aikya-quality in Claude Code.\n\n'
-          'Existing CLAUDE.md and harness.json configurations are preserved.\n')
-         if documentation_language == 'en' else
-         ('<!-- GENERATED BY AIKYA-HARNESS -->\n# Instalación del harness\n\n'
-          'Perfil: .harness/project-profile.json.\n'
-          'Reglas: .claude/rules/00-project-profile.md.\n'
-          'Quality gates: harness.json. Se conservan archivos personalizados.\n')),
-        actions,replace_managed=True)
+    update_index(target, documentation_language)
     return actions
 
 

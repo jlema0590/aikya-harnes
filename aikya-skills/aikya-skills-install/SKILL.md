@@ -13,3 +13,8 @@ disable-model-invocation: true
 5. Perform only approved installation steps and verify outputs; report failures without claiming success.
 
 All instructions, reports and software-development assets outside aikya/docs/ remain in English.
+
+Only this explicit installation workflow (also available as /aikya-install-skill)
+uses --record-comparison with the approved external installer. Record the actual
+attempts and provenance in aikya/docs/tools/skill-comparison.md and refresh indice.md.
+Onboarding, skill planning and status do not create a comparison report.

@@ -66,7 +66,7 @@ class EngineeringCatalogTests(unittest.TestCase):
             self.assertFalse((root/'.claude/agents/flutter-developer.md').exists())
             self.assertFalse((root/'.claude/skills/flutter-architecture/SKILL.md').exists())
             self.assertTrue((root/'.claude/agents/security-reviewer.md').exists())
-            for name in ('aikya/docs/agents.md','aikya/docs/skills.md','.harness/engineering-catalog.json'):
+            for name in ('aikya/docs/tools/agents.md','aikya/docs/skills.md','.harness/engineering-catalog.json'):
                 self.assertTrue((root/name).is_file(),name)
             doc=(root/'aikya/docs/skills.md').read_text()
             self.assertIn('Aikya Engineering',doc)
@@ -91,7 +91,7 @@ class EngineeringCatalogTests(unittest.TestCase):
             catalog.install_selected(root,choices)
             path=root/'.claude/agents/node-backend-developer.md'
             path.write_text(path.read_text()+'\n# personalizado\n')
-            docs=root/'aikya/docs/agents.md';docs.write_text('custom team doc\n')
+            docs=root/'aikya/docs/tools/agents.md';docs.write_text('custom team doc\n')
             logs=catalog.install_selected(root,choices)
             self.assertIn('# personalizado',path.read_text())
             self.assertEqual('custom team doc\n',docs.read_text())

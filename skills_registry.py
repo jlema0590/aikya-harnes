@@ -172,16 +172,16 @@ def _render_english(root: Path) -> str:
 
 
 def write_inventory(root: Path, profile: dict|None=None) -> tuple[bool,str]:
-    target=root/'aikya/docs/skills.md'
-    if target.is_symlink() or target.parent.is_symlink():
-        return False, 'aikya/docs/skills.md o docs/ es simbólico: se conserva'
-    if target.exists():
-        previous=target.read_text(encoding='utf8')
-        if not previous.startswith(MARKER):
-            return False, 'aikya/docs/skills.md personalizado: requiere actualización manual'
-    target.parent.mkdir(parents=True,exist_ok=True)
-    content=render(root,profile)
+    from docs_layout import safe, generated, stamp, write_document
+    try:target=safe(root,'skills.md')
+    except ValueError:return False,'Symlinked documentation path preserved'
+    if target.exists() and not generated(target.read_text(encoding='utf8')):
+        return False, 'aikya/docs/skills.md personalizado: requiere actualización manual'
+    present=any(p.is_file() and not p.is_symlink() for p in (root/'.claude/skills').glob('*/SKILL.md'))
+    lock=root/'.harness/external-skills-lock.json'
+    if not present and not lock.is_file():return True,'No skill inventory data; no document created'
+    content=stamp(render(root,profile))
     if target.exists() and target.read_text(encoding='utf8')==content:
         return True,'aikya/docs/skills.md sin cambios'
-    target.write_text(content,encoding='utf8')
+    write_document(root,'skills.md',content,replace_generated=True)
     return True,'aikya/docs/skills.md actualizado'

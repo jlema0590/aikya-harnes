@@ -25,12 +25,8 @@ CONFIG_FILES = {'pom.xml','build.gradle','build.gradle.kts','package.json',
                 'tsconfig.json','Dockerfile','docker-compose.yml','compose.yaml',
                 'settings.gradle','settings.gradle.kts', 'pubspec.yaml',
                 'global.json', 'gradle.properties'}
-DOCS_REQUIRED = ('aikya/docs/skills.md','aikya/docs/overview.md','aikya/docs/plan/roadmap.md',
-                 'aikya/docs/features/index.md','aikya/docs/bugs/index.md',
-                 'aikya/docs/security/security.md','aikya/docs/architecture/overview.md',
-                 'aikya/docs/operations/deployment.md','aikya/docs/operations/observability.md',
-                 'aikya/docs/quality/testing.md','aikya/docs/decisions/README.md',
-                 'aikya/docs/changes/README.md')
+DOCS_REQUIRED = ('aikya/docs/overview.md','aikya/docs/indice.md',
+                 'aikya/docs/architecture/03.-arquitectura.md','aikya/docs/tools/token-policy.md')
 
 
 def normalized_session(session: str) -> str:
@@ -172,7 +168,7 @@ def affected_docs(kind: str, paths: list[str]) -> list[str]:
     if 'security' in kinds:
         required.add('aikya/docs/security/security.md')
     if 'architecture' in kinds:
-        required.add('aikya/docs/architecture/overview.md')
+        required.add('aikya/docs/architecture/03.-arquitectura.md')
     if 'operations' in kinds:
         required.add('aikya/docs/operations/deployment.md')
     for path in paths:
@@ -183,10 +179,9 @@ def affected_docs(kind: str, paths: list[str]) -> list[str]:
         if (p.endswith(('.tsx','.jsx','.vue','.css','.scss','.svelte')) or
             any(part in p for part in ('/screens/','/components/','/pages/','/views/','/ui/'))) and (
             p.startswith(('apps/web/','apps/frontend/','frontend/','web/','client/','src/','apps/mobile/','apps/android/','apps/ios/','mobile/'))):
-            if (ROOT/'aikya/docs/design/design-system.md').is_file():
-                required.add('aikya/docs/design/design-system.md')
+            required.add('aikya/docs/design/design-system.md')
         if p.startswith(('tests/','test/','aikya/test/')) or '/test/' in p or '/tests/' in p or p.endswith(('.test.ts','.spec.ts')):
-            required.add('aikya/docs/quality/testing.md')
+            required.add('aikya/docs/plan/testing.md')
         if p.startswith(('infra/','.github/','.gitlab/')) or any(w in p for w in ('docker','terraform','k8s','helm')):
             required.add('aikya/docs/operations/deployment.md')
         if any(w in p for w in ('security','auth','permission','credential')):
@@ -194,7 +189,7 @@ def affected_docs(kind: str, paths: list[str]) -> list[str]:
         if any(w in p for w in ('telemetry','observab','tracing','metrics')):
             required.add('aikya/docs/operations/observability.md')
         if any(w in p for w in ('architecture','module','schema','migration')):
-            required.add('aikya/docs/architecture/overview.md')
+            required.add('aikya/docs/architecture/03.-arquitectura.md')
     if not required:
         required.add('aikya/docs/overview.md')
     return sorted(required)
@@ -241,8 +236,10 @@ def validate_request(state: dict, now: dict|None=None) -> tuple[bool,list[str]]:
 
 
 def validate_base() -> list[str]:
-    return [f'No existe o está vacío: {p}' for p in DOCS_REQUIRED
+    errors=[f'No existe o está vacío: {p}' for p in DOCS_REQUIRED
             if not (ROOT/p).is_file() or not (ROOT/p).read_text(encoding='utf8').strip()]
+    from docs_layout import validate_layout
+    return errors+validate_layout(ROOT)
 
 
 def git_changed(base: str) -> list[str]:
@@ -265,7 +262,7 @@ def validate_ci(paths: list[str]) -> tuple[bool,list[str]]:
     # El tipo exacto de la petición no se infiere en CI; se valida categoría por rutas +
     # al menos un doc funcional, con revisión humana para semántica.
     required = [p for p in affected_docs('general',changed) if p != 'aikya/docs/overview.md']
-    if not any(x in docs for x in DOCS_REQUIRED if x not in ('aikya/docs/README.md',)):
+    if not any(x.startswith(('aikya/docs/features/','aikya/docs/bugs/','aikya/docs/architecture/','aikya/docs/operations/','aikya/docs/security/','aikya/docs/plan/','aikya/docs/design/')) or x=='aikya/docs/overview.md' for x in docs):
         required.append('una página temática de aikya/docs/ (además de la bitácora)')
     errors = [f'Falta documento afectado en diff: {p}' for p in required if p not in docs and not p.startswith('una página')]
     if 'una página temática de aikya/docs/ (además de la bitácora)' in required:

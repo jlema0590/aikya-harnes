@@ -91,11 +91,13 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
         ".aikya/answers.json", ".aikya/model-policy.json",
         ".harness/project-profile.json", ".harness/engineering-catalog.json",
         ".claude/settings.json", ".claude/rules/00-project-profile.md",
-        "CLAUDE.md", "harness.json", "aikya/docs/harness/bootstrap.md",
-        "aikya/docs/harness/installer-readme.md",
-        "aikya/docs/agents.md", "aikya/docs/skills.md"
+        "CLAUDE.md", "harness.json",
+        "aikya/docs/tools/agents.md", "aikya/docs/skills.md"
     }
-    candidates.update(pages(profile, inventory["modules"]).keys())
+    docs_profile = dict(profile)
+    docs_profile['_documentation_testing_evidence'] = [p for p in ('tests','test','src/test') if (target/p).is_dir()]
+    candidates.update(pages(docs_profile, inventory["modules"]).keys())
+    candidates.add('aikya/docs/indice.md')
     candidates.update(".claude/skills/" + n + "/SKILL.md" for n in BOOTSTRAP_COMMANDS)
     for file in install.TEMPLATE.rglob("*"):
         if not file.is_file() or file.is_symlink() or file.suffix == ".pyc":
@@ -116,7 +118,7 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
     for name in ("engineering_catalog.py", "infrastructure_profile.py",
                  "token_policy.py", "token_report.py", "model_capabilities.py",
                  "aikya_router.py", "project_discovery.py", "profile_builder.py",
-                 "analysis_manifest.py", "aikya_analyze.py"):
+                 "analysis_manifest.py", "aikya_analyze.py", "docs_layout.py", "docs_language.py", "docs_templates_en.py", "docs_templates_es.py", "docs_migration_hashes.py", "aikya_requirements.py"):
         candidates.add("aikya/scripts/harness/" + name)
     selected = engineering_catalog.discover(target, profile, inventory["modules"])
     for agent in selected["agents"]:
@@ -129,6 +131,19 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
         path = target / relative
         action = "BLOCKED" if path.is_symlink() else "KEEP_EXISTING" if path.exists() else "CREATE_MANAGED"
         results.append({"path": relative, "action": action})
+    from docs_layout import migration_plan
+    for op in migration_plan(target):
+        if op['action']=='BLOCKED':
+            results.append({'path':'aikya/docs/'+op['source'], 'action':'BLOCKED', 'reason':op['reason']})
+        else:
+            results.append({'path':'aikya/docs/'+op['source'], 'action':op['action'], 'target':'aikya/docs/'+op['target']})
+            results.append({'path':'.harness/backup-docs-layout/'+op['source'], 'action':'CREATE_MANAGED'})
+    runtime_ops=install.documentation_runtime_plan(target)
+    updates={op['path']:op for op in runtime_ops}
+    results=[updates.pop(op['path'],op) for op in results]
+    results.extend(updates.values())
+    results.extend({'path':op['backup'],'action':'CREATE_MANAGED'} for op in runtime_ops if op.get('backup'))
+    results.extend(install.managed_path_conflicts(target))
     return results
 
 

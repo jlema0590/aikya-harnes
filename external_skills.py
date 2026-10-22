@@ -194,7 +194,7 @@ def status(root: Path, profile: dict[str,Any]) -> dict[str, Any]:
     return raw
 
 
-def install_all(root: Path, profile: dict[str, Any], *, permission: bool, dry_run: bool=False, selected: list[str]|None=None) -> dict[str, Any]:
+def install_all(root: Path, profile: dict[str, Any], *, permission: bool, dry_run: bool=False, selected: list[str]|None=None, record_comparison: bool=False) -> dict[str, Any]:
     if selected is not None and (not selected or any(n not in enabled_names(profile) for n in selected)):
         raise ValueError('Selection includes unknown skills or skills incompatible with this profile.')
     if not dry_run and not permission:
@@ -229,6 +229,9 @@ def install_all(root: Path, profile: dict[str, Any], *, permission: bool, dry_ru
     old_lock.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     _, note=write_inventory(root,profile)
     print('Inventario:',note)
+    if record_comparison:
+        from docs_layout import record_skill_comparison
+        record_skill_comparison(root,record)
     return record
 
 
@@ -298,7 +301,7 @@ def install_github_skill(root: Path, *, name: str, repo: str, skill_path: str,
 
 def install_custom(root: Path, profile: dict[str, Any], *, name: str, repo: str,
                    skill_path: str, ref: str|None=None, commit: str|None=None,
-                   permission: bool=False) -> dict[str, Any]:
+                   permission: bool=False, record_comparison: bool=False) -> dict[str, Any]:
     if not permission:
         raise PermissionError('Installation requires explicit approval.')
     root=root.resolve()
@@ -321,6 +324,9 @@ def install_custom(root: Path, profile: dict[str, Any], *, name: str, repo: str,
     lock.write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     _, note=write_inventory(root,profile)
     print('Inventario:',note)
+    if record_comparison:
+        from docs_layout import record_skill_comparison
+        record_skill_comparison(root,record)
     return record
 
 def main(argv: list[str]|None = None) -> int:
@@ -333,6 +339,7 @@ def main(argv: list[str]|None = None) -> int:
     parser.add_argument('--name',help='Nombre declarado en SKILL.md')
     parser.add_argument('--ref',help='Rama o tag Git, preferiblemente inmutable')
     parser.add_argument('--commit',help='SHA-1 de 40 caracteres que se debe comprobar')
+    parser.add_argument('--record-comparison',action='store_true',help='Record actual attempts only for an explicitly requested external skill installation')
     parser.add_argument('--yes',action='store_true',help='Explicitly approve running external installers')
     args=parser.parse_args(argv)
     root=args.target.expanduser().resolve()
@@ -348,10 +355,10 @@ def main(argv: list[str]|None = None) -> int:
             if not all((args.repo,args.skill_path,args.name)):
                 raise ValueError('Una skill nueva requiere --repo, --skill-path y --name.')
             result=install_custom(root,profile,name=args.name,repo=args.repo,skill_path=args.skill_path,
-                                  ref=args.ref,commit=args.commit,permission=args.yes)
+                                  ref=args.ref,commit=args.commit,permission=args.yes,record_comparison=args.record_comparison)
             return 1 if result['skills'][args.name]['state']=='failed' else 0
         selected=args.only.split(',') if args.only else None
-        result = install_all(root,profile,permission=args.yes,selected=selected)
+        result = install_all(root,profile,permission=args.yes,selected=selected,record_comparison=args.record_comparison)
         return 1 if any(v.get('state')=='failed' for n,v in result['skills'].items()
                         if selected is None or n in selected) else 0
     except (RuntimeError, PermissionError, ValueError, OSError) as exc:
