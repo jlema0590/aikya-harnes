@@ -13,13 +13,13 @@ from docs_layout import canonical, content, generated, safe, stamp, write_docume
 
 LIBRARY=Path(__file__).resolve().parent/'documentation-templates'
 KINDS=('development','infrastructure','devops')
-BUG='docs-md/bug-report'
+BUG='general-swe/foundations/bug-report'
 ARCH='general-swe/foundations/architecture-overview'
 FOUNDATION_PATHS={
     'architecture-decision-record':'decisions/architecture-decision-record.md',
     'architecture-overview':'architecture/architecture-overview.md',
     'branching-strategy':'operations/branching-strategy.md',
-    'bug-report':'bugs/reports/bug-report.md', 'changelog':'releases/changelog.md',
+    'bug-report':'bugs/bugs.md', 'changelog':'releases/changelog.md',
     'code-review-guidelines':'quality/code-review-guidelines.md',
     'coding-standards':'quality/coding-standards.md',
     'configuration-management-plan':'plan/configuration-management-plan.md',
@@ -134,14 +134,15 @@ def record(root: Path, name: str, payload: dict, *, approved=False, output: str|
         raise ValueError('Reserved documentation path; use the dedicated Aikya workflow')
     if relative.lower()=='bugs/bugs.md':
         relative='bugs/bugs.md'
-        if name!=BUG:raise ValueError('Use docs-md/bug-report to record a bug in the register')
+        if name!=BUG:raise ValueError('Use general-swe/foundations/bug-report to record a bug in the register')
         ident=payload.get('id')
         if not isinstance(ident,str) or not re.fullmatch(r'BUG-[0-9]{3,6}',ident):raise ValueError('Expected BUG-NNN identifier')
         target=safe(root,relative);old=target.read_text(encoding='utf8') if target.exists() else ''
         if old and not generated(old):raise ValueError('Customized bug register is protected')
         if re.search(r'(?<![\w-])'+re.escape(ident)+r'(?![\w-])',old,re.I):raise ValueError('Bug identifier already exists; review the existing report')
         prefix=content(old) if old else '# '+('Registro de errores' if language=='es' else 'Bug reports')
-        body=prefix+'\n\n## '+ident+' — '+title+'\n\n'+'\n\n'.join('### '+h+'\n\n'+b for h,b in rendered)
+        source_label='Referencia de la plantilla' if language=='es' else 'Template reference'
+        body=prefix+'\n\n## '+ident+' — '+title+'\n\n'+'\n\n'.join('### '+h+'\n\n'+b for h,b in rendered)+'\n\n'+source_label+': '+template['source']
         return write_document(root,relative,body,replace_generated=bool(old))
     body='# '+title+'\n\n'+'\n\n'.join('## '+h+'\n\n'+b for h,b in rendered)
     source_label='Referencia de la plantilla' if language=='es' else 'Template reference'

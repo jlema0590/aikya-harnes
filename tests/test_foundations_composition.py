@@ -52,7 +52,7 @@ class FoundationsCompositionTests(unittest.TestCase):
         result=module.write(self.root,'aikya-feature',self.feature(),slug='lookup',approved=True)
         file=self.root/result['path'];body=file.read_text()
         self.assertEqual('aikya/docs/features/lookup/spec.md',result['path'])
-        for value in ('## Acceptance criteria','AC-01','## Alternatives considered','Only the existing lookup adapter','Spec Coding','Milkeles'):
+        for value in ('## Acceptance criteria','AC-01','## Alternatives considered','Only the existing lookup adapter','Milkeles'):
             self.assertIn(value,body)
         self.assertNotIn('## Rollout and rollback',body)
         self.assertEqual(1,body.splitlines().count(FOOTER))
@@ -184,7 +184,7 @@ class FoundationsCompositionTests(unittest.TestCase):
         sdd.initialize(self.root,raw);sdd.approve(self.root,'SPEC-001','spec','fixture reviewer')
         sdd.create_plan(self.root,'SPEC-001',{'design':'Reutilizar el adaptador.','testing':'Comprobar la consulta.','sections':{'goals':'Mantener compatibilidad.'}})
         body=(self.root/'aikya/docs/specs/development/SPEC-001/design.md').read_text()
-        self.assertIn('Referencia de composición',body)
+        self.assertIn('Referencia de plantilla',body)
         self.assertNotIn('Composition reference:',body)
 
     def test_feature_request_gate_accepts_the_composed_feature_spec(self):

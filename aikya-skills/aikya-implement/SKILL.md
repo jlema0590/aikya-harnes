@@ -29,8 +29,8 @@ Request: $ARGUMENTS
 ## Offline template library
 
 Inspect `python3 aikya/scripts/harness/sdd_engine.py templates --root .` and show
-the appropriate starter with `--template <name>`. The nine local adaptations
-reference https://spec-coding.dev/templates/. Never copy website examples as
+the appropriate starter with `--template <name>`. The nine local SDD roles
+use pinned Milkeles templates from the offline catalog. Never copy website examples as
 project facts or generate every starter as an empty project report. Preserve the
 existing explicit approvals and actual evidence requirements.
 

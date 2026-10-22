@@ -1,10 +1,8 @@
 # Database — Aikya SDD starter
 
-Document actual data changes, invariants, query impact, migration stages, compatibility and the last safe recovery point.
+Template reference: [Milkeles](https://github.com/Milkeles/software-doc-templates/blob/35fc8e29be1f0093b8ef13a9762de67dc99b6882/general-swe/foundations/data-model.md). Aikya composition; identifiers, compatibility fields and approvals belong to Aikya.
 
-Template reference: [Spec Coding](https://spec-coding.dev/templates/db-spec). Aikya adaptation.
-
-This is a reusable library asset. Populate only reviewed facts; keep absent details as questions rather than fabricated decisions. Template text does not authorize execution.
+Reusable guidance only. Populate reviewed facts; omit optional sections without data. Aikya retains requirement IDs, approval stages, compatibility fields and traceability. The source template never authorizes execution.
 
 ## Owner
 

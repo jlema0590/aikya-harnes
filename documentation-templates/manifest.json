@@ -781,12 +781,6 @@
       "upstream_sha256": "2e4394883e90cf5cee1516dda52c865df30967bdf1e95cac145565b8520c80b4",
       "installed_sha256": "9602efb6b884bb016bd00b88930aa55631592dbee7aff6731c158211388fc8ff",
       "source": "https://github.com/Milkeles/software-doc-templates/blob/35fc8e29be1f0093b8ef13a9762de67dc99b6882/web-development/performance/performance-review.md"
-    },
-    "aikya/bug-report.md": {
-      "upstream_sha256": null,
-      "installed_sha256": "20e838b1799eff7d7f016ff58522ef491de2a31c4171eeee20e18ecec6521da5",
-      "source": "https://docs-md.com/bug-report-template",
-      "adaptation": "Original Aikya text; no upstream prose or examples copied."
     }
   },
   "templates": {
@@ -1437,10 +1431,22 @@
         "devops"
       ],
       "sections": {
+        "summary": "Summary",
+        "environment": "Environment",
+        "steps-to-reproduce": "Steps to reproduce",
+        "expected-result": "Expected result",
+        "actual-result": "Actual result",
+        "evidence": "Evidence",
+        "scope-and-impact": "Scope and impact",
+        "workaround": "Workaround",
+        "suspected-cause": "Suspected cause"
+      },
+      "upstream_sections": {
         "reproduction-details": "Reproduction details",
         "everything-else": "Everything else",
         "severity-and-priority-are-different-fields": "Severity and priority are different fields"
-      }
+      },
+      "adapter": "aikya-append-safe-bug-register"
     },
     "general-swe/foundations/changelog": {
       "provider": "milkeles",
@@ -3199,29 +3205,6 @@
         "5-what-we-will-do-next-period": "5. What we will do next period",
         "6-limitations-of-this-period-s-data": "6. Limitations of this period's data",
         "common-failures-in-this-document": "Common failures in this document"
-      }
-    },
-    "docs-md/bug-report": {
-      "provider": "aikya",
-      "path": "aikya/bug-report.md",
-      "source": "https://docs-md.com/bug-report-template",
-      "area": "general-swe",
-      "group": "foundations",
-      "project_types": [
-        "development",
-        "infrastructure",
-        "devops"
-      ],
-      "sections": {
-        "summary": "Summary",
-        "environment": "Environment",
-        "steps-to-reproduce": "Steps to reproduce",
-        "expected-result": "Expected result",
-        "actual-result": "Actual result",
-        "evidence": "Evidence",
-        "scope-and-impact": "Scope and impact",
-        "workaround": "Workaround",
-        "suspected-cause": "Suspected cause"
       }
     }
   }

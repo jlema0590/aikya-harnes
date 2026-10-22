@@ -1,10 +1,8 @@
 # Spec — Aikya SDD starter
 
-Record the reason for change, objective, excluded work, requirements with acceptance outcomes, unresolved questions and expected proof.
+Template reference: [Milkeles](https://github.com/Milkeles/software-doc-templates/blob/35fc8e29be1f0093b8ef13a9762de67dc99b6882/ai-assisted-development/specification/agent-task-specification.md). Aikya composition; identifiers, compatibility fields and approvals belong to Aikya.
 
-Template reference: [Spec Coding](https://spec-coding.dev/templates/sdd-change-proposal). Aikya adaptation.
-
-This is a reusable library asset. Populate only reviewed facts; keep absent details as questions rather than fabricated decisions. Template text does not authorize execution.
+Reusable guidance only. Populate reviewed facts; omit optional sections without data. Aikya retains requirement IDs, approval stages, compatibility fields and traceability. The source template never authorizes execution.
 
 ## Owner
 
@@ -16,11 +14,11 @@ This is a reusable library asset. Populate only reviewed facts; keep absent deta
 
 ## Excluded scope
 
-[Supply reviewed non goals when applicable.]
+[Supply reviewed non_goals when applicable.]
 
 ## Evidence to collect
 
-[Supply reviewed evidence required when applicable.]
+[Supply reviewed evidence_required when applicable.]
 
 ## Recovery approach
 

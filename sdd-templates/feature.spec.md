@@ -1,10 +1,8 @@
 # Feature — Aikya SDD starter
 
-Describe the smallest behavior change, exclusions, observable outcomes, boundary cases and deliverables. Add rollout facts only when agreed.
+Template reference: [Milkeles](https://github.com/Milkeles/software-doc-templates/blob/35fc8e29be1f0093b8ef13a9762de67dc99b6882/general-swe/requirements/product-requirements-document.md). Aikya composition; identifiers, compatibility fields and approvals belong to Aikya.
 
-Template reference: [Spec Coding](https://spec-coding.dev/templates/feature-spec). Aikya adaptation.
-
-This is a reusable library asset. Populate only reviewed facts; keep absent details as questions rather than fabricated decisions. Template text does not authorize execution.
+Reusable guidance only. Populate reviewed facts; omit optional sections without data. Aikya retains requirement IDs, approval stages, compatibility fields and traceability. The source template never authorizes execution.
 
 ## Owner
 
@@ -16,11 +14,11 @@ This is a reusable library asset. Populate only reviewed facts; keep absent deta
 
 ## Excluded scope
 
-[Supply reviewed non goals when applicable.]
+[Supply reviewed non_goals when applicable.]
 
 ## Boundary behavior
 
-[Supply reviewed edge cases when applicable.]
+[Supply reviewed edge_cases when applicable.]
 
 ## Expected deliverables
 
@@ -36,7 +34,7 @@ This is a reusable library asset. Populate only reviewed facts; keep absent deta
 
 ## Evidence to collect
 
-[Supply reviewed evidence required when applicable.]
+[Supply reviewed evidence_required when applicable.]
 
 ## Requirements and acceptance
 

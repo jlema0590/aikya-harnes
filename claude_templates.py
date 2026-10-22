@@ -68,4 +68,5 @@ def render(profile: dict, modules: list[dict]) -> str:
     rows=['- '+text(m.get('role','component'))+': '+text(m.get('technology','unknown'))+' (`'+text(m.get('path','.'))+'`)' for m in modules]
     parts+=['## Observed module indicators only\n\n'+('\n'.join(rows) if rows else 'No module indicators were recorded. Inspect repository files before choosing commands.')]
     if method=='sdd':parts+=['## SDD workflow\n\nUse /aikya-specify, /aikya-clarify, /aikya-plan and /aikya-tasks before /aikya-implement.\nSpecification, plan and task approvals are separate explicit decisions.\nImplementation requires an approved, dependency-ready task; templates never grant approval.\nUse the installed SDD engine and actual records under aikya/docs/specs/; record real evidence with /aikya-verify.']
+    parts+=['## Template reference\n\nAikya composition using the Milkeles agent-instructions structure; project-specific rules and profile adapters belong to Aikya.\nhttps://github.com/Milkeles/software-doc-templates/blob/35fc8e29be1f0093b8ef13a9762de67dc99b6882/ai-assisted-development/foundations/agent-instructions-file.md']
     return stamp('\n\n'.join(parts))

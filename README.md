@@ -329,9 +329,9 @@ secure or replace project-specific security review.
 - [GitHub workflow contracts](.github/workflows.md)
 
 
-### Spec Coding templates
+### Milkeles templates for SDD
 
-SDD includes nine offline Aikya adaptations of the [Spec Coding library](https://spec-coding.dev/templates/): feature, API, database, specification, design, tasks, evidence, review and engineering constitution. Only reviewed content creates project documents. All generated Markdown has the Aikya footer and actual living documents are listed in indice.md. See [template usage](docs/SPEC_CODING_TEMPLATES.md).
+SDD composes nine roles from the pinned [Milkeles library](https://github.com/Milkeles/software-doc-templates): feature, API, database, specification, design, tasks, evidence, review and engineering rules. Aikya retains its acceptance criteria, traceability and separate approvals. Only supplied reviewed content creates documents. See [SDD template usage](docs/SDD_TEMPLATES.md) and the [complete generated-example gallery](examples/documentation/generated/README.es.md).
 
 ## Project-specific CLAUDE.md
 
@@ -339,7 +339,7 @@ Aikya selects English instructions for development, infrastructure or DevOps, th
 
 ## Documentation template library
 
-120 pinned Milkeles templates plus an original Docs MD bug-report adaptation are available offline. Architecture uses `aikya/docs/architecture/architecture-overview.md`; actual bugs append to `aikya/docs/bugs/bugs.md`. Documents require reviewed facts and authorization. See [selection, examples, license and compatibility](docs/DOCUMENTATION_TEMPLATES.md).
+120 pinned Milkeles templates are available offline; Milkeles is the sole external template provider. Architecture uses `aikya/docs/architecture/architecture-overview.md`; actual bugs append to `aikya/docs/bugs/bugs.md`. Documents require reviewed facts and authorization. See [selection, examples, license and compatibility](docs/DOCUMENTATION_TEMPLATES.md).
 
 Aikya now combines its generated documents with selected Milkeles foundations by command, methodology and project profile. Standard features include observable acceptance criteria; optional design/test sections use actual supplied facts. See [contextual template composition](docs/CONTEXTUAL_TEMPLATE_COMPOSITION.md).
 

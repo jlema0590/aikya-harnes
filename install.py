@@ -746,6 +746,9 @@ def managed_path_conflicts(target: Path) -> list[dict]:
 def documentation_runtime_plan(target: Path) -> list[dict]:
     """Read-only known-hash update and backup preview."""
     from docs_migration_hashes import ASSETS
+    coupled_templates={'documentation_templates.py','documentation_workflows.py',
+                       'sdd_templates.py','claude_templates.py','doc_bootstrap.py',
+                       'documentation-templates/manifest.json'}
     operations=[]
     for relative,record in ASSETS.items():
         if relative=='CLAUDE.md':continue  # Existing repository instructions stay owner-controlled.
@@ -758,7 +761,12 @@ def documentation_runtime_plan(target: Path) -> list[dict]:
         digest=hashlib.sha256(raw).hexdigest()
         suffix=record.get('variants',{}).get(digest,'')
         expected=asset_bytes(relative,source.read_bytes(),suffix=suffix)
-        if raw==expected or (digest!=record['sha256'] and digest not in record.get('variants',{})):continue
+        if raw==expected:continue
+        if digest!=record['sha256'] and digest not in record.get('variants',{}):
+            if record['source'] in coupled_templates or record['source'].startswith('sdd-templates/'):
+                operations.append({'path':relative,'action':'BLOCKED',
+                                   'reason':'Customized template asset requires review before updating its coupled runtime/catalog'})
+            continue
         backup=target/'.harness/backup-docs-layout/runtime'/relative
         if any(p.is_symlink() for p in (backup,*backup.parents) if p==target or target in p.parents):
             operations.append({'path':relative,'action':'BLOCKED','reason':'Symlinked runtime backup'});continue

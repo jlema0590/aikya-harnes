@@ -335,9 +335,9 @@ de una aplicación ni sustituyen la revisión de seguridad específica de cada p
 - [Contratos de los workflows de GitHub](.github/workflows.md)
 
 
-### Plantillas de Spec Coding
+### Plantillas de Milkeles para SDD
 
-SDD incorpora nueve adaptaciones locales de Aikya de la [biblioteca Spec Coding](https://spec-coding.dev/templates/): funcionalidad, API, base de datos, especificación, diseño, tareas, evidencias, revisión y reglas de ingeniería. Los documentos del proyecto se generan con contenido revisado. Todo Markdown generado lleva el pie de Aikya y los documentos vivos existentes se enumeran en indice.md. Consulta la [guía de plantillas](docs/SPEC_CODING_TEMPLATES.md).
+SDD compone nueve roles a partir de la [biblioteca de Milkeles](https://github.com/Milkeles/software-doc-templates): funcionalidad, API, base de datos, especificación, diseño, tareas, evidencias, revisión y reglas de ingeniería. Aikya conserva sus criterios de aceptación, trazabilidad y aprobaciones independientes. Los documentos se crean con contenido revisado. Consulta la [guía de plantillas SDD](docs/SDD_TEMPLATES.md) y la [galería completa de ejemplos generados](examples/documentation/generated/README.es.md).
 
 ## CLAUDE.md según el proyecto
 
@@ -345,7 +345,7 @@ Aikya selecciona instrucciones en inglés para desarrollo, infraestructura o Dev
 
 ## Biblioteca de plantillas de documentación
 
-Hay 120 plantillas de Milkeles fijadas a un commit y una adaptación propia del informe de errores de Docs MD disponibles sin conexión. La arquitectura utiliza `aikya/docs/architecture/architecture-overview.md`; los errores reales se añaden a `aikya/docs/bugs/bugs.md`. Los documentos requieren datos revisados y autorización. Consulta la [selección, ejemplos, licencia y compatibilidad](docs/DOCUMENTATION_TEMPLATES.md).
+Hay 120 plantillas de Milkeles fijadas a un commit disponibles sin conexión; Milkeles es la única fuente externa de plantillas. La arquitectura utiliza `aikya/docs/architecture/architecture-overview.md`; los errores reales se añaden a `aikya/docs/bugs/bugs.md`. Los documentos requieren datos revisados y autorización. Consulta la [selección, ejemplos, licencia y compatibilidad](docs/DOCUMENTATION_TEMPLATES.md).
 
 Aikya combina sus documentos generados con las plantillas de Milkeles adecuadas según el comando, la metodología y el perfil del proyecto. Las features estándar incluyen criterios de aceptación observables; las secciones opcionales de diseño y pruebas utilizan datos reales aportados. Consulta la [composición contextual de plantillas](docs/CONTEXTUAL_TEMPLATE_COMPOSITION.md).
 

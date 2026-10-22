@@ -209,9 +209,7 @@ def render(selection,payload,language,*,root=None,relative=None):
         parts+=['## '+label('Evidence files',language)+'\n\n'+note+'\n\n'+'\n'.join(links)]
     elif 'evidence' in payload:raise ValueError('Evidence file input belongs to test summaries')
     reference='[Milkeles]('+template['source']+')'
-    if is_feature:
-        page={'feature':'feature-spec','api':'api-spec','database':'db-spec','spec':'sdd-change-proposal'}[selection['kind']]
-        reference='[Spec Coding](https://spec-coding.dev/templates/'+page+') + '+reference
+
     parts+=['## '+label('Template references',language)+'\n\n'+reference]
     return stamp('\n\n'.join(parts))
 

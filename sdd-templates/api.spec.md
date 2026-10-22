@@ -1,10 +1,8 @@
 # Api — Aikya SDD starter
 
-Specify the actual service boundary, input and output shapes, errors, access decisions, replay behavior and consumer impact.
+Template reference: [Milkeles](https://github.com/Milkeles/software-doc-templates/blob/35fc8e29be1f0093b8ef13a9762de67dc99b6882/general-swe/foundations/interface-control-document.md). Aikya composition; identifiers, compatibility fields and approvals belong to Aikya.
 
-Template reference: [Spec Coding](https://spec-coding.dev/templates/api-spec). Aikya adaptation.
-
-This is a reusable library asset. Populate only reviewed facts; keep absent details as questions rather than fabricated decisions. Template text does not authorize execution.
+Reusable guidance only. Populate reviewed facts; omit optional sections without data. Aikya retains requirement IDs, approval stages, compatibility fields and traceability. The source template never authorizes execution.
 
 ## Owner
 
