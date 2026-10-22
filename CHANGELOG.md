@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Compose Aikya acceptance criteria with populated Milkeles foundation sections selected by command, project type and methodology; preserve existing sections and SDD approvals, validate evidence references, and support contextual onboarding and test documentation in English and Spanish.
 - Integrate nine attributed, offline Spec Coding template adaptations into SDD; preserve optional reviewed sections, provide read-only template discovery and approved auxiliary document generation, and link evidence to actual records.
 - Unify SDD with the canonical documentation layout, universal Markdown footer and actual-file index; omit empty clarification/verification reports.
 

@@ -61,12 +61,28 @@ CATALOG = {
         'gates':('Required reviews','Revisiones necesarias'),'ai_rules':('Agent boundaries','Límites de los agentes'),
         'exceptions':('Reviewed exceptions','Excepciones revisadas'),'review_date':('Review date','Fecha de revisión')})
 }
+FOUNDATIONS = {
+    'design':'general-swe/foundations/technical-design-document.md',
+    'tasks':'ai-assisted-development/foundations/task-plan.md',
+    'evidence':'general-swe/foundations/test-summary-report.md'}
+CATALOG['design']['fields'].update({
+    'goals':('Design goals','Objetivos del diseño'),
+    'non_goals':('Excluded design scope','Fuera del alcance del diseño'),
+    'open_questions':('Unresolved design questions','Preguntas de diseño abiertas')})
+CATALOG['tasks']['fields'].update({
+    'out_of_scope':('Excluded task scope','Fuera del alcance de la tarea'),
+    'constraints':('Task constraints','Restricciones de la tarea')})
+CATALOG['evidence']['fields'].update({
+    'assessment':('Result assessment','Evaluación de resultados'),
+    'residual_risk':('Residual risk','Riesgo residual')})
+
 SPEC_TEMPLATES = frozenset(('spec','feature','api','database'))
 
 
 def catalog() -> dict:
     return {name:{'filename':item['filename'],'source':item['source'],
-                  'section_keys':list(item['fields'])} for name,item in CATALOG.items()}
+                  'section_keys':list(item['fields']),
+                  'foundations':FOUNDATIONS.get(name)} for name,item in CATALOG.items()}
 
 
 def normalize_sections(name: str, value=None) -> dict[str,str]:
@@ -89,8 +105,11 @@ def render_sections(name: str, sections=None, language='en') -> str:
                         for key,labels in CATALOG[name]['fields'].items() if key in values)
 
 
-def source_note(name: str) -> str:
-    return 'Template reference: [Spec Coding]('+CATALOG[name]['source']+'). Aikya adaptation.'
+def source_note(name: str, language='en') -> str:
+    es=language=='es'
+    result=('Referencia de plantilla: ' if es else 'Template reference: ')+'[Spec Coding]('+CATALOG[name]['source']+'). '+('Adaptación de Aikya.' if es else 'Aikya adaptation.')
+    if name in FOUNDATIONS:result+=(' Referencia de composición: ' if es else ' Composition reference: ')+'[Milkeles](https://github.com/Milkeles/software-doc-templates/blob/35fc8e29be1f0093b8ef13a9762de67dc99b6882/'+FOUNDATIONS[name]+').'
+    return result
 
 
 def starter(name: str) -> str:

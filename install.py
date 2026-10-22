@@ -829,6 +829,8 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     doc_operations = migration_plan(target)
     if any(op['action'] == 'BLOCKED' for op in doc_operations):
         raise ValueError('Documentation layout migration requires review: '+json.dumps(doc_operations))
+    from documentation_workflows import validate_bootstrap_sources
+    validate_bootstrap_sources()
     runtime_operations=documentation_runtime_plan(target)
     if any(op['action']=='BLOCKED' for op in runtime_operations):
         raise ValueError('Runtime migration requires review: '+json.dumps(runtime_operations))
@@ -1003,7 +1005,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                        local_profile.read_text(encoding='utf8'),actions)
 
     # v6: install model/token utilities without changing global configuration.
-    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py', 'docs_language.py', 'docs_templates_en.py', 'docs_templates_es.py', 'docs_layout.py', 'docs_migration_hashes.py','documentation_templates.py'):
+    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py', 'docs_language.py', 'docs_templates_en.py', 'docs_templates_es.py', 'docs_layout.py', 'docs_migration_hashes.py','documentation_templates.py','documentation_workflows.py'):
         source = HERE / utility
         if source.is_file():
             safe_write(target/'aikya/scripts/harness'/utility,

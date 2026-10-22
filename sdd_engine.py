@@ -172,7 +172,7 @@ def render_spec(data):
     out.extend(["## Nonfunctional requirements",""])
     out+=["- "+x for x in data["nonfunctional"]] or ["- To be agreed"]
     template=data.get('template','spec')
-    out+=['',render_sections(template,data.get('sections'),data.get('docs_language','en')), '',source_note(template)]
+    out+=['',render_sections(template,data.get('sections'),data.get('docs_language','en')), '',source_note(template,data.get('docs_language','en'))]
     return stamp('\n'.join(out))
 
 def render_clarifications(data):
@@ -199,7 +199,7 @@ def render_design(data):
     plan=data['plan']
     return stamp('# Design — '+data['id']+'\n\n## Selected approach\n\n'+plan['design']+
                  '\n\n'+render_sections('design',plan.get('sections'),data.get('docs_language','en'))+
-                 '\n\n'+source_note('design'))
+                 '\n\n'+source_note('design',data.get('docs_language','en')))
 
 
 def render_tasks(data):
@@ -213,7 +213,7 @@ def render_tasks(data):
     for task in data['tasks']:
         if task.get('sections'):
             out+=['','### '+task['id'], '',render_sections('tasks',task['sections'],data.get('docs_language','en'))]
-    out+=['',source_note('tasks')]
+    out+=['',source_note('tasks',data.get('docs_language','en'))]
     return stamp('\n'.join(out))
 
 def render_verification(data):
@@ -233,7 +233,7 @@ def render_evidence(data):
     verification=data['verification']
     return stamp(content(render_verification(data)).replace('# SDD verification','# Recorded evidence',1)+
                  '\n\n'+render_sections('evidence',verification.get('sections'),data.get('docs_language','en'))+
-                 '\n\n'+source_note('evidence'))
+                 '\n\n'+source_note('evidence',data.get('docs_language','en')))
 
 
 def initialize(root,input_data):
@@ -578,7 +578,7 @@ def create_document(root, template, raw, *, ident=None, approved=False):
     title={'review':('Specification review','Revisión de especificación'),
            'constitution':('Engineering constitution','Constitución de ingeniería')}[template][locale=='es']
     note='This document records reviewed content; it does not approve an SDD stage.' if locale=='en' else 'Este documento registra contenido revisado; no aprueba etapas SDD.'
-    body='# '+title+(' — '+ident if ident else '')+'\n\n'+note+'\n\n'+render_sections(template,sections,locale)+'\n\n'+source_note(template)
+    body='# '+title+(' — '+ident if ident else '')+'\n\n'+note+'\n\n'+render_sections(template,sections,locale)+'\n\n'+source_note(template,locale)
     return {'path':write_document(root,relative,body,replace_generated=True),'approval_recorded':False}
 
 

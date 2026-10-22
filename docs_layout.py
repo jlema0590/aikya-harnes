@@ -171,6 +171,8 @@ def template_pages(profile: dict, modules: list[dict], raw: dict[str,str], langu
         if canonical(rel)=='architecture/architecture-overview.md':
             from documentation_templates import architecture_snapshot
             body=architecture_snapshot(profile,modules,language)
+        from documentation_workflows import bootstrap
+        body=bootstrap(canonical(rel),body,profile,modules,language)
         if substantive(body):result['aikya/docs/'+canonical(rel)]=stamp(body)
     available={name.removeprefix('aikya/docs/') for name in result}
     for name,body in list(result.items()):

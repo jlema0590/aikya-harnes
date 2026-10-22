@@ -7,7 +7,8 @@ ASSETS = {
             "8681ee81473e693c8901cd82f8180685be83415f22c07954e786b43ccef34c8e": "",
             "dd59116a3abc1335b957604e12a0e30d94977df2a5734627f9b5b585d3ce5cba": "",
             "911db0f36e6214e1bde1b6d6d2f8e2017d1936972c3fd8572c4e6859ed668fd1": "",
-            "93c9f1f1441f944ca1b7939ae8d5f3697035924a5c0ef6c46e9861490511036e": ""
+            "93c9f1f1441f944ca1b7939ae8d5f3697035924a5c0ef6c46e9861490511036e": "",
+            "caec7197eb31ce5730e1450c2b7269072cb2aed76865cc55d608f89cdee087f6": ""
         }
     },
     ".claude/skills/documentation-sync/SKILL.md": {
@@ -16,7 +17,8 @@ ASSETS = {
         "variants": {
             "9a7e89303912a0c1a76bb13f427d622628cba823f787b261b6696b374dd17d01": "",
             "517044982c91c90f115533e196798a416a374659899738ebec4c235f091cfae2": "",
-            "05afa7858c5b0b4d99cd5f2393a7aa3637cdae93d92c32b946f6cc75ad50cad3": ""
+            "05afa7858c5b0b4d99cd5f2393a7aa3637cdae93d92c32b946f6cc75ad50cad3": "",
+            "70779c51cb47b3cec6af941302f24152c3f91937c98f032c58453d8046cd47ac": ""
         }
     },
     ".claude/skills/feature/SKILL.md": {
@@ -25,7 +27,8 @@ ASSETS = {
         "variants": {
             "a8a57e8c58bf63d375c5ef2e054aa92ec9e4722f950269e08e67f5bd572e3c50": "",
             "15548ebd308e80d22c45613745f3b48ec9d2315872d12976cee8ac7a8d647c8f": "",
-            "265ed852a928ce64d91c891282206bf0db3a701804aaeadabcf94882bfc959b8": ""
+            "265ed852a928ce64d91c891282206bf0db3a701804aaeadabcf94882bfc959b8": "",
+            "ca38c4158746a2c6163df26c646730a7e8a7eaff3e772857d8fd977609c79b11": ""
         }
     },
     "CLAUDE.md": {
@@ -46,7 +49,8 @@ ASSETS = {
             "4689155ad97bbd76df4896a3a8afb2684a84a31f0971f0786f01aebaccb5ecdc": "",
             "c118a7fb1d9dcf4362fb4400444ca7cf384a435f22715fb9125277fafe357837": "",
             "a55a6687521accf4986394a197df1b851d944533ac57aa2ab81ff258dc078f8a": "",
-            "2b4ad860c490bf4b2693263e9ae341079cfb63f9030e7b11774414bdb1d6e9ca": ""
+            "2b4ad860c490bf4b2693263e9ae341079cfb63f9030e7b11774414bdb1d6e9ca": "",
+            "ea16ce0ef01f53bedab43aa1681d0cc319b7d8ed6a1cdefd752329844ca76b81": ""
         }
     },
     "aikya/scripts/harness/aikya_cli.py": {
@@ -74,7 +78,8 @@ ASSETS = {
             "fa337e36815fdc4cc33d3bbd5793ba8acb1424cc7ae71479291251cbbaeffbb4": "",
             "973e326dc84bd1e2f2af64b7be4d8914dcb801440f6f948b63fb4df3a1933c4d": "",
             "1a2a908fe6538928fd7aeffcfa691953e08b87e8a30091fb16f32cb954bb0649": "",
-            "a8ae9237a035adda69052fe3d8a505fb0351d910838e09c8ffca0056c835660a": ""
+            "a8ae9237a035adda69052fe3d8a505fb0351d910838e09c8ffca0056c835660a": "",
+            "1fb10e64f3a161a68f3a3c52f7928d343977e098e90f34984fb5a75927cf5573": ""
         }
     },
     "aikya/scripts/harness/docs_guard.py": {
@@ -82,7 +87,8 @@ ASSETS = {
         "source": "template/scripts/harness/docs_guard.py",
         "variants": {
             "78ba67ba069d0620dc6e86dd629542fb8bfc746cc7c573283a3fa8d379bad596": "",
-            "e8f43addf2d9fb38f83cea8457b65884bd857d917a35182a6f6f639f22626d0c": ""
+            "e8f43addf2d9fb38f83cea8457b65884bd857d917a35182a6f6f639f22626d0c": "",
+            "91c63609342477c9bfbb5fb5cb8a37b6ca3e998ecb605466af4dd7ff01c5cc08": ""
         }
     },
     "aikya/scripts/harness/docs_templates_en.py": {
@@ -126,7 +132,8 @@ ASSETS = {
             "36fe67ff6e51e02025f26478e2cbfa0094c2a2ca0b98e0eca31745cadeb10c21": "",
             "73890317bd781aa87679537c82d6e7dcd81442bc2e92bff46dbe6c2cd430424e": "",
             "9ea1d07d224f80104bab30b451a76c5bf5d9c7dc4ed48642e0913498f2064ea1": "",
-            "b36de9e7bfa15245bf240a14dda95b2ee90d238952b730ce0dffa512b4e5d85b": ""
+            "b36de9e7bfa15245bf240a14dda95b2ee90d238952b730ce0dffa512b4e5d85b": "",
+            "c8e2c533455739d9adfa36fdb9843bbc7ae2f1031b03b985843c6f1cd9723642": ""
         }
     },
     "aikya/scripts/harness/skills_registry.py": {
@@ -163,7 +170,8 @@ ASSETS = {
         "variants": {
             "06ae2a61f570294cec9f55cd1331c2a7dd4d0576afb6c278cdce9b318c2e5a29": "",
             "d42cbfcccf1ee41074abeec710233e97b13020bc3b2ddd0140bea2be8be4055f": "",
-            "e37e0e2e8bd2d566580fcdf474aa4c50038fa57115f87f2aecc4f2f734e76596": ""
+            "e37e0e2e8bd2d566580fcdf474aa4c50038fa57115f87f2aecc4f2f734e76596": "",
+            "8ecac2d629a3f29e7216e0a884fe6081fe50d0b335e5ce02c090bf303c13d5ef": ""
         }
     },
     "aikya/scripts/harness/infrastructure.py": {
@@ -180,7 +188,8 @@ ASSETS = {
         "source": "docs_migration_hashes.py",
         "sha256": "c25911f9e7b7d343935311bcf7dead2efb9c11204a7d40c2e0acabbdb7651ee5",
         "variants": {
-            "2b1c51880a8a6f25d6ea9620afde616559ab9dad28e0918a9196a5f2090685cd": ""
+            "2b1c51880a8a6f25d6ea9620afde616559ab9dad28e0918a9196a5f2090685cd": "",
+            "cd6390463872b9d494dc460d7398aa2e20021205595625610cc62bf8ec301965": ""
         }
     },
     "aikya/scripts/harness/scaffold.py": {

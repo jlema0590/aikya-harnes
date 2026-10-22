@@ -211,6 +211,13 @@ def validate_request(state: dict, now: dict|None=None) -> tuple[bool,list[str]]:
     req = state['request_id']
     change_path = 'aikya/docs/changes/'+req+'.md'
     required = affected_docs(state['kind'],changed)
+    # A concrete feature contract can cover a request without an empty catalog/roadmap update.
+    if 'feature' in state['kind'].split('+'):
+        feature_specs=sorted(p for p in updated
+                             if re.fullmatch(r'aikya/docs/features/[a-z0-9]+(?:-[a-z0-9]+)*/spec\.md',p)
+                             and nonplaceholder(ROOT/p))
+        if feature_specs:
+            required=[p for p in required if p not in ('aikya/docs/features/index.md','aikya/docs/plan/roadmap.md')]+feature_specs
     errors: list[str] = []
     if '__TRUNCATED__' in state['baseline'] or '__TRUNCATED__' in now:
         errors.append('Inventario de archivos truncado; revisa manualmente los cambios.')
