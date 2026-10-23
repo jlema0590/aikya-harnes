@@ -5,6 +5,20 @@ from pathlib import Path
 from agent_loop_state import safe_file
 
 
+def settings_paths(root):
+    root=Path(root)
+    return (Path.home()/'.claude/settings.json',root/'.claude/settings.json',root/'.claude/settings.local.json')
+
+
+def settings_fingerprints(root):
+    from agent_loop_state import fingerprint
+    result={}
+    for path in settings_paths(root):
+        if path.is_symlink():raise ValueError('Symlinked runtime settings')
+        result[str(path)]=fingerprint(path)
+    return result
+
+
 def tool_path(request,value):
     root=Path(request['root']).absolute()
     if not Path(value).is_absolute():return value
@@ -97,6 +111,9 @@ def sdk_options(request,emit,ack):
         emit({'type':'permission_required'})
         return PermissionResultDeny(message='A separate permission decision is needed',interrupt=True)
     schema={'type':'object','properties':{'status':{'type':'string','enum':['done','needs_input']},'approved':{'type':'boolean'}},'required':['status','approved'],'additionalProperties':False}
+    if request['phase']=='extract':
+        item={'type':'object','properties':{'kind':{'type':'string','enum':['user','feedback','project','reference']},'text':{'type':'string','maxLength':8000},'source':{'type':'string'},'ttl_days':{'type':'integer','minimum':1,'maximum':365}},'required':['kind','text','source','ttl_days'],'additionalProperties':False}
+        schema={'type':'object','properties':{'candidates':{'type':'array','maxItems':3,'items':item}},'required':['candidates'],'additionalProperties':False}
     tools=['Read','Edit','Write'] if request['phase']=='implement' else ['Read']
     return ClaudeAgentOptions(cwd=request['root'],tools=tools,allowed_tools=tools+['StructuredOutput'],
         permission_mode='default',can_use_tool=permission,

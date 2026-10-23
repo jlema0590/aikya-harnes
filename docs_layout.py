@@ -81,15 +81,8 @@ def safe(root: Path, relative: str) -> Path:
 
 
 def _write(path: Path, body: str) -> None:
-    path.parent.mkdir(parents=True,exist_ok=True)
-    # Exclusive temporary file with a unique name; no shared temporary symlink.
-    import tempfile,os
-    fd,name=tempfile.mkstemp(prefix='.aikya-doc-',dir=path.parent)
-    try:
-        with os.fdopen(fd,'w',encoding='utf8') as stream:stream.write(body)
-        Path(name).replace(path)
-    finally:
-        if Path(name).exists():Path(name).unlink()
+    from durable_io import atomic_write
+    atomic_write(path,body)
 
 
 def index_paths(root: Path) -> list[str]:

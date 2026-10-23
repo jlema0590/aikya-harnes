@@ -23,8 +23,18 @@ def feedback(event, project_root):
         file.relative_to(root)
     except ValueError:
         return None
-    if not file.is_file() or file.suffix not in {'.py', '.json'}:
+    if not file.is_file():
         return None
+    runtime=root/'aikya/scripts/harness'
+    if runtime.is_dir():sys.path.insert(0,str(runtime))
+    try:
+        from code_quality import inspect_paths
+        report=inspect_paths(root,[file.relative_to(root).as_posix()])
+        findings=report['errors']+report['warnings']
+        if findings:return 'Code quality: '+json.dumps(findings,ensure_ascii=False)
+    except ImportError:pass
+    except (ValueError,OSError) as exc:return 'Code quality NOT VERIFIED: '+str(exc)
+    if file.suffix not in {'.py','.json'}:return None
     try:
         source = file.read_text(encoding='utf-8')
         if file.suffix == '.py':

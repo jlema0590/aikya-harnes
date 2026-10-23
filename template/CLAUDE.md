@@ -13,6 +13,9 @@ Review applicable checks before using `aikya/scripts/harness/run_checks.py`.
 Choose build, lint and test commands from the actual manifests and configuration.
 Missing or unconfigured checks are **NOT VERIFIED**. Never claim a successful result
 without running the relevant command and observing its output.
+Read `.claude/rules/03-code-quality.md`: reuse existing implementations and split
+changed source files above 1,000 physical lines by responsibility. Run the installed
+`code_quality.py` on changed source; size errors block optional loop completion.
 
 ## Authorization and data
 Respect authorization already provided for this task. Obtain authorization before

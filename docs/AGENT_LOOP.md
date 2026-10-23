@@ -142,23 +142,96 @@ permissions.
 
 ## Selective project memory
 
-Reviewed notes are optional references under aikya/docs/memory/. Each note has a
-type (user, feedback, project or reference), source fingerprint, creation time and
-TTL. Existing custom notes are preserved; stale sources and expired notes are
-excluded. MEMORY.md is a generated index. Only this project's notes are searched,
-with at most five selected notes and a total character budget; this is lexical
-retrieval, not embeddings. Private/team stores and automatic extraction are not
-part of this implementation.
+Reviewed notes are optional references. Project notes live under aikya/docs/memory/;
+private notes live outside Git under ~/.aikya/memory/<project-identity>/ by default.
+Private directories use mode 0700 and files 0600 on POSIX; this is not encryption or
+a cross-user collaboration service. --private-root selects an alternative external
+store. A private root inside the project or a symlinked store is rejected.
+
+Schema-2 notes record type (user, feedback, project or reference), scope, project
+and checkout identity, source fingerprint, creation time, TTL, origin, extraction
+reference and pending/approved/rejected review state with review time. Model
+proposals always start pending. Existing custom notes are preserved; pending,
+rejected, stale, moved and expired notes are excluded from recall. Schema-1 notes
+remain on disk but require explicit review to bind them to the current checkout.
+MEMORY.md is a generated index, not authority to approve work.
+
+The same lexical retrieval engine handles both scopes, selects at most five unique
+notes, and applies one total character budget. Project-only retrieval is the
+default. To include private notes in a loop, explicitly set memory_scopes to
+["project", "private"] in its reviewed configuration; memory_budget_chars still
+limits the combined content. Team synchronization and a second conversation
+compactor are not implemented.
 
 ```bash
 python /path/to/agent_memory.py add --root . --input reviewed-memory.json --approved
 python /path/to/agent_memory.py recall --root . --query "value lookup" --budget-chars 4000
+python /path/to/agent_memory.py propose --root . --input candidate.json
+python /path/to/agent_memory.py review --root . --id NOTE_ID --decision approved --approved
+python /path/to/agent_memory.py recall --root . --query "value lookup" --include-private --budget-chars 4000
+python /path/to/agent_memory.py migrate --root . --scope project --from-identity PREVIOUS_IDENTITY --approved
+python /path/to/agent_memory.py migrate --root . --scope private --from-identity PREVIOUS_IDENTITY --approved
 ```
 
-The input has exactly kind, text, source and ttl_days (1–365). The source must be a
-current regular project file. Memory never grants permissions, completes tasks or
-replaces actual files/evidence. The controller labels recovered notes as untrusted
-reference material.
+Input requires kind, text, source and ttl_days (1–365), with optional scope
+(project/private). The source must be a current regular project file. Duplicate
+proposals do not promote pending or rejected notes; use review explicitly. Identity
+migration validates current sources, preserves old private stores and records a
+Markdown receipt. It is a sequence of durable file updates; after interruption,
+inspect the receipt and explicitly repeat the migration. It never migrates task
+loop approvals or authorizations. Memory never completes tasks or replaces actual
+files/evidence. Recovered notes are labelled as untrusted reference material.
+
+### Optional model-assisted extraction
+
+Run agent_memory_extract.py only after reviewing the source files and model budget.
+It reuses the existing ProcessRuntime with read-only scoped tools and one model
+query. It creates up to three pending candidates, never automatically approving
+or consolidating them. The supplied file contents are disclosed to the configured
+runtime/provider. No model invocation occurs during installation or onboarding.
+
+```json
+{
+  "schema": 1,
+  "files": ["src/value.py"],
+  "scope": "project",
+  "max_turns": 3,
+  "timeout_seconds": 60,
+  "max_cost_usd": 0.02
+}
+```
+
+```bash
+python /path/to/agent_memory_extract.py --root . --input reviewed-extraction.json --approved
+```
+
+The optional hooks_approved flag has the same meaning as in the task loop. Limits
+are 10 input files, 16,000 bytes per file and 32,000 bytes of supplied context,
+20 turns, 600 seconds and USD 10 maximum configured estimate. Receipts persist a
+query intent before calling the runtime and record available metering afterwards.
+An interrupted query remains uncertain with unknown usage; there is no automatic
+retry or resume. A new invocation is a new explicit authorization and budget.
+Private extraction keeps notes and receipts in the private store. Project receipts
+live under aikya/docs/memory-extractions/. Receipts omit prompts and raw output.
+
+## Source quality before task completion
+
+The shared code_quality.py checks candidate source files before Review. Source
+files above 1,000 physical lines fail unless a current content-bound exception
+exists. Python functions above 100 lines and exact nontrivial repeated Python AST
+bodies produce review warnings. Missing files count as deletions, not empty code.
+All reported checks remain bound to the current candidate. A model must request a
+scope change if modularization requires files outside its approved allowlist.
+
+```bash
+python /path/to/code_quality.py --root . src/service.py src/other.py
+python /path/to/code_quality.py --root . --changed --base HEAD
+```
+
+Normal edit hooks supply feedback after writes; the checker can also be configured
+as a required harness.json/CI check. See [security and quality controls](SECURITY_CONTROLS.md)
+for the enforcement boundaries. Large pre-existing files are not automatically
+rewritten, and an all-repository audit can expose unrelated historical findings.
 
 ## Verify in another environment
 

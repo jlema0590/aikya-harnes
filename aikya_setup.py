@@ -23,8 +23,8 @@ BOOTSTRAP_COMMANDS=(
     'aikya-docs-sync', 'aikya-verify', 'aikya-models', 'aikya-tokens', 'aikya-install-skill',
     'aikya-specify', 'aikya-clarify', 'aikya-plan', 'aikya-tasks', 'aikya-implement', 'aikya-sdd-status',
 )
-EXECUTION_FILES=('check_events.py','command_workflows.py','execution_state.py','execution_observer.py','execution_config.py','execution_lifecycle.py','runtime_metrics.py','aikya_statusline.py','aikya_subagent_statusline.py','odd_engine.py','agent_runtime.py','agent_loop.py','agent_loop_state.py','agent_memory.py','requirements-agent-loop.txt','docs/AGENT_LOOP.md')
-CORE_FILES=EXECUTION_FILES+('methodology.py','install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py','token_policy.py','token_report.py','model_capabilities.py','aikya_router.py','project_discovery.py','profile_builder.py','analysis_manifest.py','aikya_analyze.py','docs_language.py','docs_templates_en.py','docs_templates_es.py','docs_layout.py','docs_migration_hashes.py','sdd_engine.py','sdd_assets.py','sdd_localization.py','sdd_templates.py','claude_templates.py','documentation_templates.py','documentation_workflows.py')
+EXECUTION_FILES=('check_events.py','command_workflows.py','execution_state.py','execution_observer.py','execution_config.py','execution_lifecycle.py','runtime_metrics.py','aikya_statusline.py','aikya_subagent_statusline.py','odd_engine.py','agent_runtime.py','agent_loop.py','agent_loop_state.py','agent_memory.py','memory_store.py','agent_memory_extract.py','durable_io.py','code_quality.py','external_skills.py','skills_registry.py','requirements-agent-loop.txt','docs/AGENT_LOOP.md','docs/SECURITY_CONTROLS.md')
+CORE_FILES=EXECUTION_FILES+('methodology.py','install.py','doc_bootstrap.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py','token_policy.py','token_report.py','model_capabilities.py','aikya_router.py','project_discovery.py','profile_builder.py','analysis_manifest.py','aikya_analyze.py','docs_language.py','docs_templates_en.py','docs_templates_es.py','docs_layout.py','docs_migration_hashes.py','sdd_engine.py','sdd_assets.py','sdd_localization.py','sdd_templates.py','claude_templates.py','documentation_templates.py','documentation_workflows.py')
 
 
 def files_to_copy(source:Path):
@@ -71,6 +71,29 @@ def verified_skill_upgrade(destination,source,previous_hash=None):
     raw=destination.read_bytes();digest=hashlib.sha256(raw).hexdigest()
     record=ASSETS.get('.claude/skills/'+destination.parent.name+'/SKILL.md',{})
     return raw==asset_bytes(destination,source.read_bytes()) or digest==previous_hash or digest==record.get('sha256') or digest in record.get('variants',{})
+
+def retire_packaged_mirrors(runtime,source,previous,logs):
+    """Retire recorded distribution copies after the canonical copy exists."""
+    for name in ('external_skills.py','skills_registry.py'):
+        relative='template/scripts/harness/'+name;path=runtime/relative
+        if not path.exists() and not path.is_symlink():continue
+        if any(p.is_symlink() for p in (path,*path.parents) if p==runtime or runtime in p.parents) or not path.is_file():
+            logs.append('PRESERVED unsafe packaging mirror: '+str(path));continue
+        canonical=runtime/name
+        if not canonical.is_file() or canonical.is_symlink() or canonical.read_bytes()!=(source/name).read_bytes():
+            logs.append('PRESERVED mirror: canonical runtime customized or missing: '+str(path));continue
+        raw=path.read_bytes()
+        if hashlib.sha256(raw).hexdigest()!=previous.get(relative):
+            logs.append('PRESERVED customized packaging mirror: '+str(path));continue
+        backup=runtime/'retired-assets'/relative
+        if any(p.is_symlink() for p in (backup,*backup.parents) if p==runtime or runtime in p.parents):raise ValueError('Unsafe packaging mirror backup')
+        if backup.exists() and backup.read_bytes()!=raw:raise ValueError('Conflicting packaging mirror backup')
+        if not backup.exists():
+            from durable_io import atomic_write
+            atomic_write(backup,raw)
+        path.unlink();previous.pop(relative,None)
+        logs.append('RETIRED managed packaging mirror with backup: '+str(path))
+
 
 def register_startup_hook(settings:Path, command:str, logs:list[str]) -> None:
     """Merge a lightweight project-discovery hook without clobbering user settings."""
@@ -242,6 +265,7 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
         written=dst.read_bytes()
         if written==asset_bytes(dst,src.read_bytes()):
             new_manifest[rel.as_posix()]=hashlib.sha256(written).hexdigest()
+    retire_packaged_mirrors(runtime,source,new_manifest,logs)
     (runtime/'manifest.json').write_text(json.dumps({'_generated_by':'aikya-setup','files':new_manifest},indent=2)+'\n',encoding='utf8')
     for name in BOOTSTRAP_COMMANDS:
         src=source/'aikya-skills'/name/'SKILL.md'

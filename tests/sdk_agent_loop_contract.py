@@ -25,5 +25,10 @@ async def check():
   assert len(events)==count,'SDK result formatting must not become an effect or permission denial'
   review=sdk_options({**request,'phase':'review'},events.append,ack)
   assert review.tools==['Read']
-  print('PASS installed SDK: scoped hooks, durable acknowledgement IDs, denied shell, readonly review, limits and explicit configuration sources')
+  extraction=sdk_options({**request,'phase':'extract','files':[],'context_files':['src/value.py']},events.append,ack)
+  assert extraction.tools==['Read']
+  assert extraction.output_format['schema']['properties']['candidates']['maxItems']==3
+  denied=await extraction.hooks['PreToolUse'][0].hooks[0](data,'extract-write',{})
+  assert denied['hookSpecificOutput']['permissionDecision']=='deny'
+  print('PASS installed SDK: scoped hooks, durable acknowledgement IDs, denied shell, readonly review/extraction, proposal schema, limits and explicit configuration sources')
 asyncio.run(check())

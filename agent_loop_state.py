@@ -1,6 +1,6 @@
 """Durable, bounded loop checkpoints. Conversation storage belongs to the runtime."""
 from __future__ import annotations
-import copy,hashlib,json,math,os,re,tempfile,time,uuid
+import copy,hashlib,json,math,re,time,uuid
 from pathlib import Path
 from docs_layout import index_paths,stamp,update_index
 from docs_language import resolve
@@ -28,20 +28,10 @@ def fingerprint(path):
 
 
 def atomic(path,data):
-    if path.is_symlink():raise ValueError('Symlinked checkpoint')
-    path.parent.mkdir(parents=True,exist_ok=True)
+    from durable_io import atomic_write
     raw=data if isinstance(data,str) else json.dumps(data,ensure_ascii=False,indent=2)+'\n'
     if len(raw.encode())>2_000_000:raise ValueError('Oversized checkpoint')
-    fd,name=tempfile.mkstemp(prefix='.aikya-loop-',dir=path.parent)
-    try:
-        with os.fdopen(fd,'w',encoding='utf8') as out:out.write(raw);out.flush();os.fsync(out.fileno())
-        os.replace(name,path)
-        if hasattr(os,'O_DIRECTORY'):
-            directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY)
-            try:os.fsync(directory)
-            finally:os.close(directory)
-    finally:
-        if os.path.exists(name):os.unlink(name)
+    atomic_write(path,raw)
 
 
 def folder(root,run_id):

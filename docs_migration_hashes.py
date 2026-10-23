@@ -137,7 +137,7 @@ ASSETS = {
     },
     "aikya/scripts/harness/external_skills.py": {
         "sha256": "2700c0e499c1442cceb769a498234952fb82f1bfa0894a5b752f57938c1920fa",
-        "source": "template/scripts/harness/external_skills.py",
+        "source": "external_skills.py",
         "variants": {
             "2700c0e499c1442cceb769a498234952fb82f1bfa0894a5b752f57938c1920fa": "",
             "aaf624eaff9f422ad0a33d8c3373a210ff4f6d05d24dc816d847152a5b799b48": ""
@@ -161,7 +161,7 @@ ASSETS = {
     },
     "aikya/scripts/harness/skills_registry.py": {
         "sha256": "f61dc0fc6c39da3bf2d455f45dbb4782a0b08ccb79be423b4e973a07fbbcfdbb",
-        "source": "template/scripts/harness/skills_registry.py",
+        "source": "skills_registry.py",
         "variants": {
             "410543148a2b22acda9a3c8e61cd20a59c9f5dcae476a32e4188bc272475ec0a": "",
             "8fe7df058538d6d666df2455448bd213417361cf43f25875a871cb31d79ad4e5": "",
@@ -960,3 +960,22 @@ ASSETS = {
         }
     }
 }
+
+# Memory/quality completion: shared runtime assets and verified pre-change bytes.
+ASSETS.update({
+    'aikya/scripts/harness/memory_store.py': {'source': 'memory_store.py', 'sha256': 'f1c95b041235d5658db483b88f25a38b4c4a4efcc51662ca9ecf6467080f68be', 'variants': {'f1c95b041235d5658db483b88f25a38b4c4a4efcc51662ca9ecf6467080f68be': ''}},
+    'aikya/scripts/harness/agent_memory_extract.py': {'source': 'agent_memory_extract.py', 'sha256': 'c92f2cfcd10d32ad038e77d7cfba00d884a179868d3304c5c3b9cc45073d2c0e', 'variants': {'c92f2cfcd10d32ad038e77d7cfba00d884a179868d3304c5c3b9cc45073d2c0e': ''}},
+    'aikya/scripts/harness/durable_io.py': {'source': 'durable_io.py', 'sha256': 'eab63a83b88f8a3d282cc55a3718a13acd3e06ddc84952eaf44ad5f65d11a2c2', 'variants': {'eab63a83b88f8a3d282cc55a3718a13acd3e06ddc84952eaf44ad5f65d11a2c2': ''}},
+    'aikya/scripts/harness/code_quality.py': {'source': 'code_quality.py', 'sha256': 'c49e7314d2ced80ab5397a29b46e410ab24ee31717f6c9747ffcbb8b0dc9d8fd', 'variants': {'c49e7314d2ced80ab5397a29b46e410ab24ee31717f6c9747ffcbb8b0dc9d8fd': ''}},
+    'aikya/scripts/harness/docs/SECURITY_CONTROLS.md': {'source': 'docs/SECURITY_CONTROLS.md', 'sha256': '0cc31e3df54aef458362ba2b18235762b52a14467b753b6e4d6639737547df9f', 'variants': {'0cc31e3df54aef458362ba2b18235762b52a14467b753b6e4d6639737547df9f': ''}},
+    '.claude/rules/03-code-quality.md': {'source': 'template/.claude/rules/03-code-quality.md', 'sha256': '941d086bc9a5d8da3c66de13211e7178978e4ef0ccd05c8935f5e6deb81aea7a'},
+})
+for _path, _digest in {
+    'aikya/scripts/harness/aikya_cli.py': 'f208647bd0fd955a056527ee54a5227bb56b8d5dcb2dea447ee1d254f432798f',
+    'aikya/scripts/harness/aikya_setup.py': '2fe45dce04872ba9013e9c66b7cc76f9a90479c75657c9fdfb0ef83b35957b29',
+    'aikya/scripts/harness/docs_migration_hashes.py': '9e11b97ae55d1c0353a3247286d5dfad3bcf31148b5dcd757780dfd718388ff9',
+    '.claude/skills/aikya-feature/SKILL.md': 'f876cca722d90ded55deecc1c5a42340886a3d3d0643fa5f14d8decc3804cf93',
+    '.claude/skills/aikya-bugfix/SKILL.md': '8c284c8ce821025d0d21053b7855e02e05d2bc1c5c69fae5a9889b678965f2d5',
+    '.claude/skills/aikya-implement/SKILL.md': '22b8ac2d47f507ac267998345469928120d714308db814f1009c6a961e491248',
+}.items():
+    ASSETS[_path].setdefault('variants', {})[_digest] = ''
