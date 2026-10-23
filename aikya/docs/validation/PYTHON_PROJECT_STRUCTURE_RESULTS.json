@@ -386,5 +386,13 @@
     ],
     "current_wheel_entries_verified": 389,
     "legacy_parameter_kinds_defaults_annotations": "preserved"
+  },
+  "follow_up": {
+    "report": "SDD_MODULARIZATION.md",
+    "published_structure_and_template_checkpoint": "e3ca08d",
+    "version": "6.1.1",
+    "current_engine_lines": 282,
+    "current_largest_implementation_module_lines": 404,
+    "note": "Original fields preserve the initial observed structure checkpoint. The linked report records the subsequent SDD split and its own verification."
   }
 }

@@ -1,8 +1,15 @@
 # Python Project Structure Validation
 
-Implementation is local on feat/sdd-spec-coding-templates. Version remains 6.1.1.
-The source baseline is 08db487; the prior local cleanup was preserved and is
-recorded separately. No commit, push, release tag or package publication was made.
+This report preserves the initial local structure checkpoint, based on 08db487,
+before publication. Version remains 6.1.1. The cleanup and package structure were
+subsequently published through e3ca08d on feat/sdd-spec-coding-templates.
+
+**Current follow-up:** the former 658-line SDD engine has been split into focused
+modules; engine.py is now 282 lines and the largest implementation module is
+404 lines. See [the separate modularization report](SDD_MODULARIZATION.md) for
+current validation. The original measurements below remain historical evidence;
+resource-path follow-up is recorded in [command acceptance](COMMAND_ACCEPTANCE.md).
+No release tag or package publication was created.
 
 ## Implemented structure
 
@@ -52,7 +59,7 @@ their functional locations. Private memory remains outside Git.
 
 ## Sizes and artifacts
 
-The package contains 92 Python files; the largest is 658 lines. install.py is a 16-line adapter and installation/facade.py is 191 lines. All 28 former installer callable parameter signatures remain present. The registered inventory contains 513 files and 2,605,973 raw source bytes, with the 265-file historical gallery excluded. The retained source gallery remains checksummed.
+At the initial checkpoint, the package contained 92 Python files; the largest was 658 lines. install.py is a 16-line adapter and installation/facade.py is 191 lines. All 28 former installer callable parameter signatures remain present. The registered inventory contains 513 files and 2,605,973 raw source bytes, with the 265-file historical gallery excluded. The retained source gallery remains checksummed.
 
 Full source quality inspected 239 files: zero size/syntax errors, 12 review warnings, including 3 repeated-body groups. Existing long functions and historical fixture similarities remain review diagnostics; the former install.py file-size failure is resolved. This is a maintainability check, not a security certification.
 

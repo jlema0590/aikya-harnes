@@ -31,6 +31,7 @@
 - [validation/DOCUMENT_WORKFLOW_CLEANUP.md](validation/DOCUMENT_WORKFLOW_CLEANUP.md)
 - [validation/PYTHON_PROJECT_STRUCTURE.md](validation/PYTHON_PROJECT_STRUCTURE.md)
 - [validation/REPOSITORY_CLEANUP.md](validation/REPOSITORY_CLEANUP.md)
+- [validation/SDD_MODULARIZATION.md](validation/SDD_MODULARIZATION.md)
 - [validation/archive/2026-10-22/AGENT_LOOP.md](validation/archive/2026-10-22/AGENT_LOOP.md)
 - [validation/archive/2026-10-22/COMMAND_RENAMES.md](validation/archive/2026-10-22/COMMAND_RENAMES.md)
 - [validation/archive/2026-10-22/DOCUMENTATION_TEMPLATES.md](validation/archive/2026-10-22/DOCUMENTATION_TEMPLATES.md)

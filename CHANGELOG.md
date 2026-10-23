@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Split the 658-line SDD engine into a 282-line transition facade plus focused contracts, validation, state, rendering and CLI modules. Preserve all public definitions and 78 pre-refactor lifecycle/document fingerprints.
+
 - Rename the offline reference library to `aikya-template/docs`, update active template references and retain upstream legal provenance. Back up and retire verified old runtime catalogs; reject customized assets before upgrading and restore retired files after a tested write failure.
 - Exercise all 27 public command support contracts with 49 local process checks and record generated Markdown paths, approval failures and SDD gates. Live model execution remains a separate environment test.
 
