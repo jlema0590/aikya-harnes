@@ -646,6 +646,8 @@ def main(argv=None):
                 else:
                     folder,data=load(root,args.id)
                     result=status_data(data)
+        from execution_observer import emit_engine_event
+        emit_engine_event(root,'sdd',args.action,result)
         print(json.dumps(result,ensure_ascii=False,indent=2))
         return 0 if not (args.action=="lint" and not result["valid"]) else 1
     except (SddError,OSError,UnicodeError,TypeError,ValueError,KeyError) as exc:

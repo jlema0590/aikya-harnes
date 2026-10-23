@@ -34,6 +34,7 @@ TRUSTED = {
         "811bda89adea8fdbec16cf2ba37241d716953b63a5fc71ec46be5d82cf671863"
     ],
     "aikya/scripts/harness/sdd_templates.py": [
+        "8df0334f5aa510965591daa3062b4fa1dc72f3db41fe73e127b50ef6b2f716ad",
         "ade74831ab03432cff6ea1fa815a2d9ac2675fb2bb62f8a4fdf6ac4f4a7f2a06",
         "cfe7302d8b45e9177d2a745b71de486d9ecc40051e378d99eb1a222ad841df2e"
     ]

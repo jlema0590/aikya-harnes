@@ -119,9 +119,9 @@ class SddIntegrationTests(unittest.TestCase):
         path.write_text(json.dumps(data))
         self.assertEqual(2, sdd.main(['status', '--root', str(self.root), '--id', 'SPEC-001']))
 
-    def test_standard_is_default_and_unknown_methodology_rejected(self):
+    def test_odd_is_default_and_unknown_methodology_rejected(self):
         raw = json.loads((ROOT / 'examples/next-react/answers.json').read_text())
-        self.assertEqual('standard', install.validated(raw, self.root).get('methodology'))
+        self.assertEqual('odd', install.validated(raw, self.root).get('methodology'))
         with self.assertRaises(ValueError):
             install.validated({**raw, 'methodology': 'unknown'}, self.root)
 
@@ -177,7 +177,7 @@ class SddAdoptionTests(unittest.TestCase):
         self.assertIn('methodology', inspect.signature(execute).parameters)
         with tempfile.TemporaryDirectory() as d:
             root = Path(d); (root / 'pom.xml').write_text('<project/>')
-            execute(root, approved=True, docs_lang='en')
+            execute(root, approved=True, docs_lang='en',methodology='odd')
             p = root / '.harness/project-profile.json'
             old = json.loads(p.read_text()); old['decisions']['notes'] = 'Team convention'
             p.write_text(json.dumps(old))

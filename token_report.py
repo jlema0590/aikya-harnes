@@ -36,7 +36,7 @@ def estimate_haiku_55_request(usage: dict) -> dict:
             "maximum_usd": round(base + created * write_1h, 8),
             "note": "Estimated Anthropic API list price (5m–1h cache writes). Not billing."}
 
-def summarize(paths):
+def summarize(paths, *, event_filter=None):
     totals = defaultdict(int)
     models = defaultdict(lambda: defaultdict(int))
     sessions = set()
@@ -46,6 +46,7 @@ def summarize(paths):
     tool_outputs = []
     tool_events = set()
     stop_blocks = 0
+    missing_usage = 0
     for path in paths:
         try:
             with path.open(encoding="utf8") as fh:
@@ -75,11 +76,13 @@ def summarize(paths):
                         stop_blocks += 1
                     if msg.get("role") != "assistant":
                         continue
+                    if event_filter is not None and not event_filter(event,path):continue
                     usage = msg.get("usage")
                     if not isinstance(usage, dict):
+                        missing_usage += 1
                         continue
                     identity = msg.get("id") or event.get("uuid")
-                    dedup = (str(path), str(identity)) if identity else None
+                    dedup = (str(event.get('sessionId') or event.get('session_id') or path), str(identity)) if identity else None
                     model = str(msg.get("model") or "unknown")
                     # Streamed transcript snapshots reuse the same message id.
                     # Keep the largest cumulative usage per category.
@@ -117,6 +120,7 @@ def summarize(paths):
     return {
         "haiku_55_estimated_api_cost": haiku_range,
         "sessions_with_usage": len(sessions),
+        "usage_records_missing": missing_usage,
         "totals": dict(totals),
         "models": {key: dict(value) for key, value in sorted(models.items())},
         "context_observations": {
@@ -158,13 +162,28 @@ def main():
     p = argparse.ArgumentParser(description="Aikya tokens: local usage, read only")
     p.add_argument("--path", type=Path, help="Explicit project transcript directory; never scans unrelated projects")
     p.add_argument("--prices", type=Path, help="Optional user-provided USD/MTok JSON rate catalog")
+    p.add_argument("--start-utc",help="Inclusive ISO timestamp for recorded project usage")
+    p.add_argument("--end-utc",help="Exclusive ISO timestamp for recorded project usage")
+    p.add_argument("--session-id",help="Select one recorded session")
+    p.add_argument("--budget-tokens",type=int,help="Explicit local token budget, not account quota")
+    p.add_argument("--cache-session",action="store_true",help="Cache this explicit session aggregate outside the project")
+    p.add_argument("--root",type=Path,default=Path.cwd(),help="Project identity for the optional execution cache")
     args = p.parse_args()
     if args.path is None:
         p.error("--path is required to avoid reading unrelated projects")
     if not args.path.exists():
         p.error("transcript path not found")
     files = sorted(args.path.rglob("*.jsonl")) if args.path.is_dir() else [args.path]
-    report = summarize(files)
+    from runtime_metrics import aggregate_usage,budget_percentage
+    report = aggregate_usage(files,args.start_utc,args.end_utc,args.session_id)
+    if args.budget_tokens is not None:
+        total=sum(report["totals"].get(k,0) for k in KEYS)
+        report["local_budget"]={"recorded_tokens":total,"budget_tokens":args.budget_tokens,"used_percentage":budget_percentage(total,args.budget_tokens),"note":"Explicit local budget; not account quota or unique context size"}
+    if args.cache_session:
+        if not args.session_id:p.error("--cache-session requires --session-id")
+        if args.start_utc or args.end_utc:p.error("An interval aggregate cannot replace the all-session display cache")
+        from runtime_metrics import cache_usage
+        cache_usage({"root":str(args.root.resolve()),"session_id":args.session_id},report)
     if args.prices:
         report["cost"] = estimate_cost(report, json.loads(args.prices.read_text(encoding="utf8")))
     print(json.dumps(report, indent=2))

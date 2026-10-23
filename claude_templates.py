@@ -23,8 +23,9 @@ def render(profile: dict, modules: list[dict]) -> str:
     if kind not in KINDS:raise ValueError('Unsupported Claude project type')
     layout=profile.get('repository_layout','singlerepo')
     if layout not in ('monorepo','singlerepo'):raise ValueError('Unsupported repository layout')
-    method=profile.get('methodology','standard')
-    if method not in ('standard','sdd'):raise ValueError('Unsupported methodology')
+    from methodology import normalize_methodology
+    method=normalize_methodology(profile.get('methodology'))
+    if method not in ('odd','sdd'):raise ValueError('Unsupported methodology')
     parts=[asset(SOURCE_ROOT/'template/CLAUDE.md'),
            '## Recorded project decisions\n\n'
            'These onboarding decisions do not prove that code, dependencies or deployments exist.\n\n'

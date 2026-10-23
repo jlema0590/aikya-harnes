@@ -42,7 +42,9 @@ jobs:
             engineering_catalog.py external_skills.py \
             infrastructure_profile.py install.py skills_registry.py sdd_engine.py sdd_assets.py sdd_localization.py sdd_templates.py claude_templates.py documentation_templates.py documentation_workflows.py \
             docs_language.py docs_templates_en.py docs_templates_es.py \
-            docs_layout.py docs_migration_hashes.py \
+            docs_layout.py docs_migration_hashes.py methodology.py odd_engine.py \
+            command_workflows.py execution_state.py execution_observer.py execution_config.py \
+            execution_lifecycle.py check_events.py runtime_metrics.py aikya_statusline.py aikya_subagent_statusline.py \
             template/scripts/harness scripts/ci
 
       - name: Validate bundled Claude Code agents and Agent Skills

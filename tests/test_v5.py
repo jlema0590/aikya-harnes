@@ -41,7 +41,7 @@ class AikyaV5(unittest.TestCase):
             answers=json.loads((ROOT/'examples/new-next-react.json').read_text())
             (repo/'.aikya/answers.json').write_text(json.dumps(answers))
             # CLI prints SDK report and allows a safe installation even with pending Node.
-            result=subprocess.run([sys.executable,str(repo/'.aikya/runtime/aikya_cli.py'),'init',
+            result=subprocess.run([sys.executable,str(repo/'.aikya/runtime/aikya_cli.py'),'init','--methodology','odd',
                                    '--target',str(repo),'--answers',str(repo/'.aikya/answers.json')],
                                    capture_output=True,text=True)
             self.assertEqual(0,result.returncode,result.stderr)
@@ -69,7 +69,7 @@ class AikyaV5(unittest.TestCase):
             (root/'.aikya').mkdir()
             (root/'.aikya/answers.json').write_text(json.dumps(answers))
             self.assertTrue(install.only_aikya_bootstrap(root))
-            cli=aikya_cli.main(['init','--target',str(root),'--external','skip'])
+            cli=aikya_cli.main(['init','--methodology','odd','--target',str(root),'--external','skip'])
             self.assertEqual(0,cli)
             self.assertTrue((root/'aikya/docs/README.md').exists())
 
@@ -156,5 +156,6 @@ class AikyaStartupTests(unittest.TestCase):
             aikya_setup.setup(ROOT,repo,'project')
             after=json.loads(config.read_text())
             self.assertEqual(1,len(after['hooks']['SessionStart']))
-            self.assertEqual(1,len(after['hooks']['PreToolUse']))
+            self.assertEqual(2,len(after['hooks']['PreToolUse']))
+            self.assertEqual('echo hi',after['hooks']['PreToolUse'][0]['hooks'][0]['command'])
             self.assertTrue(install.only_aikya_bootstrap(repo))

@@ -181,7 +181,7 @@ def specialized_interview(target: Path, detected: dict[str, Any], kind: str, mod
             infra['container_port']=int(port) if port.isdecimal() else (port or None)
     environments=ask('Comma-separated environments','dev')
     infra['environments']=[v.strip() for v in environments.split(',') if v.strip()]
-    return {'methodology':choice('Engineering methodology', ['standard','sdd'], 'standard'), 'project_type':kind,'mode':mode,'name':name,'repository_layout':'singlerepo',
+    return {'methodology':choice('Engineering methodology', ['odd','sdd'], 'odd'), 'project_type':kind,'mode':mode,'name':name,'repository_layout':'singlerepo',
             'backend':'none','frontend':'none','mobile':'none','mobile_framework':'none',
             'backend_framework':'none','architecture':'undecided','database':'undecided',
             'api_style':'undecided','frontend_rendering':'undecided','auth':'undecided',
@@ -266,7 +266,7 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
             port = ask('Application internal port (blank if unknown)', '')
             infrastructure['container_port'] = int(port) if port.isdecimal() else (port or None)
     versions = ask('Versions/SDKs to pin (blank = undecided)', '')
-    return {'methodology':choice('Engineering methodology', ['standard','sdd'], 'standard'), 'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Product/project name', target.name),
+    return {'methodology':choice('Engineering methodology', ['odd','sdd'], 'odd'), 'project_type':'development', 'mode': mode, 'repository_layout':layout, 'name': ask('Product/project name', target.name),
             'backend': backend, 'frontend': frontend, 'mobile': mobile,
             'mobile_framework': framework, 'backend_framework':backend_framework, 'api_style':api_style,
             'frontend_rendering':frontend_rendering, 'auth':auth, 'observability':telemetry,
@@ -279,14 +279,16 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
 
 
 def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
-    choices = {'methodology':['standard','sdd'], 'project_type': list(PROJECT_TYPES), 'mode': ['existing','new'], 'repository_layout': list(LAYOUTS), 'backend': BACKENDS, 'frontend': FRONTENDS,
+    from methodology import normalize_methodology
+    data={**data,'methodology':normalize_methodology(data.get('methodology'))}
+    choices = {'methodology':['odd','sdd'], 'project_type': list(PROJECT_TYPES), 'mode': ['existing','new'], 'repository_layout': list(LAYOUTS), 'backend': BACKENDS, 'frontend': FRONTENDS,
                'mobile': MOBILES, 'mobile_framework': ['none']+FRAMEWORKS,
                'android_language':['none','kotlin','java'], 'ios_ui':['none','swiftui','uikit'],
                'architecture': ARCHS, 'database':DATABASES, 'ci':CIS,
                'deployment':DEPLOYS, 'package_manager':['none']+PACKAGES,
                'api_style': API_STYLES, 'auth':AUTH, 'observability':OBSERVABILITY,
                'quality':TEST_STYLES, 'frontend_rendering':RENDERING}
-    defaults = {'methodology':'standard', 'project_type':'development', 'mode':'new', 'repository_layout':'monorepo', 'backend':'none', 'frontend':'none', 'mobile':'none',
+    defaults = {'methodology':'odd', 'project_type':'development', 'mode':'new', 'repository_layout':'monorepo', 'backend':'none', 'frontend':'none', 'mobile':'none',
                 'mobile_framework':'none', 'android_language':'none', 'ios_ui':'none',
                 'architecture':'undecided', 'database':'undecided', 'ci':'undecided',
                 'deployment':'undecided', 'package_manager':'npm',
@@ -749,6 +751,8 @@ def documentation_runtime_plan(target: Path) -> list[dict]:
     coupled_templates={'documentation_templates.py','documentation_workflows.py',
                        'sdd_templates.py','claude_templates.py','doc_bootstrap.py',
                        'documentation-templates/manifest.json'}
+    from aikya_setup import EXECUTION_FILES
+    coupled_templates.update(EXECUTION_FILES+('methodology.py','aikya_cli.py','aikya_analyze.py','aikya_setup.py','install.py','token_report.py','sdd_engine.py'))
     operations=[]
     for relative,record in ASSETS.items():
         if relative=='CLAUDE.md':continue  # Existing repository instructions stay owner-controlled.
@@ -830,7 +834,8 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     documentation_language = resolve_docs_language(target, docs_lang)
     validate_layout(profile)
     # Older installed harnesses may invoke this function without validated().
-    profile = {**profile, 'methodology':profile.get('methodology','standard'), 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
+    from methodology import normalize_methodology
+    profile = {**profile, 'methodology':normalize_methodology(profile.get('methodology')), 'project_type':profile.get('project_type','development'), 'infrastructure': validate_infrastructure(profile)}
     path_conflicts=managed_path_conflicts(target)
     if path_conflicts:raise ValueError('Managed path review required: '+json.dumps(path_conflicts))
     from docs_layout import migration_plan, migrate
@@ -842,7 +847,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
     runtime_operations=documentation_runtime_plan(target)
     if any(op['action']=='BLOCKED' for op in runtime_operations):
         raise ValueError('Runtime migration requires review: '+json.dumps(runtime_operations))
-    if profile['methodology'] not in ('standard', 'sdd'):
+    if profile['methodology'] not in ('odd', 'sdd'):
         raise ValueError('Invalid engineering methodology')
     previous_profile = read_json_safe(target/'.harness/project-profile.json')
     previous_decisions = previous_profile.get('decisions', {})
@@ -870,9 +875,17 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         if gates and gates != [gate]: raise ValueError('Customized SDD gate requires review')
         for part in (target/'.harness/backup-v611', target/'.harness/backup-v611/harness.json'):
             if part.is_symlink(): raise ValueError('Symlinked SDD backup is not supported')
+    backup=target/'.harness/backup-odd/project-profile.json'
+    if previous_profile.get('_generated_by')=='claude-dev-harness-interactive' and previous_decisions.get('methodology') in (None,'standard'):
+        if any(p.is_symlink() for p in (backup,*backup.parents) if p==target or target in p.parents):raise ValueError('Unsafe methodology backup')
+    from methodology import migration_plan as methodology_plan,apply_migration as apply_methodology
+    methodology_operations=methodology_plan(target,previous_profile,profile['methodology'])
     if dry_run:
         return [f'PLAN: instalar harness en {target}', 'PLAN: crear aikya/docs/, aikya/test/, aikya/scripts/ según '+layout_of(profile)+' y CI/infra', 'PLAN: incorporar hooks por petición + Stop gate y generar receta de scaffold opcional sin ejecutarla', 'PLAN: conservar documentos de usuario y módulos existentes; no instalar dependencias ni desplegar', 'PLAN: integrar Ponytail/Graphify y UI UX Pro Max sólo si hay frontend o móvil, previa aprobación']
     target.mkdir(parents=True, exist_ok=True)
+    if methodology_operations:
+        apply_methodology(target,methodology_operations)
+        actions.extend('UPDATED methodology with backup: '+op['path'] for op in methodology_operations)
     if doc_operations:
         migrate(target, approved=True)
         actions.append('MIGRATED managed documentation layout with backups')
@@ -889,6 +902,11 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
                'decisions':profile, 'detected':detected}
     if profile_path.exists():
         old = read_json_safe(profile_path)
+        if old.get('_generated_by')=='claude-dev-harness-interactive' and old.get('decisions',{}).get('methodology') in (None,'standard'):
+            backup=target/'.harness/backup-odd/project-profile.json'
+            if backup.is_symlink() or backup.parent.is_symlink():raise ValueError('Unsafe methodology backup')
+            backup.parent.mkdir(parents=True,exist_ok=True)
+            if not backup.exists():shutil.copy2(profile_path,backup)
         if adopt_existing and old.get('_generated_by') == 'claude-dev-harness-interactive' and old.get('decisions', {}).get('methodology', 'standard') != profile['methodology']:
             old['decisions']['methodology'] = profile['methodology']
             profile_path.write_text(json.dumps(old, indent=2, ensure_ascii=False)+'\n', encoding='utf8')
@@ -960,7 +978,7 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         dst=target/'.claude/skills'/name/'SKILL.md'
         if not src.is_file():
             continue
-        if dst.exists() and not dst.is_symlink() and 'AIKYA BOOTSTRAP MANAGED' in dst.read_text(encoding='utf8'):
+        if dst.exists() and not dst.is_symlink() and __import__('aikya_setup').verified_skill_upgrade(dst,src):
             rendered=asset_bytes(dst,src.read_bytes())
             if dst.read_bytes()!=rendered:
                 dst.write_bytes(rendered)
@@ -1012,8 +1030,11 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
             safe_write(target/'aikya/scripts/harness/infrastructure_profile.py',
                        local_profile.read_text(encoding='utf8'),actions)
 
+    from aikya_setup import EXECUTION_FILES
+    for utility in EXECUTION_FILES:
+        safe_write(target/'aikya/scripts/harness'/utility,(HERE/utility).read_text(encoding='utf8'),actions)
     # v6: install model/token utilities without changing global configuration.
-    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py', 'docs_language.py', 'docs_templates_en.py', 'docs_templates_es.py', 'docs_layout.py', 'docs_migration_hashes.py','documentation_templates.py','documentation_workflows.py'):
+    for utility in ('token_policy.py', 'token_report.py', 'model_capabilities.py', 'aikya_router.py', 'project_discovery.py', 'profile_builder.py', 'analysis_manifest.py', 'aikya_analyze.py', 'docs_language.py', 'docs_templates_en.py', 'docs_templates_es.py', 'docs_layout.py', 'docs_migration_hashes.py','documentation_templates.py','documentation_workflows.py','methodology.py'):
         source = HERE / utility
         if source.is_file():
             safe_write(target/'aikya/scripts/harness'/utility,
@@ -1027,10 +1048,14 @@ def install(target: Path, profile: dict[str, Any], detected: dict[str, Any], dry
         from token_policy import DEFAULT
         safe_write(model_policy, json.dumps(DEFAULT,ensure_ascii=False,indent=2)+'\n', actions)
 
-    if not adopt_existing or not (target/'.claude/settings.json').exists():
+    if not adopt_existing or not (target/'.claude/settings.json').exists() or __import__('aikya_setup').managed_bootstrap_settings(target):
         merge_settings(target, actions)
     else:
         actions.append('PRESERVED existing settings.json during adoption')
+    from execution_config import register_visibility
+    observer='python3 -B "${CLAUDE_PROJECT_DIR}/aikya/scripts/harness/execution_observer.py" hook'
+    bar='python3 -B "${CLAUDE_PROJECT_DIR}/aikya/scripts/harness/aikya_statusline.py"'
+    register_visibility(target/'.claude/settings.json',observer,bar,actions,target/'.aikya/visibility-proposed.json')
     claude = target / 'CLAUDE.md'
     if not claude.exists():
         safe_write(claude,claude_contract,actions)
@@ -1185,6 +1210,7 @@ def only_aikya_bootstrap(target:Path) -> bool:
 def main(argv: list[str]|None=None) -> int:
     parser=argparse.ArgumentParser(description='Technical interview and safe Claude Code installer')
     parser.add_argument('--target',type=Path,default=Path.cwd(),help='Repositorio existente o nuevo directorio')
+    parser.add_argument('--methodology',choices=['odd','sdd','standard'],default=None,help='Choose ODD or SDD; standard is a legacy alias')
     parser.add_argument('--answers',type=Path,help='JSON answers for non-interactive installation')
     parser.add_argument('--dry-run',action='store_true',help='Mostrar plan sin escribir archivos')
     parser.add_argument('--allow-bootstrap',action='store_true',help='Allow new mode only with verified Aikya-only bootstrap')
@@ -1204,7 +1230,7 @@ def main(argv: list[str]|None=None) -> int:
             answers=read_json_safe(args.answers)
             if not answers:
                 raise ValueError('--answers is empty, invalid or unreadable.')
-            profile=validated(answers,target)
+            profile=validated({**answers,**({'methodology':args.methodology} if args.methodology else {})},target)
             welcome_name = args.display_name if args.display_name is not None else answers.get('welcome_name', '')
         else:
             profile=validated(interview(target,detected),target)

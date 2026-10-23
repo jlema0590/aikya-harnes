@@ -84,11 +84,13 @@ def semantic_advice(raw: dict, threshold: float) -> dict | None:
 
 def route(request: str, policy: dict | None = None, *,
           affected_components: int = 1, semantic: dict | None = None,
-          analysis_only: bool = False) -> dict:
+          analysis_only: bool = False, odd_facts: dict | None = None) -> dict:
     if not isinstance(request, str) or len(request) > 10000:
         raise ValueError("request must be text of at most 10000 characters")
     if type(affected_components) is not int or affected_components < 1:
         raise ValueError("affected_components must be positive")
+    from odd_engine import classify_work
+    continuity=classify_work({'read_only':True} if analysis_only else odd_facts or {})
     p = validated(policy)
     category = classify(request)
     dangerous = bool(RISK.search(request)) and bool(ACTION.search(request) or
@@ -131,13 +133,13 @@ def route(request: str, policy: dict | None = None, *,
         inferred_roles.append("docker-developer")
     skills = ["security-audit"] if category == "security" else []
     if analysis_only:
-        return {"mode": "analysis_only", "read_only": True,
+        return {"odd_continuity":continuity,"mode": "analysis_only", "read_only": True,
                 "category": category, "recommended_role": selected,
                 "recommended_roles": inferred_roles, "recommended_skills": skills,
                 "recommended_model": resolved_agent_model(selected, p),
                 "requires_approval": False, "writes": False,
                 "note": "Read-only routing advice; no LLM invoked and no permissions granted."}
-    return {"category": category, "recommended_role": selected,
+    return {"odd_continuity":continuity,"category": category, "recommended_role": selected,
             "recommended_model": resolved_agent_model(selected, p),
             "specialist": specialist, "auxiliary_task": aux_task if use_auxiliary else None,
             "auxiliary_agent": ("aikya-docs-assistant" if aux_task == "documentation"
@@ -152,10 +154,11 @@ def main():
     parser.add_argument("--request", required=True)
     parser.add_argument("--components", type=int, default=1)
     parser.add_argument("--analysis-only", action="store_true")
+    parser.add_argument("--odd-facts",type=Path,help="Reviewed boolean work facts; advisory only")
     args = parser.parse_args()
     p = json.loads(args.policy.read_text(encoding="utf8")) if args.policy else None
     print(json.dumps(route(args.request, p, affected_components=args.components,
-                           analysis_only=args.analysis_only),
+                           analysis_only=args.analysis_only,odd_facts=json.loads(args.odd_facts.read_text()) if args.odd_facts else None),
                      indent=2, ensure_ascii=False))
     return 0
 

@@ -80,10 +80,10 @@ class ClaudeTemplateTests(unittest.TestCase):
         self.root.mkdir();custom=b'# Team instructions\n\nKeep our reviewed local policy.\n'
         (self.root/'CLAUDE.md').write_bytes(custom)
         (self.root/'package.json').write_text(json.dumps({'dependencies':{'next':'1','react':'1'}}))
-        preview=execute(self.root,dry_run=True,docs_lang='en')
+        preview=execute(self.root,dry_run=True,docs_lang='en',methodology='odd')
         self.assertEqual(custom,(self.root/'CLAUDE.md').read_bytes())
         self.assertEqual('KEEP_EXISTING',next(op['action'] for op in preview['plan'] if op['path']=='CLAUDE.md'))
-        execute(self.root,approved=True,docs_lang='en')
+        execute(self.root,approved=True,docs_lang='en',methodology='odd')
         self.assertEqual(custom,(self.root/'CLAUDE.md').read_bytes())
         install.install(self.root,self.profile(mode='existing'),install.detect_project(self.root),adopt_existing=True)
         self.assertEqual(custom,(self.root/'CLAUDE.md').read_bytes())

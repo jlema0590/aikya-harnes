@@ -4,6 +4,8 @@
 `required` + comando nulo => fallo: no confundir 'sin configurar' con 'pasó'.
 """
 import json
+import sys
+sys.dont_write_bytecode=True
 from pathlib import Path
 import subprocess
 import sys
@@ -22,6 +24,10 @@ def run(config_path=CONFIG):
         print(f'ERROR configuración: {exc}')
         return 2
 
+    try:
+        from check_events import CheckEvents
+        observer=CheckEvents(ROOT)
+    except ImportError:observer=None
     failures = 0
     for check in checks:
         if not isinstance(check, dict) or not isinstance(check.get('name'), str) or not isinstance(check.get('required'), bool):
@@ -54,6 +60,7 @@ def run(config_path=CONFIG):
         print(f'{name}: RUNNING {cmd!r}', flush=True)
         try:
             result = subprocess.run(cmd, cwd=cwd, check=False, timeout=300)
+            if observer:observer.process(name,result.returncode)
             if result.returncode != 0:
                 print(f'{name}: FAILED (exit {result.returncode})')
                 failures += 1
@@ -62,6 +69,7 @@ def run(config_path=CONFIG):
         except (OSError, subprocess.TimeoutExpired) as exc:
             print(f'{name}: FAILED ({exc})')
             failures += 1
+    if observer:observer.finish(failures)
     print(f'RESULTADO: {"FAILED" if failures else "PASSED"} ({failures} check(s) pendientes/fallidos)')
     return 1 if failures else 0
 

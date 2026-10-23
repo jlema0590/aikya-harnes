@@ -115,7 +115,7 @@ class InstallerTests(unittest.TestCase):
             settings=json.loads((target/'.claude/settings.json').read_text())
             self.assertIn('Read(./private.txt)',settings['permissions']['deny'])
             self.assertTrue(settings['custom']['feature'])
-            self.assertEqual(2,len(settings['hooks']['PreToolUse']))
+            self.assertEqual(3,len(settings['hooks']['PreToolUse']))
 
     def test_runner_rejects_cwd_traversal(self):
         with tempfile.TemporaryDirectory() as d:

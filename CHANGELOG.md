@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Require an explicit ODD/SDD choice at initial /aikya-init and /aikya-analyze onboarding; retain confirmed choices, normalize legacy standard inputs to odd, and preserve managed profile/answers backups and SDD approvals.
+- Add proportional ODD worklists, acceptance/task dependencies, recorded evidence, versioned continuity and reviewed invalidation of stale outcomes using Milkeles task references.
+- Add six English execution phases, separate statuses, private concurrent session/run snapshots, local CLI/check observations and a shared protocol across all 28 public commands.
+- Register local execution status/hooks without replacing custom commands; show observed models, context, optional provider 5h/7d windows and explicitly cached session aggregates, with N/D for unavailable data.
+
 - Compose Aikya acceptance criteria with populated Milkeles foundation sections selected by command, project type and methodology; preserve existing sections and SDD approvals, validate evidence references, and support contextual onboarding and test documentation in English and Spanish.
 - Use Milkeles as the sole external documentation-template provider, including nine SDD role adaptations and the append-safe bug register; retain Aikya approval gates, acceptance criteria, traceability and existing project records.
 - Unify SDD with the canonical documentation layout, universal Markdown footer and actual-file index; omit empty clarification/verification reports.

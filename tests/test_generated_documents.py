@@ -48,7 +48,7 @@ class GeneratedDocumentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             (root/'pom.xml').write_text('<project/>')
-            result = execute(root, approved=True)
+            result = execute(root, approved=True,methodology='odd')
             self.assertEqual('READY', result['status'])
             self.assert_footers(root)
             report = root/'.aikya/analysis/report.md'
@@ -56,7 +56,7 @@ class GeneratedDocumentTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256(report.read_bytes()).hexdigest(),
                              manifest['managed_paths']['.aikya/analysis/report.md'])
             old = report.read_bytes()
-            self.assertEqual('READY', execute(root, approved=True, refresh=True)['status'])
+            self.assertEqual('READY', execute(root, approved=True, refresh=True,methodology='odd')['status'])
             self.assertEqual(old, report.read_bytes())
 
     def test_project_and_global_registration_stamp_assets_and_remain_idempotent(self):

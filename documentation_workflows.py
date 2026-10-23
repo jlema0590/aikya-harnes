@@ -73,8 +73,9 @@ def foundation(role):
 
 def select(profile,command,*,document=None,kind='feature'):
     if not isinstance(profile,dict):raise ValueError('Invalid project profile')
-    project_type=profile.get('project_type','development');method=profile.get('methodology','standard')
-    if project_type not in library.KINDS or method not in ('standard','sdd'):raise ValueError('Invalid project profile')
+    from methodology import normalize_methodology
+    project_type=profile.get('project_type','development');method=normalize_methodology(profile.get('methodology'))
+    if project_type not in library.KINDS or method not in ('odd','sdd'):raise ValueError('Invalid project profile')
     if not isinstance(command,str):raise ValueError('Invalid workflow command')
     command=command.removeprefix('/')
     if kind not in ('feature','api','database','spec'):raise ValueError('Unsupported change kind')
@@ -97,7 +98,7 @@ def select(profile,command,*,document=None,kind='feature'):
     if role=='feature':templates.insert(0,'aikya:'+kind+'-acceptance')
     platforms=['android','ios'] if profile.get('mobile')=='both' else [profile['mobile']] if profile.get('mobile','none')!='none' else []
     return {'command':command,'engine':'documentation','document':role,'templates':templates,
-            'available_documents':list(choices),'project_type':project_type,'kind':kind,'platforms':platforms,
+            'continuity_engine':'odd_engine' if method=='odd' else None,'available_documents':list(choices),'project_type':project_type,'kind':kind,'platforms':platforms,
             'mode':'read_only' if command=='aikya-architecture-review' else 'reviewed_documentation'}
 
 
@@ -238,7 +239,8 @@ def bootstrap(relative,body,profile,modules,language):
     if relative not in ('overview.md','plan/testing.md'):return body
     es=language=='es'
     if relative=='overview.md':
-        method=profile.get('methodology','standard')
+        from methodology import normalize_methodology
+        method=normalize_methodology(profile.get('methodology'))
         workflow=('/aikya-specify → /aikya-plan → /aikya-tasks → /aikya-implement' if method=='sdd' else '/aikya-feature / /aikya-bugfix / /aikya-tests')
         how=('Metodología registrada: ' if es else 'Recorded methodology: ')+method+'\n\n'+workflow
         where='`aikya/docs/architecture/architecture-overview.md`\n\n`.harness/project-profile.json`\n\n`harness.json`'

@@ -46,14 +46,14 @@ class DocumentationLayoutTests(unittest.TestCase):
 
     def test_analysis_omits_unsupported_stubs_and_keeps_actual_architecture(self):
         (self.root/'pom.xml').write_text('<project/>')
-        preview=execute(self.root,dry_run=True,docs_lang='en')
+        preview=execute(self.root,dry_run=True,docs_lang='en',methodology='odd')
         self.assertFalse(preview['writes']);self.assertFalse((self.root/'aikya/docs').exists())
         planned={x['path'] for x in preview['plan']}
         self.assertIn('aikya/docs/architecture/architecture-overview.md',planned)
         self.assertIn('aikya/docs/indice.md',planned)
         self.assertNotIn('aikya/docs/bugs/index.md',planned)
         self.assertNotIn('aikya/docs/harness/bootstrap.md',planned)
-        result=execute(self.root,approved=True,docs_lang='en')
+        result=execute(self.root,approved=True,docs_lang='en',methodology='odd')
         self.assertEqual('READY',result['status'])
         docs=self.root/'aikya/docs'
         for name in ['bugs/index.md','features/index.md','design/design-system.md','harness/skills-comparison.md','operations/observability.md','plan/testing.md']:

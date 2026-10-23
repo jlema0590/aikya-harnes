@@ -15,14 +15,14 @@ claimed to have been measured.
 | /aikya-init with SDD | Same onboarding composition plus SDD guide/runtime | Specification packet starts with real /aikya-specify input, not initialization |
 | /aikya-analyze | Existing-project context/architecture and observed test paths | Preview remains read-only; unsupported reports are omitted |
 | /aikya-architecture-review | Read-only architecture recipe | Explicitly requested architecture updates; distinct ADR/design documents only when justified |
-| /aikya-feature, standard | Aikya objective + observable acceptance + optional Milkeles technical-design sections in features/<slug>/spec.md | feature/api/database/spec context; optional separate design/decision if needed |
-| /aikya-mobile-feature, standard | Same acceptance composition with actual platforms in scope | Rejects profiles without mobile; platform-specific acceptance/checks must be supplied |
-| /aikya-bugfix, standard | Milkeles bug-report register adapter in bugs/bugs.md | Append-safe real BUG-NNN report with mandatory reproduction |
-| /aikya-feature, /aikya-mobile-feature, /aikya-bugfix under SDD | Dedicated SDD task authorization/implementation | No parallel standard feature specification |
+| /aikya-feature, ODD | Aikya objective + observable acceptance + optional Milkeles technical-design sections in features/<slug>/spec.md | feature/api/database/spec context; optional separate design/decision if needed |
+| /aikya-mobile-feature, ODD | Same acceptance composition with actual platforms in scope | Rejects profiles without mobile; platform-specific acceptance/checks must be supplied |
+| /aikya-bugfix, ODD | Milkeles bug-report register adapter in bugs/bugs.md | Append-safe real BUG-NNN report with mandatory reproduction |
+| /aikya-feature, /aikya-mobile-feature, /aikya-bugfix under SDD | Dedicated SDD task authorization/implementation | No parallel ODD feature specification |
 | /aikya-specify | Dedicated SDD engine; feature/api/database/spec selected from the actual change | Clarifications only when questions exist |
 | /aikya-plan | Existing SDD design.md and plan.md | Optional Milkeles goals, non_goals and open_questions in design sections |
 | /aikya-tasks and /aikya-implement | Existing SDD tasks.md/state.json and approvals | Optional out_of_scope and constraints on each task; no extra task-plan file |
-| /aikya-tests, standard | Milkeles strategy composition in plan/testing.md | Manual cases in plan/test-cases/<slug>.md; requested results in quality/test-reports/<slug>.md |
+| /aikya-tests, ODD | Milkeles strategy composition in plan/testing.md | Manual cases in plan/test-cases/<slug>.md; requested results in quality/test-reports/<slug>.md |
 | /aikya-tests under SDD | Dedicated explicit evidence-recording action | Explicit strategy/case/summary roles remain available outside SDD state; none approves an SDD stage |
 | /aikya-sdd-status | Read-only status selection | Explicit actual verify input can populate evidence/verification records with assessment/residual risk |
 
@@ -47,7 +47,7 @@ uses the onboarding interview; approved installation runs the bootstrap adapters
 
 ## Reviewed hybrid input
 
-For a standard feature, provide title, objective, a nonempty acceptance list and
+For an ODD feature, provide title, objective, a nonempty acceptance list and
 only known, populated Milkeles technical-design section keys. Example inputs and
 rendered English/Spanish outputs are under examples/documentation/composed-feature.*.
 They are synthetic fixtures and not real project facts.
@@ -86,9 +86,9 @@ sections and fenced examples are retained. Ambiguous duplicate headings or unclo
 existing fences require review. Custom documents, symlinks and custom or unindexable
 navigation prevent writes before content changes. The adapter uses fixed canonical
 destinations, requires lowercase slugs, writes the terminal footer once and refreshes
-indice.md. Shared overview and strategy stay at their existing paths. For standard feature requests, an actually changed substantive features/<slug>/spec.md plus its request log satisfies the feature documentation gate; unchanged old specs do not. Existing catalog/roadmap coverage remains compatible.
+indice.md. Shared overview and strategy stay at their existing paths. For ODD feature requests, an actually changed substantive features/<slug>/spec.md plus its request log satisfies the feature documentation gate; unchanged old specs do not. Existing catalog/roadmap coverage remains compatible.
 
-For a standard test report, select --document summary and provide what-was-tested,
+For an ODD test report, select --document summary and provide what-was-tested,
 assessment and an evidence list of existing nonempty, contained, nonsymlink files.
 The report says outcomes were supplied and not independently executed by the adapter.
 It grants no release approval and changes no SDD state. Use --document case only when

@@ -45,9 +45,9 @@ class Sdd60Tests(unittest.TestCase):
 
     def test_backward_compatible_standard_methodology(self):
         p=self.profile("development",methodology="standard")
-        self.assertEqual("standard",p["methodology"])
+        self.assertEqual("odd",p["methodology"])
         raw=json.loads((ROOT/"examples/next-react/answers.json").read_text())
-        self.assertEqual("standard",install.validated(raw,self.root)["methodology"])
+        self.assertEqual("odd",install.validated(raw,self.root)["methodology"])
         with self.assertRaisesRegex(ValueError,"methodology"):
             install.validated({**raw,"methodology":"invalid"},self.root)
 

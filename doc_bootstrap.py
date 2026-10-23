@@ -18,7 +18,7 @@ def pages(profile: dict, modules: list[dict], language: str = "en") -> dict[str,
     else:
         from docs_templates_en import pages as localized
     result = localized(profile, modules)
-    if profile.get('methodology', 'standard') == 'sdd':
+    if profile.get('methodology', 'odd') == 'sdd':
         from docs_layout import stamp, content
         title = 'SDD: specifications and traceability' if language == 'en' else 'SDD: especificaciones y trazabilidad'
         note = ('Explicit approval is required for specification, plan and tasks. Recorded evidence is not an independently executed check.' if language == 'en' else 'La especificación, el plan y las tareas requieren aprobación explícita. Registrar evidencias no equivale a ejecutar comprobaciones independientes.')

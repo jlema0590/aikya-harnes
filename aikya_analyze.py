@@ -127,8 +127,10 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
     for name in ("engineering_catalog.py", "infrastructure_profile.py",
                  "token_policy.py", "token_report.py", "model_capabilities.py",
                  "aikya_router.py", "project_discovery.py", "profile_builder.py",
-                 "analysis_manifest.py", "aikya_analyze.py", "docs_layout.py", "docs_language.py", "docs_templates_en.py", "docs_templates_es.py", "docs_migration_hashes.py", "aikya_requirements.py", "documentation_templates.py", "documentation_workflows.py"):
+                 "analysis_manifest.py", "aikya_analyze.py", "docs_layout.py", "docs_language.py", "docs_templates_en.py", "docs_templates_es.py", "docs_migration_hashes.py", "aikya_requirements.py", "documentation_templates.py", "documentation_workflows.py", "methodology.py"):
         candidates.add("aikya/scripts/harness/" + name)
+    from aikya_setup import EXECUTION_FILES
+    candidates.update('aikya/scripts/harness/'+name for name in EXECUTION_FILES)
     for asset in (install.HERE/'documentation-templates').rglob('*'):
         if asset.is_file() and not asset.is_symlink():
             candidates.add((Path('aikya/scripts/harness/documentation-templates')/asset.relative_to(install.HERE/'documentation-templates')).as_posix())
@@ -154,7 +156,14 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
                 old = install.read_json_safe(path)
                 if old.get('_generated_by') != 'claude-dev-harness-interactive': action = 'BLOCKED'
                 elif old.get('decisions', {}).get('methodology', 'standard') != 'sdd': action = 'UPDATE_MANAGED_METHODOLOGY'
-        results.append({"path": relative, "action": action})
+        if relative=='.harness/project-profile.json' and action=='KEEP_EXISTING':
+            old=install.read_json_safe(path)
+            if old.get('_generated_by')=='claude-dev-harness-interactive' and old.get('decisions',{}).get('methodology') in (None,'standard'):
+                action='UPDATE_MANAGED_METHODOLOGY_WITH_BACKUP'
+                results.append({'path':'.harness/backup-odd/project-profile.json','action':'CREATE_MANAGED' if not (target/'.harness/backup-odd/project-profile.json').exists() else 'KEEP_EXISTING'})
+        if relative=='.claude/settings.json' and action=='KEEP_EXISTING':
+            action='MERGE_MANAGED_SETTINGS' if __import__('aikya_setup').managed_bootstrap_settings(target) else 'MERGE_VISIBILITY_PRESERVE_CUSTOM_SETTINGS'
+        results.append({'path':relative,'action':action})
     from docs_layout import migration_plan
     for op in migration_plan(target):
         if op['action']=='BLOCKED':
@@ -162,6 +171,11 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
         else:
             results.append({'path':'aikya/docs/'+op['source'], 'action':op['action'], 'target':'aikya/docs/'+op['target']})
             results.append({'path':'.harness/backup-docs-layout/'+op['source'], 'action':'CREATE_MANAGED'})
+    from methodology import migration_plan as methodology_plan
+    try:
+        for operation in methodology_plan(target,install.read_json_safe(target/'.harness/project-profile.json'),profile.get('methodology')):
+            results.append({k:v for k,v in operation.items() if k not in ('updated','expected_sha256')})
+    except ValueError as exc:results.append({'path':'.harness/project-profile.json','action':'BLOCKED','reason':str(exc)})
     runtime_ops=install.documentation_runtime_plan(target)
     updates={op['path']:op for op in runtime_ops}
     results=[updates.pop(op['path'],op) for op in results]
@@ -185,7 +199,7 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
 
 def execute(target: Path, *, scope: str = ".", focus: str = "general",
             approved: bool = False, dry_run: bool = False, report_only: bool = False,
-            refresh: bool = False, docs_lang: str | None = None, methodology: str | None = None) -> dict:
+            refresh: bool = False, docs_lang: str | None = None, methodology: str | None = None, observer=None) -> dict:
     import install
     target = Path(target).absolute()
     if focus not in FOCUSES:
@@ -198,13 +212,17 @@ def execute(target: Path, *, scope: str = ".", focus: str = "general",
     if inventory["paths_examined"] == 0 and not inventory["evidence_paths"]:
         return {"status": "EMPTY", "recommended_command": "/aikya-init",
                 "writes": False, "reason": "No project files found in scope"}
-    if methodology not in (None, 'standard', 'sdd'):
-        raise ValueError('Invalid engineering methodology')
+    if observer:
+        observer.done('explore','Read-only project inventory collected')
+        observer.event('plan','running','Resolving methodology and planned files')
+    from methodology import selection
     previous = install.read_json_safe(target/'.harness/project-profile.json')
-    previous_method = previous.get('decisions', {}).get('methodology', 'standard') if isinstance(previous.get('decisions', {}), dict) else 'standard'
-    if methodology == 'standard' and previous_method == 'sdd':
-        raise ValueError('Disabling SDD requires a separately reviewed migration')
-    selected_method = methodology or previous_method
+    previous_method=previous.get('decisions',{}).get('methodology') if isinstance(previous.get('decisions'),dict) else None
+    if previous_method is None and previous.get('_generated_by')=='claude-dev-harness-interactive':previous_method='standard'
+    chosen=selection(methodology,previous_method)
+    if chosen['methodology_required']:
+        return {'status':'NEEDS_METHODOLOGY','writes':False,**chosen}
+    selected_method=chosen['methodology']
     projection = build(target, inventory)
     if projection['profile'] is not None:
         projection['profile']['methodology'] = selected_method
@@ -230,7 +248,7 @@ def execute(target: Path, *, scope: str = ".", focus: str = "general",
         status = "NEEDS_REVIEW"
     if report_only or dry_run or not approved or status != "READY":
         return {"status": status, "writes": False, "scope": inventory["scope"],
-                "focus": focus, "documentation_language": documentation_language, "inventory": inventory,
+                "focus": focus, "documentation_language": documentation_language, **chosen, "inventory": inventory,
                 "unresolved": projection["unresolved"], "plan": plan["operations"] + installation,
                 "conflicts": conflicts, "approval_required": status == "READY" and not approved,
                 "recommended_command": "/aikya-analyze --scope <componente>" if inventory["project_type"] == "unknown"
@@ -239,14 +257,17 @@ def execute(target: Path, *, scope: str = ".", focus: str = "general",
     detected = {"modules": [{"role": m["role"], "technology": m["technology"],
                             "path": m["path"]} for m in inventory["modules"]],
                 "findings": inventory["evidence_paths"]}
+    if observer:
+        observer.done('plan','Methodology and approved Aikya file plan resolved')
+        observer.event('implement','running','Installing approved Aikya-owned assets')
     actions = install.install(target, profile, detected, adopt_existing=True, docs_lang=documentation_language)
     answers = target / ".aikya/answers.json"
     if not answers.exists():
         install.safe_write(answers, json.dumps(profile, ensure_ascii=False, indent=2) + "\n", actions)
     updated = apply_assets(target, docs, refresh=refresh, dry_run=False,
                            status="READY", source_revision=_git_revision(target))
-    return {"status": "READY", "writes": True, "scope": inventory["scope"],
-            "documentation_language": documentation_language,
+    return {"status": "READY", "writes": True, **chosen, "scope": inventory["scope"],
+            "documentation_language": documentation_language, **chosen,
             "focus": focus, "actions": actions,
             "analysis_operations": updated["operations"], "unresolved": [],
             "next_commands": ["/aikya-feature", "/aikya-bugfix", "/aikya-quality",

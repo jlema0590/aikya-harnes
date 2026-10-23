@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import shutil
+import shlex
 import sys
 from pathlib import Path
 from docs_layout import asset_bytes
@@ -22,7 +23,8 @@ BOOTSTRAP_COMMANDS=(
     'aikya-documentation-sync', 'aikya-verify', 'aikya-models', 'aikya-tokens', 'aikya-install-skill',
     'aikya-specify', 'aikya-clarify', 'aikya-plan', 'aikya-tasks', 'aikya-implement', 'aikya-sdd-status',
 )
-CORE_FILES=('install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py','token_policy.py','token_report.py','model_capabilities.py','aikya_router.py','project_discovery.py','profile_builder.py','analysis_manifest.py','aikya_analyze.py','docs_language.py','docs_templates_en.py','docs_templates_es.py','docs_layout.py','docs_migration_hashes.py','sdd_engine.py','sdd_assets.py','sdd_localization.py','sdd_templates.py','claude_templates.py','documentation_templates.py','documentation_workflows.py')
+EXECUTION_FILES=('check_events.py','command_workflows.py','execution_state.py','execution_observer.py','execution_config.py','execution_lifecycle.py','runtime_metrics.py','aikya_statusline.py','aikya_subagent_statusline.py','odd_engine.py')
+CORE_FILES=EXECUTION_FILES+('methodology.py','install.py','doc_bootstrap.py','external_skills.py','aikya_cli.py','aikya_requirements.py','aikya_session.py','aikya_setup.py','skills_registry.py','engineering_catalog.py','aikya_layout.py','infrastructure_profile.py','token_policy.py','token_report.py','model_capabilities.py','aikya_router.py','project_discovery.py','profile_builder.py','analysis_manifest.py','aikya_analyze.py','docs_language.py','docs_templates_en.py','docs_templates_es.py','docs_layout.py','docs_migration_hashes.py','sdd_engine.py','sdd_assets.py','sdd_localization.py','sdd_templates.py','claude_templates.py','documentation_templates.py','documentation_workflows.py')
 
 
 def files_to_copy(source:Path):
@@ -62,6 +64,13 @@ def managed_copy(src:Path,dst:Path,root:Path,logs:list[str]):
     shutil.copymode(src,dst)
     logs.append(f'INSTALADO {dst}')
 
+
+def verified_skill_upgrade(destination,source,previous_hash=None):
+    """A marker is not proof of ownership after local editing."""
+    from docs_migration_hashes import ASSETS
+    raw=destination.read_bytes();digest=hashlib.sha256(raw).hexdigest()
+    record=ASSETS.get('.claude/skills/'+destination.parent.name+'/SKILL.md',{})
+    return raw==asset_bytes(destination,source.read_bytes()) or digest==previous_hash or digest==record.get('sha256') or digest in record.get('variants',{})
 
 def register_startup_hook(settings:Path, command:str, logs:list[str]) -> None:
     """Merge a lightweight project-discovery hook without clobbering user settings."""
@@ -148,7 +157,15 @@ def migrate_legacy_runtime_skills(runtime: Path, previous: dict[str, str], logs:
         logs.append(f'PRESERVED additional legacy content: {legacy_root}')
 
 
-def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=False)->list[str]:
+def managed_bootstrap_settings(root):
+    marker=root/'.aikya/bootstrap.json';settings=root/'.claude/settings.json'
+    if any(p.is_symlink() for p in (marker,marker.parent,settings,settings.parent)):return False
+    try:
+        data=json.loads(marker.read_text())
+        return data.get('_generated_by')=='aikya-setup' and data.get('managed_settings_sha256')==hashlib.sha256(settings.read_bytes()).hexdigest()
+    except (ValueError,OSError,AttributeError):return False
+
+def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=False,subagent_statusline:bool=False)->list[str]:
     source=source.resolve()
     target=target.expanduser().resolve()
     home=(home or Path.home()).expanduser().resolve()
@@ -160,6 +177,9 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
     for candidate in (runtime, runtime.parent, skill_root, skill_root.parent):
         if candidate.is_symlink():
             raise ValueError(f'Symlinked directories are not supported: {candidate}')
+    settings_path=(home if scope=='global' else target)/'.claude/settings.json'
+    settings_created=not settings_path.exists()
+    settings_owned=managed_bootstrap_settings(target) if scope=='project' else False
     operations=list(files_to_copy(source))
     logs=[f'AIKYA SCOPE={scope} runtime={runtime} skills={skill_root}']
     if dry_run:
@@ -192,7 +212,7 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
         rendered=asset_bytes(dst,src.read_bytes())
         if dst.exists() and dst.read_bytes()!=rendered:
             # Only replace our own previous generated bootstrap skills.
-            if 'AIKYA BOOTSTRAP MANAGED' not in dst.read_text(encoding='utf8'):
+            if not verified_skill_upgrade(dst,src,old_manifest.get('aikya-skills/'+name+'/SKILL.md')):
                 logs.append(f'PRESERVED customized skill: {dst}')
                 continue
         dst.parent.mkdir(parents=True,exist_ok=True)
@@ -200,16 +220,23 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
         shutil.copymode(src,dst)
         logs.append(f'SKILL disponible: /{name} ({scope})')
     if scope=='global':
-        command='python3 "'+str(runtime/'aikya_session.py').replace('"','\\"')+'"'
+        command='python3 -B '+shlex.quote(str(runtime/'aikya_session.py'))
         register_startup_hook(home/'.claude/settings.json',command,logs)
     else:
         command='python3 "${CLAUDE_PROJECT_DIR}/.aikya/runtime/aikya_session.py"'
         register_startup_hook(target/'.claude/settings.json',command,logs)
+    from execution_config import register_visibility
+    observer='python3 -B '+shlex.quote(str(runtime/'execution_observer.py'))+' hook'
+    bar='python3 -B '+shlex.quote(str(runtime/'aikya_statusline.py'))
+    register_visibility((home if scope=='global' else target)/'.claude/settings.json',observer,bar,logs,(home/'.claude' if scope=='global' else target/'.aikya')/'visibility-proposed.json',subagent_command=('python3 -B '+__import__('shlex').quote(str(runtime/'aikya_subagent_statusline.py'))) if subagent_statusline else None)
     if scope=='project':
         marker=target/'.aikya/bootstrap.json' 
         marker.parent.mkdir(parents=True,exist_ok=True)
-        if not marker.exists():
-            marker.write_text(json.dumps({'_generated_by':'aikya-setup','scope':'project','runtime':'.aikya/runtime'},indent=2)+'\n',encoding='utf8')
+        if not marker.exists() or settings_created or settings_owned:
+            if marker.is_symlink():raise ValueError('Symlinked bootstrap marker')
+            payload={'_generated_by':'aikya-setup','scope':'project','runtime':'.aikya/runtime'}
+            if settings_created or settings_owned:payload['managed_settings_sha256']=hashlib.sha256(settings_path.read_bytes()).hexdigest()
+            marker.write_text(json.dumps(payload,indent=2)+'\n',encoding='utf8')
     return logs
 
 
@@ -217,10 +244,11 @@ def main(argv=None):
     p=argparse.ArgumentParser(description='Aikya Harness registration within Claude Code')
     p.add_argument('--scope',choices=['global','project'],required=True)
     p.add_argument('--target',type=Path,default=Path.cwd(),help='Directorio de trabajo actual, cuando scope=project')
+    p.add_argument('--subagent-statusline',action='store_true',help='Enable only on a client supporting subagentStatusLine')
     p.add_argument('--dry-run',action='store_true')
     args=p.parse_args(argv)
     try:
-        for line in setup(ROOT,args.target,args.scope,dry_run=args.dry_run): print(line)
+        for line in setup(ROOT,args.target,args.scope,dry_run=args.dry_run,subagent_statusline=args.subagent_statusline): print(line)
     except (OSError,ValueError) as exc:
         print(f'ERROR: {exc}',file=sys.stderr)
         return 1

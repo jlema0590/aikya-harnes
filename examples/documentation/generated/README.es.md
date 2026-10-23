@@ -1,5 +1,8 @@
 # Ejemplos de documentos generados por Aikya
 
+Este catálogo es una instantánea previa al cambio de standard a ODD. Para la
+continuidad nueva, consulta examples/odd y docs/ODD.md.
+
 Todos estos ejemplos son **simulados** y se han obtenido con los generadores reales.
 La documentación de ejemplo está en inglés; esta guía explica su uso en español.
 Milkeles es la única fuente externa de plantillas. Aikya conserva sus propias reglas,
