@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Compare source-pinned Gentle Shell capabilities with Aikya and document a separate, pending adoption plan for risk-based review, candidate receipts, state views and optional integrations.
+
 - Add an explicit optional agent loop for feature, bugfix and implement, using a separately installed Claude Agent SDK with scoped tools, ODD/SDD gates, real local checks and independent read-only runtime review.
 - Persist loop limits, usage, effect intents and recoverable checkpoints; stop on uncertain effects, stale candidates, changed approvals or unknown cost data instead of silently retrying.
 - Add reviewed typed project memories with source fingerprints, TTL and globally budgeted lexical recall, plus adversarial process, recovery and installation tests.
