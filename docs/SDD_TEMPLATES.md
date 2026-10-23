@@ -1,6 +1,6 @@
-# Milkeles templates in Aikya SDD
+# Aikya reference collection templates in Aikya SDD
 
-Aikya composes nine existing SDD roles using only the pinned Milkeles library.
+Aikya composes nine existing SDD roles using only the pinned Aikya reference collection library.
 The source structures guide drafting; requirement IDs, compatibility fields,
 traceability and separate approvals belong to Aikya. The local engine does not
 execute upstream examples or require every optional section.
@@ -19,10 +19,10 @@ execute upstream examples or require every optional section.
 | `review` | `review.md` | Explicitly requested review notes for an existing specification |
 | `constitution` | `constitution.md` | Explicitly requested engineering rules for the active SDD project |
 
-The sole external template provider is Milkeles at commit
+The sole external template provider is Aikya reference collection at commit
 35fc8e29be1f0093b8ef13a9762de67dc99b6882. Paths below are relative to its root:
 
-| SDD role | Milkeles reference |
+| SDD role | Aikya reference collection reference |
 |---|---|
 | feature | general-swe/requirements/product-requirements-document.md |
 | api | general-swe/foundations/interface-control-document.md |

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Rename the offline reference library to `aikya-template/docs`, update active template references and retain upstream legal provenance. Back up and retire verified old runtime catalogs; reject customized assets before upgrading and restore retired files after a tested write failure.
+- Exercise all 27 public command support contracts with 49 local process checks and record generated Markdown paths, approval failures and SDD gates. Live model execution remains a separate environment test.
+
+- Package the real Python harness under src/aikya/ with core, tools, middleware, memory and focused domain modules; add pyproject metadata and console entry points while retaining existing script/import adapters.
+- Split the oversized installer into contextual preflight, asset, configuration, migration and document stages; preserve predecessor hashes, custom files, recoverable runtime copies and ODD/SDD upgrade contracts.
+- Keep new plans, bugs and features under aikya/docs/; validate generated-record locations even for documentation-only changes and preserve verified runtime reference assets.
+- Preserve the historical gallery in source while excluding it from registered runtimes and distributions; archive reviewed media/provenance and historical planning/validation records.
+- Verify Python 3.10–3.13, isolated wheel onboarding, cold imports and baseline upgrades; close the bounded Terraform discovery read to eliminate its ResourceWarning.
+
 - Compare source-pinned Gentle Shell capabilities with Aikya and document a separate, pending adoption plan for risk-based review, candidate receipts, state views and optional integrations.
 
 - Add an explicit optional agent loop for feature, bugfix and implement, using a separately installed Claude Agent SDK with scoped tools, ODD/SDD gates, real local checks and independent read-only runtime review.
@@ -14,7 +23,7 @@
 
 - Require an explicit ODD/SDD choice at initial /aikya-init and /aikya-analyze onboarding; retain confirmed choices, normalize legacy standard inputs to odd, and preserve managed profile/answers backups and SDD approvals.
 - Add proportional ODD worklists, acceptance/task dependencies, recorded evidence, versioned continuity and reviewed invalidation of stale outcomes using Milkeles task references.
-- Add six English execution phases, separate statuses, private concurrent session/run snapshots, local CLI/check observations and a shared protocol across all 28 public commands.
+- Add six English execution phases, separate statuses, private concurrent session/run snapshots, local CLI/check observations and a shared protocol across all 27 public commands.
 - Register local execution status/hooks without replacing custom commands; show observed models, context, optional provider 5h/7d windows and explicitly cached session aggregates, with N/D for unavailable data.
 
 - Compose Aikya acceptance criteria with populated Milkeles foundation sections selected by command, project type and methodology; preserve existing sections and SDD approvals, validate evidence references, and support contextual onboarding and test documentation in English and Spanish.

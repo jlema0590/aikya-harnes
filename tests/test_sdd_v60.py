@@ -227,9 +227,9 @@ class Sdd60Tests(unittest.TestCase):
     def test_sdd_blocks_infrastructure_without_approved_tasks(self):
         import importlib.util
         spec=importlib.util.spec_from_file_location("sdd_infra_gate",
-             ROOT/"template/scripts/harness/infrastructure.py")
+             ROOT/'src/aikya/resources/project_template/scripts/harness/infrastructure.py')
         module=importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        spec.loader.exec_module(module);module=getattr(module,'_module',module)
         p=self.profile("infrastructure")
         self.assertFalse(module.sdd_approved(self.root,p,"SPEC-001","TASK-001"))
         status,notes=module.generate(self.root,p,approved=True,spec_id="SPEC-001",task_id="TASK-001")
@@ -251,9 +251,9 @@ class Sdd60Tests(unittest.TestCase):
     def test_sdd_blocks_scaffold_until_tasks_approved(self):
         import importlib.util
         spec=importlib.util.spec_from_file_location("sdd_scaffold_gate",
-             ROOT/"template/scripts/harness/scaffold.py")
+             ROOT/'src/aikya/resources/project_template/scripts/harness/scaffold.py')
         module=importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        spec.loader.exec_module(module);module=getattr(module,'_module',module)
         p=self.profile("development")
         self.assertFalse(module.sdd_approved(self.root,p,"SPEC-001","TASK-001"))
         f=self.fixture("development")
@@ -295,7 +295,7 @@ class Sdd60Tests(unittest.TestCase):
         for name in ("aikya-specify","aikya-clarify","aikya-plan",
                      "aikya-tasks","aikya-implement","aikya-sdd-status"):
             self.assertIn(name,aikya_setup.BOOTSTRAP_COMMANDS)
-            skill=ROOT/"aikya-skills"/name/"SKILL.md"
+            skill=ROOT/'src/aikya/resources/commands'/name/"SKILL.md"
             self.assertTrue(skill.is_file(),name)
             self.assertIn("AIKYA BOOTSTRAP MANAGED",skill.read_text())
 

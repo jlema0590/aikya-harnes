@@ -1,22 +1,16 @@
-"""Proportional phase recipes for public Aikya commands; never grants permissions."""
-from methodology import normalize_methodology
-PHASES=('explore','plan','implement','validate','security','review')
-LABELS={name:name.title() for name in PHASES}
-READ_ONLY=frozenset(('aikya-tokens','aikya-skills-status','aikya-skills-plan','aikya-sdd-status','aikya-doctor'))
-
-def recipe(command: str, methodology='odd', *, preview=False, security_required=None, review_required=False):
-    from aikya_setup import BOOTSTRAP_COMMANDS
-    if not isinstance(command,str):raise ValueError('Invalid command')
-    command=command.removeprefix('/')
-    if command not in BOOTSTRAP_COMMANDS:raise ValueError('Unknown Aikya command')
-    method=normalize_methodology(methodology)
-    read_only=preview or command in READ_ONLY or command=='aikya-arc-review'
-    required=['explore']
-    if command not in READ_ONLY:required.append('plan')
-    if not read_only:required.append('implement')
-    required.append('validate')
-    if security_required is None:security_required=not read_only and command not in ('aikya-docs','aikya-docs-sync')
-    if security_required:required.append('security')
-    if review_required or command=='aikya-arc-review':required.append('review')
-    return {'command':command,'methodology':method,'phases':list(PHASES),'required':required,
-            'read_only':read_only,'note':'Applicability is recorded; phases never grant approvals.'}
+#!/usr/bin/env python3
+"""Compatibility entry point; implementation lives in the Aikya package."""
+from pathlib import Path
+import sys
+sys.dont_write_bytecode=True
+for _parent in Path(__file__).resolve().parents:
+    if (_parent / '_aikya_bootstrap.py').is_file():
+        sys.path.insert(0, str(_parent))
+        break
+from _aikya_bootstrap import load, run
+if __name__ == '__main__':
+    run('aikya.middleware.commands',entry_file=__file__)
+else:
+    _module = load('aikya.middleware.commands',entry_file=__file__,fresh=__name__ != Path(__file__).stem)
+    sys.modules[__name__] = _module
+    globals().update({k: v for k, v in vars(_module).items() if not k.startswith('__')})

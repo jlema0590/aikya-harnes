@@ -21,10 +21,10 @@ from aikya_layout import app_count
 def load_module(file, name):
     spec=importlib.util.spec_from_file_location(name, file)
     mod=importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+    spec.loader.exec_module(mod);mod=getattr(mod,'_module',mod)
+    return getattr(mod, '_module', mod)
 
-SCAFFOLD=load_module(ROOT/'template/scripts/harness/scaffold.py','scaffold_v56')
+SCAFFOLD=load_module(ROOT/'src/aikya/resources/project_template/scripts/harness/scaffold.py','scaffold_v56')
 
 class AikyaLayoutTests(unittest.TestCase):
     def answers(self, target, **changes):
@@ -150,13 +150,13 @@ class AikyaLayoutTests(unittest.TestCase):
             root=Path(d)
             hooks=root/'.claude/hooks'
             hooks.mkdir(parents=True)
-            previous=ROOT/'migrations/v55/hooks/request_docs.py'
+            previous=ROOT/'src/aikya/resources/migrations/v55/hooks/request_docs.py'
             (hooks/'request_docs.py').write_bytes(previous.read_bytes())
             custom=(hooks/'stop_docs.py')
             custom.write_text('#!/usr/bin/env python3\n# custom team hook\n')
             p=self.answers(root,mode='existing')
             install.install(root,p,{'modules':[],'findings':[]})
-            self.assertEqual((ROOT/'template/.claude/hooks/request_docs.py').read_bytes(),
+            self.assertEqual((ROOT/'src/aikya/resources/project_template/.claude/hooks/request_docs.py').read_bytes(),
                              (hooks/'request_docs.py').read_bytes())
             self.assertIn('custom team hook',custom.read_text())
 

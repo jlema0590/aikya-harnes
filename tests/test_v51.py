@@ -23,7 +23,7 @@ class V51Commands(unittest.TestCase):
     def test_all_commands_are_registered_and_valid(self):
         self.assertEqual(REQUIRED,set(aikya_setup.BOOTSTRAP_COMMANDS))
         for name in REQUIRED:
-            body=(ROOT/'aikya-skills'/name/'SKILL.md').read_text()
+            body=(ROOT/'src/aikya/resources/commands'/name/'SKILL.md').read_text()
             self.assertTrue(body.startswith('---\nname: '+name+'\n'),name)
             self.assertIn('<!-- AIKYA BOOTSTRAP MANAGED -->',body,name)
             self.assertIn('disable-model-invocation: true',body,name)
@@ -62,8 +62,8 @@ class V51Commands(unittest.TestCase):
             self.assertEqual('Reglas del equipo\n',custom.read_text())
 
     def test_external_and_scaffold_require_approval_from_claude(self):
-        skills=(ROOT/'aikya-skills/aikya-install-skill/SKILL.md').read_text()
-        scaffold=(ROOT/'aikya-skills/aikya-scaffold/SKILL.md').read_text()
+        skills=(ROOT/'src/aikya/resources/commands/aikya-install-skill/SKILL.md').read_text()
+        scaffold=(ROOT/'src/aikya/resources/commands/aikya-scaffold/SKILL.md').read_text()
         self.assertIn('explicit informed user authorization',skills.lower())
         self.assertIn('unambiguous explicit approval',scaffold.lower())
         self.assertIn('requirements',scaffold)

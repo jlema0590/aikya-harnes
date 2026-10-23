@@ -4,7 +4,7 @@ Estos recorridos son ejemplos explicativos con actividades y métricas simuladas
 El núcleo ODD, la elección ODD/SDD y el protocolo de fases ya están implementados;
 la matriz automatizada verifica 48 combinaciones de onboarding. No representan
 mediciones de la cuenta ni despliegues reales. Los resultados de validación están
-en docs/validation/ODD_EXECUTION.md.
+en [la evidencia histórica](../validation/archive/2026-10-22/ODD_EXECUTION.md).
 Los nombres públicos de fase y estado están en inglés. Las explicaciones están en
 español. Las actividades mostradas son textos de ejemplo, no evidencia del runtime.
 

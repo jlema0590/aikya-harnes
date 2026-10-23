@@ -165,10 +165,14 @@ requiere una migración revisada por separado.
 
 | Ruta | Finalidad |
 |---|---|
-| `aikya-skills/` | Fuente de los 27 comandos públicos de Claude Code. |
-| `engineering/agents/` | Definiciones del catálogo de agentes especialistas. |
-| `engineering/skills/` | Catálogo de skills técnicas. |
-| `template/` | Agentes base, skills, reglas y utilidades del harness para los proyectos. |
+| `src/aikya/resources/commands/` | Fuente de los 27 comandos públicos de Claude Code. |
+| `src/aikya/resources/engineering/agents/` | Definiciones del catálogo de agentes especialistas. |
+| `src/aikya/resources/engineering/skills/` | Catálogo de skills técnicas. |
+| `src/aikya/resources/project_template/` | Agentes base, skills, reglas y utilidades del harness para los proyectos. |
+
+El código Python está organizado en `src/aikya/`: núcleo, herramientas, middleware, memoria, instalación, análisis, workflows, documentación, catálogos, routing y calidad. `pyproject.toml` define el paquete; los lanzadores anteriores siguen siendo compatibles.
+
+Todos los planes, bugs y features generados por Aikya se guardan dentro de `aikya/docs/`: `plan/`, `bugs/` y `features/`. Los planes SDD permanecen en el dossier de su especificación dentro de `aikya/docs/specs/`.
 
 ### Archivos y directorios del proyecto
 
@@ -342,9 +346,9 @@ de una aplicación ni sustituyen la revisión de seguridad específica de cada p
 - [Contratos de los workflows de GitHub](.github/workflows.md)
 
 
-### Plantillas de Milkeles para SDD
+### Plantillas de Aikya para SDD
 
-SDD compone nueve roles a partir de la [biblioteca de Milkeles](https://github.com/Milkeles/software-doc-templates): funcionalidad, API, base de datos, especificación, diseño, tareas, evidencias, revisión y reglas de ingeniería. Aikya conserva sus criterios de aceptación, trazabilidad y aprobaciones independientes. Los documentos se crean con contenido revisado. Consulta la [guía de plantillas SDD](docs/SDD_TEMPLATES.md) y la [galería completa de ejemplos generados](examples/documentation/generated/README.es.md).
+SDD compone nueve roles a partir de la [biblioteca de Aikya](src/aikya/resources/aikya-template/docs/README.md): funcionalidad, API, base de datos, especificación, diseño, tareas, evidencias, revisión y reglas de ingeniería. Aikya conserva sus criterios de aceptación, trazabilidad y aprobaciones independientes. Los documentos se crean con contenido revisado. Consulta la [guía de plantillas SDD](docs/SDD_TEMPLATES.md) y la [galería completa de ejemplos generados](examples/documentation/generated/README.es.md).
 
 ## CLAUDE.md según el proyecto
 
@@ -352,9 +356,9 @@ Aikya selecciona instrucciones en inglés para desarrollo, infraestructura o Dev
 
 ## Biblioteca de plantillas de documentación
 
-Hay 120 plantillas de Milkeles fijadas a un commit disponibles sin conexión; Milkeles es la única fuente externa de plantillas. La arquitectura utiliza `aikya/docs/architecture/architecture-overview.md`; los errores reales se añaden a `aikya/docs/bugs/bugs.md`. Los documentos requieren datos revisados y autorización. Consulta la [selección, ejemplos, licencia y compatibilidad](docs/DOCUMENTATION_TEMPLATES.md).
+Hay 120 plantillas de Aikya fijadas a un commit disponibles sin conexión; la atribución original se conserva en THIRD_PARTY_LICENSES.md. La arquitectura utiliza `aikya/docs/architecture/architecture-overview.md`; los errores reales se añaden a `aikya/docs/bugs/bugs.md`. Los documentos requieren datos revisados y autorización. Consulta la [selección, ejemplos, licencia y compatibilidad](docs/DOCUMENTATION_TEMPLATES.md).
 
-Aikya combina sus documentos generados con las plantillas de Milkeles adecuadas según el comando, la metodología y el perfil del proyecto. Las features estándar incluyen criterios de aceptación observables; las secciones opcionales de diseño y pruebas utilizan datos reales aportados. Consulta la [composición contextual de plantillas](docs/CONTEXTUAL_TEMPLATE_COMPOSITION.md).
+Aikya combina sus documentos generados con las plantillas de Aikya adecuadas según el comando, la metodología y el perfil del proyecto. Las features estándar incluyen criterios de aceptación observables; las secciones opcionales de diseño y pruebas utilizan datos reales aportados. Consulta la [composición contextual de plantillas](docs/CONTEXTUAL_TEMPLATE_COMPOSITION.md).
 
 
 ## Fases de ejecución y consumo

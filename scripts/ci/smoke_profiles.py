@@ -27,11 +27,11 @@ def load_module(path: Path, name: str):
         raise RuntimeError(f"Module not readable: {path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module
+    return getattr(module, '_module', module)
 
 
-SCAFFOLD = load_module(ROOT / "template/scripts/harness/scaffold.py", "aikya_smoke_scaffold")
-INFRA = load_module(ROOT / "template/scripts/harness/infrastructure.py", "aikya_smoke_infra")
+SCAFFOLD = load_module(ROOT / 'src/aikya/resources/project_template/scripts/harness/scaffold.py', "aikya_smoke_scaffold")
+INFRA = load_module(ROOT / 'src/aikya/resources/project_template/scripts/harness/infrastructure.py', "aikya_smoke_infra")
 
 
 def verify_one(path: Path) -> tuple[str, int, int]:

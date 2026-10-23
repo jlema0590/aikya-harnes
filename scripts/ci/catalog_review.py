@@ -14,6 +14,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
+from _aikya_bootstrap import activate
+activate()
+from aikya.resource_paths import source_path
+sys.path.insert(0,str(ROOT))
 from docs_layout import stamp
 
 
@@ -29,7 +33,7 @@ def main() -> int:
         ("skill", "engineering/skills/*/SKILL.md"),
         ("aikya-command", "aikya-skills/*/SKILL.md"),
     ):
-        for path in sorted(ROOT.glob(glob)):
+        for path in sorted(source_path(ROOT,glob.split('/')[0]).glob('/'.join(glob.split('/')[1:]))):
             if path.is_symlink():
                 raise ValueError(f"Symlinked catalog asset not reviewed: {path}")
             components.append({

@@ -1,29 +1,16 @@
 #!/usr/bin/env python3
-"""Optional Claude Code task rows. A model belongs only to its observed actor."""
-from __future__ import annotations
-import json,sys
+"""Compatibility entry point; implementation lives in the Aikya package."""
+from pathlib import Path
+import sys
 sys.dont_write_bytecode=True
-from runtime_metrics import safe_text,number
-
-def render_actor_rows(payload:dict,snapshot:dict)->list[dict]:
-    tasks=payload.get('tasks',[]) if isinstance(payload,dict) else []
-    if not isinstance(tasks,list):return []
-    result=[]
-    for task in tasks[:40]:
-        if not isinstance(task,dict):continue
-        model=task.get('model')
-        if isinstance(model,dict):model=model.get('id')
-        result.append({'id':safe_text(task.get('id')),'actor':safe_text(task.get('agentType')) or 'agent','status':safe_text(task.get('status')) or 'N/D','model':safe_text(model),'tokens':number(task.get('tokenCount')),'source':'runtime-task'})
-    return result
-
-def main():
-    try:
-        payload=json.load(sys.stdin);rows=render_actor_rows(payload,{})
-        width=payload.get('columns',120);width=max(20,min(width,500)) if type(width) is int else 120
-        for row in rows:
-            if not row['id']:continue
-            body=' · '.join((row['actor'],row['status'],row['model'] or 'N/D','Tokens: '+str(row['tokens']) if row['tokens'] is not None else 'Tokens: N/D'))
-            print(json.dumps({'id':row['id'],'content':body[:width]}))
-    except (ValueError,OSError,TypeError):pass
-    return 0
-if __name__=='__main__':raise SystemExit(main())
+for _parent in Path(__file__).resolve().parents:
+    if (_parent / '_aikya_bootstrap.py').is_file():
+        sys.path.insert(0, str(_parent))
+        break
+from _aikya_bootstrap import load, run
+if __name__ == '__main__':
+    run('aikya.middleware.subagent_statusline',entry_file=__file__)
+else:
+    _module = load('aikya.middleware.subagent_statusline',entry_file=__file__,fresh=__name__ != Path(__file__).stem)
+    sys.modules[__name__] = _module
+    globals().update({k: v for k, v in vars(_module).items() if not k.startswith('__')})

@@ -60,8 +60,8 @@ class QualityTests(unittest.TestCase):
         self.module()
         import importlib.util
         from agent_loop_support import ROOT
-        spec=importlib.util.spec_from_file_location('quality_edit_hook',ROOT/'template/.claude/hooks/check_edit.py')
-        hook=importlib.util.module_from_spec(spec);spec.loader.exec_module(hook)
+        spec=importlib.util.spec_from_file_location('quality_edit_hook',ROOT/'src/aikya/resources/project_template/.claude/hooks/check_edit.py')
+        hook=importlib.util.module_from_spec(spec);spec.loader.exec_module(hook);hook=getattr(hook,'_module',hook)
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);(root/'widget.ts').write_text('const value = 1;\n'*1001)
             feedback=hook.feedback({'tool_input':{'file_path':'widget.ts'}},root)

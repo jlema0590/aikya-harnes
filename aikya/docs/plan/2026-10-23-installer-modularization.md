@@ -55,10 +55,10 @@ and execution modules. Do not copy their implementations into the new package.
 
 **Interfaces:** Existing install.validated, detect_project, make_checks, install, documentation_runtime_plan and main remain the consumer contract.
 
-- [ ] Add real temporary-project checks for dry-run with a byte-for-byte file-tree snapshot, repeated installation, custom CLAUDE/settings preservation and required unconfigured checks.
-- [ ] Exercise supported entry points from an unrelated cwd through subprocesses, and record returned profiles, generated documents and exit codes rather than source-text assertions.
-- [ ] Run existing contracts to establish a green baseline. New package execution cases should fail when the package is not yet implemented; distinguish that expected failure from existing behavior failures.
-- [ ] Run `python -m unittest discover -s tests -p 'test_installer*.py' -v` and retain the observed baseline with the implementation evidence.
+- [x] Add real temporary-project checks for dry-run with a byte-for-byte file-tree snapshot, repeated installation, custom CLAUDE/settings preservation and required unconfigured checks.
+- [x] Exercise supported entry points from an unrelated cwd through subprocesses, and record returned profiles, generated documents and exit codes rather than source-text assertions.
+- [x] Run existing contracts to establish a green baseline. New package execution cases should fail when the package is not yet implemented; distinguish that expected failure from existing behavior failures.
+- [x] Run `python -m unittest discover -s tests -p 'test_installer*.py' -v` and retain the observed baseline with the implementation evidence.
 
 ### Task 2: Extract pure configuration, discovery, checks and document rendering
 
@@ -66,10 +66,10 @@ and execution modules. Do not copy their implementations into the new package.
 
 **Interfaces:** Preserve the existing pure-function signatures. Context is only passed to functions that require asset roots; legacy facade callers retain their signatures.
 
-- [ ] Add behavior cases for language-specific bootstrap output, unsupported profiles, missing manifests and the Next.js integrated React check deduplication.
-- [ ] Run the cases before extraction, then move one responsibility at a time and retain facade aliases/wrappers. Use current byte output where it is an intentional compatibility contract.
-- [ ] Preserve both documented language renderers; do not unify them by dropping existing platform guidance.
-- [ ] Run tests/test_installer.py, test_v6_docs_language.py, test_claude_templates.py and test_architecture_languages.py through unittest discovery. Require observed passing output before the next extraction.
+- [x] Add behavior cases for language-specific bootstrap output, unsupported profiles, missing manifests and the Next.js integrated React check deduplication.
+- [x] Run the cases before extraction, then move one responsibility at a time and retain facade aliases/wrappers. Use current byte output where it is an intentional compatibility contract.
+- [x] Preserve both documented language renderers; do not unify them by dropping existing platform guidance.
+- [x] Run tests/test_installer.py, test_v6_docs_language.py, test_claude_templates.py and test_architecture_languages.py through unittest discovery. Require observed passing output before the next extraction.
 
 ### Task 3: Extract file operations, migrations and the installation pipeline
 
@@ -77,10 +77,10 @@ and execution modules. Do not copy their implementations into the new package.
 
 **Interfaces:** Facade install(target, profile, detected, dry_run=False, *, adopt_existing=False, docs_lang=None) delegates to pipeline.install with an InstallerContext. Runtime inventory entries are (source_file, relative_runtime_destination), never absolute destination paths.
 
-- [ ] Add failing cases for copied asset paths resolving against an alternate source root, a symlinked managed path, a changed migration backup, a customized coupled runtime and interrupted copy/retry preserving original content.
-- [ ] Move preflight checks ahead of mutations in the same effective order as the baseline; preserve SDD custom-gate rejection, methodology preservation, backups and adoption restrictions.
-- [ ] Split the 344-line install body into cohesive helpers for templates/commands, runtime modules, quality configuration, documentation/catalog and infrastructure plans. Avoid passing broad mutable dictionaries merely to bypass explicit interfaces.
-- [ ] Run installer, documentation-layout, methodology-migration and SDD integration tests. Check source size and long-function diagnostics on all extracted modules.
+- [x] Add failing cases for copied asset paths resolving against an alternate source root, a symlinked managed path, a changed migration backup, a customized coupled runtime and interrupted copy/retry preserving original content.
+- [x] Move preflight checks ahead of mutations in the same effective order as the baseline; preserve SDD custom-gate rejection, methodology preservation, backups and adoption restrictions.
+- [x] Split the 344-line install body into cohesive helpers for templates/commands, runtime modules, quality configuration, documentation/catalog and infrastructure plans. Avoid passing broad mutable dictionaries merely to bypass explicit interfaces.
+- [x] Run installer, documentation-layout, methodology-migration and SDD integration tests. Check source size and long-function diagnostics on all extracted modules.
 
 ### Task 4: Ship the package and its migration data in every runtime
 
@@ -88,20 +88,20 @@ and execution modules. Do not copy their implementations into the new package.
 
 **Interfaces:** Keep docs_migration_hashes.ASSETS available, loaded from the structured catalog. Keep EXECUTION_FILES/CORE_FILES consumer compatibility while extending the runtime asset inventory to package modules and required data.
 
-- [ ] Add failing installation/upgrade cases that launch the CLI from global, project and initialized runtime folders with no source-checkout PYTHONPATH.
-- [ ] Include every aikya_installer module and structured migration catalog in copies and analyze previews. Reuse one runtime inventory instead of maintaining independent package file lists.
-- [ ] Move the 981-line hash data into its JSON catalog without losing historical hashes; keep a small validating loader. This is a separation of declarative data from code, not an exception to hide a long function.
-- [ ] Preflight customized or missing dependencies before updating install.py. Register verified predecessor hashes from 40bce20 and back up managed replacements; never accept a footer alone as ownership proof.
-- [ ] Upgrade actual 40bce20 snapshots and launch `install.py --help`, the Aikya CLI and memory/quality tools from an unrelated cwd; preserve owner-customized files and run a second install to verify idempotence.
+- [x] Add failing installation/upgrade cases that launch the CLI from global, project and initialized runtime folders with no source-checkout PYTHONPATH.
+- [x] Include every aikya_installer module and structured migration catalog in copies and analyze previews. Reuse one runtime inventory instead of maintaining independent package file lists.
+- [x] Move the 981-line hash data into its JSON catalog without losing historical hashes; keep a small validating loader. This is a separation of declarative data from code, not an exception to hide a long function.
+- [x] Preflight customized or missing dependencies before updating install.py. Register verified predecessor hashes from 40bce20 and back up managed replacements; never accept a footer alone as ownership proof.
+- [x] Upgrade actual 40bce20 snapshots and launch `install.py --help`, the Aikya CLI and memory/quality tools from an unrelated cwd; preserve owner-customized files and run a second install to verify idempotence.
 
 ### Task 5: Validate the complete refactor and record its evidence
 
 **Files:** Update README.md/README.es.md only for genuinely changed maintenance guidance; write aikya/docs/validation/INSTALLER_MODULARIZATION.md and refresh indice.md.
 
-- [ ] Run the full unittest suite on Python 3.10–3.13, the 48-case onboarding matrix, 14 example profiles, agent/skill metadata, pinned template checksums, syntax and release contracts.
-- [ ] Run `python code_quality.py --all`: require zero size/syntax errors; preserve documented historical fixtures and review any Python clone/long-function warnings. Add no blanket size exception for install.py.
-- [ ] Confirm public CLI options, actual output paths, 27 command registrations, ODD/SDD approvals and the selected locale remain compatible.
-- [ ] Review the final diff and record the exact test results, any platform boundaries and migration behavior. Keep live provider acceptance separate from this offline installer refactor.
+- [x] Run the full unittest suite on Python 3.10–3.13, the 48-case onboarding matrix, 14 example profiles, agent/skill metadata, pinned template checksums, syntax and release contracts.
+- [x] Run `python code_quality.py --all`: require zero size/syntax errors; preserve documented historical fixtures and review any Python clone/long-function warnings. Add no blanket size exception for install.py.
+- [x] Confirm public CLI options, actual output paths, 27 command registrations, ODD/SDD approvals and the selected locale remain compatible.
+- [x] Review the final diff and record the exact test results, any platform boundaries and migration behavior. Keep live provider acceptance separate from this offline installer refactor.
 
 ## Delivery order and completion
 
@@ -111,5 +111,14 @@ The separate path-consolidation plan can be implemented after this refactor; its
 manifest/routing changes must use the resulting asset interfaces. No fixed time
 or monetary estimate is asserted without measuring the characterization and
 upgrade work.
+
+## Implementation result
+
+The approved Python structure integrates this extraction under src/aikya/installation/
+instead of creating a second aikya_installer package. The compatible facade retains
+HERE/TEMPLATE overrides and all 28 callable parameter signatures. Contract coverage
+uses the existing installer/migration suites and tests/test_package_contracts.py;
+no redundant test_installer_refactor.py suite was created. Source/resources resolve
+through the shared inventory and explicit context. See the [current validation](../validation/PYTHON_PROJECT_STRUCTURE.md).
 
 GENERATED BY AIKYA HARNESS

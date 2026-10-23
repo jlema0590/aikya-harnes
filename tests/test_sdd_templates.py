@@ -1,4 +1,4 @@
-"""Milkeles compositions must survive Aikya's real, approval-gated lifecycle."""
+"""Aikya reference templates compositions must survive Aikya's real, approval-gated lifecycle."""
 import importlib.util
 import json
 from pathlib import Path
@@ -43,7 +43,7 @@ class SddTemplateTests(unittest.TestCase):
         self.assertEqual({'feature','api','database','spec','design','tasks','evidence','review','constitution'},set(sdd_templates.catalog()))
         for name,item in sdd_templates.catalog().items():
             with self.subTest(template=name):
-                self.assertTrue(item['source'].startswith('https://github.com/Milkeles/software-doc-templates/blob/35fc8e29be1f0093b8ef13a9762de67dc99b6882/'))
+                self.assertTrue(item['source'].startswith('aikya-template/docs/'))
                 body=sdd_templates.starter(name)
                 self.assertTrue(body.rstrip().endswith(FOOTER))
                 self.assertIn(item['source'],body)
@@ -135,7 +135,7 @@ class SddTemplateTests(unittest.TestCase):
         result=subprocess.run([sys.executable,'-B',str(self.root/'aikya/scripts/harness/sdd_engine.py'),'templates','--root',str(self.root),'--template','api'],cwd=self.root,capture_output=True,text=True)
         self.assertEqual(0,result.returncode,result.stderr)
         self.assertTrue(result.stdout.rstrip().endswith(FOOTER))
-        self.assertIn('https://github.com/Milkeles/software-doc-templates/blob/35fc8e29be1f0093b8ef13a9762de67dc99b6882/general-swe/foundations/interface-control-document.md',result.stdout)
+        self.assertIn('aikya-template/docs/general-swe/foundations/interface-control-document.md',result.stdout)
         self.assertEqual(before,{p.relative_to(self.root):p.read_bytes() for p in self.root.rglob('*') if p.is_file()})
 
     def test_spanish_headings_keep_user_sections_unchanged(self):

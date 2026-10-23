@@ -10,7 +10,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('harness_installer', ROOT / 'install.py')
 installer = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(installer)
+spec.loader.exec_module(installer);installer=getattr(installer,'_module',installer)
 
 
 def profile(**overrides):
@@ -123,7 +123,7 @@ class InstallerTests(unittest.TestCase):
             p=temp/'harness.json'
             p.write_text(json.dumps({'checks':[{'name':'bad','required':True,'cwd':'/etc','command':['python3','--version']}]}))
             # Runner lives in template and uses the template root, but config path is arbitrary.
-            spec2=importlib.util.spec_from_file_location('r',ROOT/'template/scripts/harness/run_checks.py')
+            spec2=importlib.util.spec_from_file_location('r',ROOT/'src/aikya/resources/project_template/scripts/harness/run_checks.py')
             runner=importlib.util.module_from_spec(spec2)
             spec2.loader.exec_module(runner)
             self.assertEqual(1,runner.run(p))

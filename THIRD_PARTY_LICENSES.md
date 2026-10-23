@@ -5,16 +5,16 @@
 - Source: https://github.com/Milkeles/software-doc-templates
 - Pinned commit: 35fc8e29be1f0093b8ef13a9762de67dc99b6882
 - Copyright (c) 2025 Hristo Hristov; MIT License.
-- The complete license is retained at documentation-templates/milkeles/LICENSE.
+- The complete license is retained at src/aikya/resources/aikya-template/docs/LICENSE.
 - Imported scope: 120 Markdown templates and 34 Markdown guides; no executable,
   workflow, external dependency or service integration is imported.
-- Modifications: each distributed Markdown asset receives Aikya's terminal footer; trailing whitespace is normalized in three source files.
+- Modifications: each distributed Markdown asset receives Aikya's terminal footer; trailing whitespace is normalized in three source files; the reference README now uses Aikya navigation and labels.
 - Original and distributed SHA-256 hashes and file source links are in
-  documentation-templates/manifest.json. The installed offline library retains
+  src/aikya/resources/aikya-template/manifest.json. The installed offline library retains
   the license and NOTICE.txt alongside those documents.
 
-Milkeles is the only external provider in the documentation-template catalog and
-newly rendered template references. Aikya owns its adapters, approval state,
+The imported reference collection remains the only upstream template source.
+Public catalog paths and newly rendered references use the Aikya namespace. Aikya owns its adapters, approval state,
 acceptance IDs and project-specific contracts. Historical audit records and
 previously generated project files retain their original bytes and provenance.
 This notice records the template import, not every pre-existing curated asset in

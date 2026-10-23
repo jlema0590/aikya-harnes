@@ -13,10 +13,10 @@ BASE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BASE))
 import install
 
-SCRIPT = BASE / 'template/.claude/hooks/welcome.py'
+SCRIPT = BASE / 'src/aikya/resources/project_template/.claude/hooks/welcome.py'
 spec = importlib.util.spec_from_file_location('aikya_welcome', SCRIPT)
 welcome = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(welcome)
+spec.loader.exec_module(welcome);welcome=getattr(welcome,'_module',welcome)
 
 
 class WelcomeTests(unittest.TestCase):

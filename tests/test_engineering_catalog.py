@@ -26,11 +26,11 @@ class EngineeringCatalogTests(unittest.TestCase):
         self.assertEqual(29,len(catalog.SKILLS))
         self.assertFalse((catalog.AGENTS|catalog.SKILLS)&EXCLUDED)
         self.assertNotIn('security-reviewer', catalog.AGENTS)
-        for path in (ROOT/'engineering').rglob('*.md'):
+        for path in (ROOT/'src/aikya/resources/engineering').rglob('*.md'):
             text=path.read_text(encoding='utf8').lower()
             for bad in ('linkedin','derecho digital','propiedad intelectual','saas contract'):
                 self.assertNotIn(bad,text,path)
-        self.assertFalse((ROOT/'engineering/agents/security-reviewer.md').exists())
+        self.assertFalse((ROOT/'src/aikya/resources/engineering/agents/security-reviewer.md').exists())
 
     def test_core_and_stack_selection(self):
         base={'ci':'none','deployment':'none','architecture':'layered','backend':'java',

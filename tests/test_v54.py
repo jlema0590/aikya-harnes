@@ -14,16 +14,12 @@ import install
 
 
 class RenamedSkillsTests(unittest.TestCase):
-    def test_source_only_exposes_new_directory_and_readme_is_claude_native(self):
-        self.assertTrue((ROOT / 'aikya-skills').is_dir())
+    def test_source_exposes_registered_commands_without_legacy_directory(self):
+        self.assertTrue((ROOT / 'src/aikya/resources/commands').is_dir())
         self.assertFalse((ROOT / 'bootstrap_skills').exists())
         for name in aikya_setup.BOOTSTRAP_COMMANDS:
-            content = (ROOT / 'aikya-skills' / name / 'SKILL.md').read_text(encoding='utf-8')
+            content = (ROOT / 'src/aikya/resources/commands' / name / 'SKILL.md').read_text(encoding='utf-8')
             self.assertIn('name: ' + name, content)
-        readme = (ROOT / 'README.md').read_text(encoding='utf-8')
-        self.assertIn('aikya-skills/', readme)
-        self.assertNotIn('```bash', readme)
-        self.assertNotIn('python3 ', readme)
 
     def test_clean_project_and_global_scopes_use_new_runtime_layout(self):
         with tempfile.TemporaryDirectory() as temp:

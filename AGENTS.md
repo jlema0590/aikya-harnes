@@ -4,7 +4,9 @@ Use the approved Aikya workflow and preserve explicit user authorization. Extern
 authoring skills may assist the task; adapt their default output locations to this
 repository's documentation contract.
 
-- Write new first-party implementation plans under `aikya/docs/plan/` (singular).
+- Write all new first-party plans under `aikya/docs/plan/` (singular), bug records
+  under `aikya/docs/bugs/`, and feature records under `aikya/docs/features/`.
+  Never create root-level plans/, bugs/ or features/ for Aikya records.
 - Write research and validation reports under `aikya/docs/research/` and
   `aikya/docs/validation/`; refresh `aikya/docs/indice.md` after approved writes.
 - Keep SDD plan.md in its authoritative `aikya/docs/specs/<project_type>/SPEC-NNN/`

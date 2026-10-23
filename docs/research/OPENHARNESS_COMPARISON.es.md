@@ -226,7 +226,7 @@ requieren una revisión para entrar en el contexto del checkout actual.
 La extracción no ejecuta consolidación automática ni otro compactador. No se ha
 ejecutado OpenHarness ni se sustituye el motor de conversación de Claude Code.
 
-La [validación de adopción](../validation/OPENHARNESS_ADOPTION.es.md) registra el
+La [validación de adopción](../../aikya/docs/validation/archive/2026-10-22/OPENHARNESS_ADOPTION.es.md) registra el
 alcance, los controles de seguridad y mantenibilidad, la eliminación de copias de
 distribución y la prueba real con el proveedor que continúa pendiente en el otro
 entorno elegido por el usuario.

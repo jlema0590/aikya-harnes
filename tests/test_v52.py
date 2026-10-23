@@ -21,7 +21,7 @@ class V52(unittest.TestCase):
         self.assertTrue(expected.issubset(aikya_setup.BOOTSTRAP_COMMANDS))
         self.assertFalse({'aikya-project-bootstrap','aikya-skills'} & set(aikya_setup.BOOTSTRAP_COMMANDS))
         for name in expected:
-            body=(ROOT/'aikya-skills'/name/'SKILL.md').read_text()
+            body=(ROOT/'src/aikya/resources/commands'/name/'SKILL.md').read_text()
             self.assertIn(f'name: {name}\n',body)
             self.assertIn('AIKYA BOOTSTRAP MANAGED',body)
 
@@ -134,9 +134,9 @@ class V52(unittest.TestCase):
 
     def test_skill_docs_required_for_skill_changes(self):
         import importlib.util
-        path=ROOT/'template/scripts/harness/docs_guard.py'
+        path=ROOT/'src/aikya/resources/project_template/scripts/harness/docs_guard.py'
         spec=importlib.util.spec_from_file_location('aikya_guard_skills',path)
-        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);module=getattr(module,'_module',module)
         self.assertTrue(module.is_source('.claude/skills/new-skill/SKILL.md'))
         self.assertIn('aikya/docs/skills.md',module.affected_docs('feature',['.claude/skills/new-skill/SKILL.md']))
         self.assertNotIn('aikya/docs/skills.md',module.DOCS_REQUIRED)

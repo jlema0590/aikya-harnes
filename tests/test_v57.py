@@ -19,10 +19,10 @@ import engineering_catalog
 def load(file,name):
     spec=importlib.util.spec_from_file_location(name,file)
     module=importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    spec.loader.exec_module(module);module=getattr(module,'_module',module)
+    return getattr(module, '_module', module)
 
-INFRA=load(ROOT/'template/scripts/harness/infrastructure.py','aikya_infra_test')
+INFRA=load(ROOT/'src/aikya/resources/project_template/scripts/harness/infrastructure.py','aikya_infra_test')
 
 class V57Tests(unittest.TestCase):
     def profile(self,root,**override):

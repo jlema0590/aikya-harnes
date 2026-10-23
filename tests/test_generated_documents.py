@@ -75,8 +75,8 @@ class GeneratedDocumentTests(unittest.TestCase):
                 self.assertEqual(before,{p.relative_to(root):p.read_bytes() for p in root.rglob('*.md')})
 
     def test_infrastructure_generator_marks_readmes_without_changing_code_formats(self):
-        spec=importlib.util.spec_from_file_location('aikya_footer_infra',ROOT/'template/scripts/harness/infrastructure.py')
-        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        spec=importlib.util.spec_from_file_location('aikya_footer_infra',ROOT/'src/aikya/resources/project_template/scripts/harness/infrastructure.py')
+        module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);module=getattr(module,'_module',module)
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)
             data=json.loads((ROOT/'examples/next-react-terraform-helm/answers.json').read_text())
@@ -137,7 +137,7 @@ class MaintainerDocumentFooterTests(unittest.TestCase):
         import subprocess,os
         with tempfile.TemporaryDirectory() as d:
             env={key:value for key,value in os.environ.items() if key!='PYTHONPATH'}
-            result=subprocess.run([sys.executable,'-B',str(ROOT/'template/scripts/harness/infrastructure.py'),'--help'],cwd=d,env=env,capture_output=True,text=True)
+            result=subprocess.run([sys.executable,'-B',str(ROOT/'src/aikya/resources/project_template/scripts/harness/infrastructure.py'),'--help'],cwd=d,env=env,capture_output=True,text=True)
             self.assertEqual(0,result.returncode,result.stderr)
             self.assertIn('generate',result.stdout)
 
@@ -174,7 +174,7 @@ class LegacyFirstPartyAssetTests(unittest.TestCase):
             profile=install.validated(json.loads((ROOT/'examples/next-react/answers.json').read_text()),root)
             install.install(root,profile,{'modules':[]})
             relative='aikya/scripts/harness/engineering/agents/code-reviewer.md'
-            legacy=(ROOT/'engineering/agents/code-reviewer.md').read_bytes()
+            legacy=(ROOT/'src/aikya/resources/engineering/agents/code-reviewer.md').read_bytes()
             (root/relative).write_bytes(legacy)
             install.install(root,profile,{'modules':[]})
             self.assertTrue((root/relative).read_text().rstrip().endswith(FOOTER))

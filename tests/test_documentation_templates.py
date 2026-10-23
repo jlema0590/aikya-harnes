@@ -34,12 +34,12 @@ class DocumentTemplateTests(unittest.TestCase):
 
     def test_full_catalog_and_installed_checksums_preserve_mit_provenance(self):
         import documentation_templates as templates
-        catalog=templates.catalog();milk={k:v for k,v in catalog.items() if v['provider']=='milkeles'}
+        catalog=templates.catalog();milk={k:v for k,v in catalog.items() if v['provider']=='aikya'}
         self.assertEqual(120,len(milk));self.assertEqual(30,len([k for k in milk if k.startswith('general-swe/foundations/')]))
         self.assertIn(BUG,catalog)
         manifest=json.loads((templates.LIBRARY/'manifest.json').read_text())
         self.assertEqual('35fc8e29be1f0093b8ef13a9762de67dc99b6882',manifest['commit'])
-        self.assertIn('Copyright (c) 2025 Hristo Hristov',(templates.LIBRARY/'milkeles/LICENSE').read_text())
+        self.assertIn('Copyright (c) 2025 Hristo Hristov',(templates.LIBRARY/'docs/LICENSE').read_text())
         for key,record in manifest['files'].items():
             raw=(templates.LIBRARY/key).read_bytes()
             self.assertEqual(record['installed_sha256'],hashlib.sha256(raw).hexdigest(),key)
@@ -54,7 +54,7 @@ class DocumentTemplateTests(unittest.TestCase):
                 key='aikya/docs/architecture/architecture-overview.md'
                 self.assertIn(key,pages)
                 self.assertIn(kind,pages[key]);self.assertIn('not verified',pages[key])
-                self.assertIn('Milkeles',pages[key])
+                self.assertIn('Aikya reference templates',pages[key])
                 self.assertNotIn('99.9%',pages[key]);self.assertNotIn('400ms',pages[key])
                 self.assertNotIn('aikya/docs/bugs/bugs.md',pages)
                 self.assertNotIn('aikya/docs/architecture/03.-arquitectura.md',pages)
@@ -159,8 +159,8 @@ class DocumentTemplateTests(unittest.TestCase):
     def test_bug_request_gate_accepts_the_recorded_new_register_path(self):
         import documentation_templates as templates
         import importlib.util
-        spec=importlib.util.spec_from_file_location('template_bug_gate',ROOT/'template/scripts/harness/docs_guard.py')
-        guard=importlib.util.module_from_spec(spec);spec.loader.exec_module(guard)
+        spec=importlib.util.spec_from_file_location('template_bug_gate',ROOT/'src/aikya/resources/project_template/scripts/harness/docs_guard.py')
+        guard=importlib.util.module_from_spec(spec);spec.loader.exec_module(guard);guard=getattr(guard,'_module',guard)
         self.configure();guard.ROOT=self.root
         templates.record(self.root,BUG,self.report(),approved=True)
         request='REQ-20261022-01234567';log='aikya/docs/changes/'+request+'.md'
@@ -176,7 +176,7 @@ class DocumentTemplateTests(unittest.TestCase):
         from unittest.mock import patch
         import shutil
         local=Path(self.tmp.name)/'library';shutil.copytree(templates.LIBRARY,local)
-        file=local/'milkeles/general-swe/foundations/architecture-overview.md'
+        file=local/'docs/general-swe/foundations/architecture-overview.md'
         file.write_bytes(file.read_bytes().replace(b'\n',b'\r\n'))
         with patch.object(templates,'LIBRARY',local.resolve()):
             with self.assertRaises(ValueError):templates.validate_catalog()

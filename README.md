@@ -161,10 +161,14 @@ reviewed migration.
 
 | Path | Purpose |
 |---|---|
-| `aikya-skills/` | Source of the 27 public Claude Code slash commands. |
-| `engineering/agents/` | Curated specialist agent definitions. |
-| `engineering/skills/` | Curated technical skills. |
-| `template/` | Base project agents, skills, rules and harness utilities. |
+| `src/aikya/resources/commands/` | Source of the 27 public Claude Code slash commands. |
+| `src/aikya/resources/engineering/agents/` | Curated specialist agent definitions. |
+| `src/aikya/resources/engineering/skills/` | Curated technical skills. |
+| `src/aikya/resources/project_template/` | Base project agents, skills, rules and harness utilities. |
+
+Python code lives in `src/aikya/`, grouped into core, tools, middleware, memory, installation, discovery, workflows, documentation, catalogs, routing and quality. `pyproject.toml` defines the package; existing script entry points remain compatible.
+
+All Aikya-generated plans, bugs and features stay inside `aikya/docs/`: `plan/`, `bugs/` and `features/`. SDD plans remain in their authoritative specification dossier under `aikya/docs/specs/`.
 
 ### Project artifacts
 
@@ -336,9 +340,9 @@ secure or replace project-specific security review.
 - [GitHub workflow contracts](.github/workflows.md)
 
 
-### Milkeles templates for SDD
+### Aikya templates for SDD
 
-SDD composes nine roles from the pinned [Milkeles library](https://github.com/Milkeles/software-doc-templates): feature, API, database, specification, design, tasks, evidence, review and engineering rules. Aikya retains its acceptance criteria, traceability and separate approvals. Only supplied reviewed content creates documents. See [SDD template usage](docs/SDD_TEMPLATES.md) and the [complete generated-example gallery](examples/documentation/generated/README.es.md).
+SDD composes nine roles from the pinned [Aikya template library](src/aikya/resources/aikya-template/docs/README.md): feature, API, database, specification, design, tasks, evidence, review and engineering rules. Aikya retains its acceptance criteria, traceability and separate approvals. Only supplied reviewed content creates documents. See [SDD template usage](docs/SDD_TEMPLATES.md) and the [complete generated-example gallery](examples/documentation/generated/README.es.md).
 
 ## Project-specific CLAUDE.md
 
@@ -346,9 +350,9 @@ Aikya selects English instructions for development, infrastructure or DevOps, th
 
 ## Documentation template library
 
-120 pinned Milkeles templates are available offline; Milkeles is the sole external template provider. Architecture uses `aikya/docs/architecture/architecture-overview.md`; actual bugs append to `aikya/docs/bugs/bugs.md`. Documents require reviewed facts and authorization. See [selection, examples, license and compatibility](docs/DOCUMENTATION_TEMPLATES.md).
+120 pinned Aikya templates are available offline; Upstream attribution is retained in THIRD_PARTY_LICENSES.md. Architecture uses `aikya/docs/architecture/architecture-overview.md`; actual bugs append to `aikya/docs/bugs/bugs.md`. Documents require reviewed facts and authorization. See [selection, examples, license and compatibility](docs/DOCUMENTATION_TEMPLATES.md).
 
-Aikya now combines its generated documents with selected Milkeles foundations by command, methodology and project profile. ODD features include observable acceptance criteria; optional design/test sections use actual supplied facts. See [contextual template composition](docs/CONTEXTUAL_TEMPLATE_COMPOSITION.md).
+Aikya now combines its generated documents with selected Aikya reference templates foundations by command, methodology and project profile. ODD features include observable acceptance criteria; optional design/test sections use actual supplied facts. See [contextual template composition](docs/CONTEXTUAL_TEMPLATE_COMPOSITION.md).
 
 
 ## Execution phases and usage

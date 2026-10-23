@@ -52,7 +52,7 @@ class FoundationsCompositionTests(unittest.TestCase):
         result=module.write(self.root,'aikya-feature',self.feature(),slug='lookup',approved=True)
         file=self.root/result['path'];body=file.read_text()
         self.assertEqual('aikya/docs/features/lookup/spec.md',result['path'])
-        for value in ('## Acceptance criteria','AC-01','## Alternatives considered','Only the existing lookup adapter','Milkeles'):
+        for value in ('## Acceptance criteria','AC-01','## Alternatives considered','Only the existing lookup adapter','aikya-template/docs/'):
             self.assertIn(value,body)
         self.assertNotIn('## Rollout and rollback',body)
         self.assertEqual(1,body.splitlines().count(FOOTER))
@@ -118,7 +118,7 @@ class FoundationsCompositionTests(unittest.TestCase):
         for language in ('en','es'):
             pages=doc_bootstrap.pages(self.profile(),[],language)
             overview=pages['aikya/docs/overview.md'];testing=pages['aikya/docs/plan/testing.md']
-            self.assertIn('Milkeles',overview);self.assertIn('onboarding-guide.md',overview)
+            self.assertIn('aikya-template/docs/',overview);self.assertIn('onboarding-guide.md',overview)
             self.assertIn('test-strategy.md',testing)
             self.assertNotIn('99.9%',testing)
             self.assertNotIn('## On-call',overview)
@@ -130,7 +130,7 @@ class FoundationsCompositionTests(unittest.TestCase):
         sdd.create_plan(self.root,'SPEC-001',{'design':'Reuse lookup adapter.','testing':'Run focused fixture checks.','sections':{'goals':'Preserve lookup compatibility.','non_goals':'No new service.','open_questions':'Production limits need confirmation.'}})
         folder=self.root/'aikya/docs/specs/development/SPEC-001'
         self.assertIn('Preserve lookup compatibility.',(folder/'design.md').read_text())
-        self.assertIn('Milkeles',(folder/'design.md').read_text())
+        self.assertIn('aikya-template/docs/',(folder/'design.md').read_text())
         self.assertFalse((folder/'technical-design-document.md').exists())
 
     def test_bootstrap_and_installed_runtime_can_select_and_write_offline(self):
@@ -191,8 +191,8 @@ class FoundationsCompositionTests(unittest.TestCase):
         self.configure();module=self.workflows()
         result=module.write(self.root,'aikya-feature',self.feature(),slug='lookup',approved=True)
         import importlib.util
-        spec=importlib.util.spec_from_file_location('composed_feature_gate',ROOT/'template/scripts/harness/docs_guard.py')
-        guard=importlib.util.module_from_spec(spec);spec.loader.exec_module(guard);guard.ROOT=self.root
+        spec=importlib.util.spec_from_file_location('composed_feature_gate',ROOT/'src/aikya/resources/project_template/scripts/harness/docs_guard.py')
+        guard=importlib.util.module_from_spec(spec);spec.loader.exec_module(guard);guard=getattr(guard,'_module',guard);guard.ROOT=self.root
         request='REQ-20261022-01234567';log='aikya/docs/changes/'+request+'.md'
         docs_layout.write_document(self.root,'changes/'+request+'.md',
             '# Feature fixture\n\n## Changes\n\nsrc/lookup.py changed in the fixture.\n\n## Evidence\n\nFixture evidence only.\n\n## Updated documents\n\n'+result['path'])

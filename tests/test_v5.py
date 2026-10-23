@@ -117,9 +117,9 @@ class AikyaV5(unittest.TestCase):
             project=Path(tmp)
             (project/'aikya/scripts/harness').mkdir(parents=True,exist_ok=True)
             (project/'aikya/scripts/harness/aikya_requirements.py').write_bytes((ROOT/'aikya_requirements.py').read_bytes())
-            spec=importlib.util.spec_from_file_location('aikya_scaffold_test',ROOT/'template/scripts/harness/scaffold.py')
+            spec=importlib.util.spec_from_file_location('aikya_scaffold_test',ROOT/'src/aikya/resources/project_template/scripts/harness/scaffold.py')
             module=importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
+            spec.loader.exec_module(module);module=getattr(module,'_module',module)
             with patch.object(requirements.shutil,'which',return_value='/fake/dotnet'):
                 ret=module.apply({'mode':'new','backend':'dotnet','frontend':'none','mobile':'none'},project,True,
                                  runner=lambda *a,**k:self.fail('generator must not run'))

@@ -17,11 +17,11 @@ from doc_bootstrap import pages,infra_files
 def import_from(path,name):
     spec=importlib.util.spec_from_file_location(name,path)
     mod=importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+    spec.loader.exec_module(mod);mod=getattr(mod,'_module',mod)
+    return getattr(mod, '_module', mod)
 
-GUARD=import_from(ROOT/'template/scripts/harness/docs_guard.py','docs_guard_v3')
-SCAFFOLD=import_from(ROOT/'template/scripts/harness/scaffold.py','scaffold_v3')
+GUARD=import_from(ROOT/'src/aikya/resources/project_template/scripts/harness/docs_guard.py','docs_guard_v3')
+SCAFFOLD=import_from(ROOT/'src/aikya/resources/project_template/scripts/harness/scaffold.py','scaffold_v3')
 
 
 def profile(mode='new',**changes):

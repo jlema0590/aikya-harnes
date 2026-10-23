@@ -1,7 +1,7 @@
 # Ejemplos de documentos generados por Aikya
 
 Este catálogo es una instantánea previa al cambio de standard a ODD. Para la
-continuidad nueva, consulta examples/odd y docs/ODD.md.
+continuidad nueva, consulta [examples/odd](../../odd/) y [ODD](../../../docs/ODD.md).
 
 Todos estos ejemplos son **simulados** y se han obtenido con los generadores reales.
 La documentación de ejemplo está en inglés; esta guía explica su uso en español.
@@ -16,6 +16,16 @@ Los resultados SDD usan evidencia de una simulación etiquetada. El estado conse
 `independently_executed: false`. No se ejecutó una aplicación, no se desplegó y no
 se aprobó una publicación. Algunas rutas internas en las muestras apuntan a su
 proyecto original simulado; son snapshots documentales, no proyectos ejecutables.
+
+## Estado histórico y compatibilidad
+
+Esta galería conserva los nombres y resultados previos a ODD. El comando público
+actual es `/aikya-arc-review`; `/aikya-architecture-review` se conserva debajo como
+referencia histórica. Los 253 documentos con hash no se han regenerado ni validan
+la ejecución de una aplicación. La ruta `fixture-evidence.log` que aparece en
+`standard/summary.md` pertenecía al proyecto sintético original y no se distribuye;
+el enlace se conserva como procedencia histórica, no como evidencia disponible.
+La galería permanece en el repositorio y se omite del runtime registrado.
 
 ## Cuándo se generan
 

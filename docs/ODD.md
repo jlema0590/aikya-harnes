@@ -15,7 +15,7 @@ router suggestions do not authorize work.
 
 ## Substantial work
 
-The recorder uses the pinned Milkeles agent-task specification and task plan,
+The recorder uses the pinned Aikya reference collection agent-task specification and task plan,
 composed with Aikya acceptance criteria. It creates:
 
 ```text

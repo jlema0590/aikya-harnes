@@ -1,8 +1,8 @@
-# Contextual composition of Aikya and Milkeles foundations
+# Contextual composition of Aikya and Aikya reference collection foundations
 
 Aikya now selects a documentation composition by public command, validated project
 type, selected methodology and actual mobile platforms. It combines Aikya acceptance
-and traceability with populated sections from the pinned Milkeles templates. The
+and traceability with populated sections from the pinned Aikya reference collection templates. The
 adapter never executes template advice, infers repository behavior, approves work
 or certifies test results. Clearer acceptance is supported; user adoption is not
 claimed to have been measured.
@@ -11,18 +11,18 @@ claimed to have been measured.
 
 | Workflow | Automatic default | Conditional document choices |
 |---|---|---|
-| /aikya-init | Existing Aikya overview plus Milkeles onboarding navigation/workflow sections; profile-backed architecture; declared testing strategy | Only docs supported by onboarding decisions are created |
+| /aikya-init | Existing Aikya overview plus Aikya reference collection onboarding navigation/workflow sections; profile-backed architecture; declared testing strategy | Only docs supported by onboarding decisions are created |
 | /aikya-init with SDD | Same onboarding composition plus SDD guide/runtime | Specification packet starts with real /aikya-specify input, not initialization |
 | /aikya-analyze | Existing-project context/architecture and observed test paths | Preview remains read-only; unsupported reports are omitted |
 | /aikya-arc-review | Read-only architecture recipe | Explicitly requested architecture updates; distinct ADR/design documents only when justified |
-| /aikya-feature, ODD | Aikya objective + observable acceptance + optional Milkeles technical-design sections in features/<slug>/spec.md | feature/api/database/spec context; optional separate design/decision if needed |
+| /aikya-feature, ODD | Aikya objective + observable acceptance + optional Aikya reference collection technical-design sections in features/<slug>/spec.md | feature/api/database/spec context; optional separate design/decision if needed |
 | /aikya-mobile-feature, ODD | Same acceptance composition with actual platforms in scope | Rejects profiles without mobile; platform-specific acceptance/checks must be supplied |
-| /aikya-bugfix, ODD | Milkeles bug-report register adapter in bugs/bugs.md | Append-safe real BUG-NNN report with mandatory reproduction |
+| /aikya-bugfix, ODD | Aikya reference collection bug-report register adapter in bugs/bugs.md | Append-safe real BUG-NNN report with mandatory reproduction |
 | /aikya-feature, /aikya-mobile-feature, /aikya-bugfix under SDD | Dedicated SDD task authorization/implementation | No parallel ODD feature specification |
 | /aikya-specify | Dedicated SDD engine; feature/api/database/spec selected from the actual change | Clarifications only when questions exist |
-| /aikya-plan | Existing SDD design.md and plan.md | Optional Milkeles goals, non_goals and open_questions in design sections |
+| /aikya-plan | Existing SDD design.md and plan.md | Optional Aikya reference collection goals, non_goals and open_questions in design sections |
 | /aikya-tasks and /aikya-implement | Existing SDD tasks.md/state.json and approvals | Optional out_of_scope and constraints on each task; no extra task-plan file |
-| /aikya-tests, ODD | Milkeles strategy composition in plan/testing.md | Manual cases in plan/test-cases/<slug>.md; requested results in quality/test-reports/<slug>.md |
+| /aikya-tests, ODD | Aikya reference collection strategy composition in plan/testing.md | Manual cases in plan/test-cases/<slug>.md; requested results in quality/test-reports/<slug>.md |
 | /aikya-tests under SDD | Dedicated explicit evidence-recording action | Explicit strategy/case/summary roles remain available outside SDD state; none approves an SDD stage |
 | /aikya-sdd-status | Read-only status selection | Explicit actual verify input can populate evidence/verification records with assessment/residual risk |
 
@@ -48,7 +48,7 @@ uses the onboarding interview; approved installation runs the bootstrap adapters
 ## Reviewed hybrid input
 
 For an ODD feature, provide title, objective, a nonempty acceptance list and
-only known, populated Milkeles technical-design section keys. Example inputs and
+only known, populated Aikya reference collection technical-design section keys. Example inputs and
 rendered English/Spanish outputs are under examples/documentation/composed-feature.*.
 They are synthetic fixtures and not real project facts.
 
@@ -112,11 +112,11 @@ language; offline starter assets and engineering instructions stay English.
 ## Scope and provenance
 
 The adapter actively composes onboarding, architecture, technical design, ADR,
-testing strategy, manual cases and requested test summaries. Other Milkeles
+testing strategy, manual cases and requested test summaries. Other Aikya reference collection
 foundations remain available through the reviewed catalog when their purpose is
 relevant; the thirty documents are not all generated during onboarding.
 The pinned upstream library and MIT license remain unchanged by this composition.
-Milkeles is the only external template provider. Aikya owns the acceptance IDs,
+Aikya reference collection is the only external template provider. Aikya owns the acceptance IDs,
 required fields, safe writing and approval contracts. See DOCUMENTATION_TEMPLATES.md
 for the full catalog and SDD_TEMPLATES.md for the engine contract.
 

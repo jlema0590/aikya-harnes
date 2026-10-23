@@ -318,7 +318,7 @@ esa primera entrega. No presentar el núcleo como el alcance completo terminado.
 ## Resultado local y evidencias
 
 Implementación local terminada y revisión independiente realizada. Consulta
-[la validación](../../../../../docs/validation/ODD_EXECUTION.md): 407 pruebas por intérprete,
+[la validación](../../../validation/archive/2026-10-22/ODD_EXECUTION.md): 407 pruebas por intérprete,
 48 escenarios de onboarding, seis migraciones/reinstalaciones y seis ciclos SDD.
 Las dos incidencias P2 de la revisión se corrigieron con regresiones: resultados
 antiguos tras cambiar el candidato y atribución del modelo al actor equivocado.

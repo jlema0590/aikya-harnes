@@ -15,9 +15,10 @@ import aikya_setup
 
 
 def module(name, relative):
-    spec = importlib.util.spec_from_file_location(name, ROOT / relative)
+    from aikya.resource_paths import source_path
+    spec = importlib.util.spec_from_file_location(name, source_path(ROOT,relative))
     result = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(result)
+    spec.loader.exec_module(result);result=getattr(result,'_module',result)
     return result
 
 
