@@ -11,11 +11,11 @@ import aikya_setup
 import install
 
 REQUIRED={
-    'aikya-init', 'aikya-analyze', 'aikya-answers', 'aikya-doctor', 'aikya-project-init',
-    'aikya-infra-project', 'aikya-scaffold', 'aikya-feature',
-    'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
-    'aikya-skills-status','aikya-skills-plan','aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
-    'aikya-documentation-sync', 'aikya-verify', 'aikya-models', 'aikya-tokens', 'aikya-install-skill',
+    'aikya-init', 'aikya-analyze', 'aikya-answers', 'aikya-doctor', 'aikya-project',
+    'aikya-infra', 'aikya-scaffold', 'aikya-feature',
+    'aikya-bugfix', 'aikya-arc-review', 'aikya-mobile-feature',
+    'aikya-skills-status','aikya-skills-plan', 'aikya-quality', 'aikya-docs', 'aikya-tests',
+    'aikya-docs-sync', 'aikya-verify', 'aikya-models', 'aikya-tokens', 'aikya-install-skill',
     'aikya-specify', 'aikya-clarify', 'aikya-plan', 'aikya-tasks', 'aikya-implement', 'aikya-sdd-status',
 }
 
@@ -62,7 +62,7 @@ class V51Commands(unittest.TestCase):
             self.assertEqual('Reglas del equipo\n',custom.read_text())
 
     def test_external_and_scaffold_require_approval_from_claude(self):
-        skills=(ROOT/'aikya-skills/aikya-skills-install/SKILL.md').read_text()
+        skills=(ROOT/'aikya-skills/aikya-install-skill/SKILL.md').read_text()
         scaffold=(ROOT/'aikya-skills/aikya-scaffold/SKILL.md').read_text()
         self.assertIn('explicit informed user authorization',skills.lower())
         self.assertIn('unambiguous explicit approval',scaffold.lower())
@@ -75,7 +75,7 @@ class V51Commands(unittest.TestCase):
             sample=json.loads((ROOT/'examples/new-next-react.json').read_text())
             profile=install.validated(sample,target)
             install.install(target,profile,{'modules':[]},dry_run=False)
-            for name in ('aikya-scaffold','aikya-skills-install','aikya-quality','aikya-tests','aikya-docs'):
+            for name in ('aikya-scaffold','aikya-install-skill','aikya-quality','aikya-tests','aikya-docs'):
                 self.assertTrue((target/'.claude/skills'/name/'SKILL.md').is_file(),name)
 
     def test_readme_no_manual_terminal_commands(self):

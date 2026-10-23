@@ -17,10 +17,10 @@ from docs_layout import asset_bytes
 ROOT=Path(__file__).resolve().parent
 BOOTSTRAP_COMMANDS=(
     'aikya-init', 'aikya-analyze', 'aikya-answers', 'aikya-doctor',
-    'aikya-project-init', 'aikya-infra-project', 'aikya-scaffold',
-    'aikya-feature', 'aikya-bugfix', 'aikya-architecture-review', 'aikya-mobile-feature',
-    'aikya-skills-status', 'aikya-skills-plan', 'aikya-skills-install', 'aikya-quality', 'aikya-docs', 'aikya-tests',
-    'aikya-documentation-sync', 'aikya-verify', 'aikya-models', 'aikya-tokens', 'aikya-install-skill',
+    'aikya-project', 'aikya-infra', 'aikya-scaffold',
+    'aikya-feature', 'aikya-bugfix', 'aikya-arc-review', 'aikya-mobile-feature',
+    'aikya-skills-status', 'aikya-skills-plan', 'aikya-quality', 'aikya-docs', 'aikya-tests',
+    'aikya-docs-sync', 'aikya-verify', 'aikya-models', 'aikya-tokens', 'aikya-install-skill',
     'aikya-specify', 'aikya-clarify', 'aikya-plan', 'aikya-tasks', 'aikya-implement', 'aikya-sdd-status',
 )
 EXECUTION_FILES=('check_events.py','command_workflows.py','execution_state.py','execution_observer.py','execution_config.py','execution_lifecycle.py','runtime_metrics.py','aikya_statusline.py','aikya_subagent_statusline.py','odd_engine.py')
@@ -102,23 +102,57 @@ def register_startup_hook(settings:Path, command:str, logs:list[str]) -> None:
 # Remove older command assets only when they exactly match the managed historical template.
 # Never implicitly delete a user-modified skill.
 LEGACY_RENAMES={
-    'aikya-project-bootstrap':'aikya-infra-project',
+    'aikya-project-bootstrap':'aikya-infra',
     'aikya-skills':'aikya-skills-status',
+    'aikya-project-init':'aikya-project',
+    'aikya-infra-project':'aikya-infra',
+    'aikya-architecture-review':'aikya-arc-review',
+    'aikya-documentation-sync':'aikya-docs-sync',
+    'aikya-skills-install':'aikya-install-skill',
 }
 
-def retire_legacy_commands(skill_root: Path, runtime: Path, logs: list[str]) -> None:
+def command_retirement_plan(skill_root: Path, runtime: Path) -> list[dict]:
+    """Preview verified retirement. Unknown user edits remain active for manual review."""
+    from docs_migration_hashes import ASSETS
+    result=[]
     for name,replacement in LEGACY_RENAMES.items():
         legacy=skill_root/name/'SKILL.md'
+        if not legacy.exists() and not legacy.is_symlink():continue
+        backup=runtime/'command-backups'/name/'SKILL.md'
+        if any(p.is_symlink() for p in (legacy,legacy.parent)):
+            result.append({'path':legacy,'replacement':replacement,'action':'PRESERVE_CUSTOM_COMMAND'});continue
+        if not legacy.is_file():raise ValueError('Non-regular legacy command requires review')
+        record=ASSETS.get('.claude/skills/'+name+'/SKILL.md',{})
+        digest=hashlib.sha256(legacy.read_bytes()).hexdigest()
+        verified=digest==record.get('sha256') or digest in record.get('variants',{})
         older=runtime/'bootstrap_skills'/name/'SKILL.md'
-        if not legacy.exists() or legacy.is_symlink():
-            continue
-        if not older.is_file() or older.is_symlink() or legacy.read_bytes()!=older.read_bytes():
-            logs.append(f'PRESERVED old customized command /{name}; review migration to /{replacement}')
-            continue
+        if not verified and not record and older.is_file() and not any(p.is_symlink() for p in (older,*older.parents) if p==runtime or runtime in p.parents):verified=legacy.read_bytes()==older.read_bytes()
+        if not verified:
+            result.append({'path':legacy,'replacement':replacement,'action':'PRESERVE_CUSTOM_COMMAND'});continue
+        if any(p.is_symlink() for p in (backup,*backup.parents) if p==runtime or runtime in p.parents):raise ValueError('Symlinked command retirement backup')
+        if backup.exists() and (not backup.is_file() or backup.read_bytes()!=legacy.read_bytes()):raise ValueError('Existing command backup differs; review before retirement')
+        result.append({'path':legacy,'replacement':replacement,'backup':backup,'sha256':digest,'action':'RETIRE_VERIFIED_COMMAND'})
+    return result
+
+def retire_legacy_commands(skill_root: Path, runtime: Path, logs: list[str], operations: list[dict] | None = None) -> None:
+    operations=command_retirement_plan(skill_root,runtime) if operations is None else operations
+    # A backup alone is not a usable replacement. Validate the whole batch first.
+    for op in operations:
+        if op['action']!='RETIRE_VERIFIED_COMMAND':continue
+        replacement=skill_root/op['replacement']/'SKILL.md'
+        if replacement.is_symlink() or replacement.parent.is_symlink() or not replacement.is_file():
+            raise ValueError(f'Replacement command is not available: {replacement}')
+    for op in operations:
+        legacy=op['path'];name=legacy.parent.name
+        if op['action']=='PRESERVE_CUSTOM_COMMAND':
+            logs.append(f'PRESERVED old customized command /{name}; review migration to /{op["replacement"]}');continue
+        if hashlib.sha256(legacy.read_bytes()).hexdigest()!=op['sha256']:raise ValueError('Legacy command changed since preflight')
+        backup=op['backup'];backup.parent.mkdir(parents=True,exist_ok=True)
+        if not backup.exists():shutil.copy2(legacy,backup)
         legacy.unlink()
-        try: legacy.parent.rmdir()
-        except OSError: pass
-        logs.append(f'RETIRADO comando gestionado antiguo /{name}; sustituido por /{replacement}')
+        try:legacy.parent.rmdir()
+        except OSError:pass
+        logs.append(f'RETIRADO comando gestionado antiguo /{name}; sustituido por /{op["replacement"]}; backup={backup}')
 
 def migrate_legacy_runtime_skills(runtime: Path, previous: dict[str, str], logs: list[str]) -> None:
     """Remove only verifiably managed skills from the former runtime directory.
@@ -180,9 +214,15 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
     settings_path=(home if scope=='global' else target)/'.claude/settings.json'
     settings_created=not settings_path.exists()
     settings_owned=managed_bootstrap_settings(target) if scope=='project' else False
+    for name in BOOTSTRAP_COMMANDS:
+        destination=skill_root/name/'SKILL.md'
+        if destination.is_symlink() or destination.parent.is_symlink() or (destination.exists() and not destination.is_file()):
+            raise ValueError(f'Invalid or symlinked skill destination: {destination}')
+    retirement=command_retirement_plan(skill_root,runtime)
     operations=list(files_to_copy(source))
     logs=[f'AIKYA SCOPE={scope} runtime={runtime} skills={skill_root}']
     if dry_run:
+        logs.extend('PLAN: '+op['action']+' /'+op['path'].parent.name+' -> /'+op['replacement'] for op in retirement)
         logs.append(f'PLAN: {len(operations)} runtime files and {len(BOOTSTRAP_COMMANDS)} skills; no interview or external download')
         return logs
     runtime.mkdir(parents=True,exist_ok=True)
@@ -194,7 +234,6 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
                 old_manifest={}
         except (ValueError,OSError):
             old_manifest={}
-    retire_legacy_commands(skill_root,runtime,logs)
     migrate_legacy_runtime_skills(runtime,old_manifest,logs)
     new_manifest=dict(old_manifest)
     for src,rel in operations:
@@ -237,6 +276,7 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
             payload={'_generated_by':'aikya-setup','scope':'project','runtime':'.aikya/runtime'}
             if settings_created or settings_owned:payload['managed_settings_sha256']=hashlib.sha256(settings_path.read_bytes()).hexdigest()
             marker.write_text(json.dumps(payload,indent=2)+'\n',encoding='utf8')
+    retire_legacy_commands(skill_root,runtime,logs,retirement)
     return logs
 
 

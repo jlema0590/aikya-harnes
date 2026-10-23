@@ -17,7 +17,7 @@ from skills_registry import render,write_inventory
 
 class V52(unittest.TestCase):
     def test_new_commands_and_removed_source_aliases(self):
-        expected={'aikya-infra-project','aikya-skills-status','aikya-skills-plan','aikya-skills-install'}
+        expected={'aikya-infra','aikya-skills-status','aikya-skills-plan','aikya-install-skill'}
         self.assertTrue(expected.issubset(aikya_setup.BOOTSTRAP_COMMANDS))
         self.assertFalse({'aikya-project-bootstrap','aikya-skills'} & set(aikya_setup.BOOTSTRAP_COMMANDS))
         for name in expected:
@@ -31,8 +31,8 @@ class V52(unittest.TestCase):
             p=install.validated(json.loads((ROOT/'examples/new-next-react.json').read_text()),root)
             install.install(root,p,{'modules':[]})
             inv=(root/'aikya/docs/skills.md').read_text()
-            self.assertIn('aikya-infra-project',inv)
-            self.assertIn('aikya-skills-install',inv)
+            self.assertIn('aikya-infra',inv)
+            self.assertIn('aikya-install-skill',inv)
             self.assertIn('aikya-feature',inv)
             self.assertIn('not a history of model invocations',inv.lower())
             self.assertIn('skills.md',(root/'aikya/docs/indice.md').read_text())
@@ -130,7 +130,7 @@ class V52(unittest.TestCase):
             self.assertTrue(custom.exists())
             self.assertFalse((root/'.claude/skills/aikya-project-bootstrap').exists())
             self.assertTrue(any('RETIRADO' in x for x in log))
-            self.assertTrue((root/'.claude/skills/aikya-infra-project/SKILL.md').is_file())
+            self.assertTrue((root/'.claude/skills/aikya-infra/SKILL.md').is_file())
 
     def test_skill_docs_required_for_skill_changes(self):
         import importlib.util

@@ -14,7 +14,7 @@ claimed to have been measured.
 | /aikya-init | Existing Aikya overview plus Milkeles onboarding navigation/workflow sections; profile-backed architecture; declared testing strategy | Only docs supported by onboarding decisions are created |
 | /aikya-init with SDD | Same onboarding composition plus SDD guide/runtime | Specification packet starts with real /aikya-specify input, not initialization |
 | /aikya-analyze | Existing-project context/architecture and observed test paths | Preview remains read-only; unsupported reports are omitted |
-| /aikya-architecture-review | Read-only architecture recipe | Explicitly requested architecture updates; distinct ADR/design documents only when justified |
+| /aikya-arc-review | Read-only architecture recipe | Explicitly requested architecture updates; distinct ADR/design documents only when justified |
 | /aikya-feature, ODD | Aikya objective + observable acceptance + optional Milkeles technical-design sections in features/<slug>/spec.md | feature/api/database/spec context; optional separate design/decision if needed |
 | /aikya-mobile-feature, ODD | Same acceptance composition with actual platforms in scope | Rejects profiles without mobile; platform-specific acceptance/checks must be supplied |
 | /aikya-bugfix, ODD | Milkeles bug-report register adapter in bugs/bugs.md | Append-safe real BUG-NNN report with mandatory reproduction |

@@ -97,7 +97,7 @@ class RenamedSkillsTests(unittest.TestCase):
             profile = install.validated(answers, project)
             install.install(project, profile, {'modules': []})
             self.assertTrue((project / '.claude/skills/aikya-init/SKILL.md').exists())
-            self.assertTrue((project / '.claude/skills/aikya-infra-project/SKILL.md').exists())
+            self.assertTrue((project / '.claude/skills/aikya-infra/SKILL.md').exists())
 
 
 if __name__ == '__main__':

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Rename /aikya-project-init to /aikya-project, /aikya-infra-project to /aikya-infra, /aikya-architecture-review to /aikya-arc-review and /aikya-documentation-sync to /aikya-docs-sync; consolidate external installation in /aikya-install-skill.
+- Register 27 canonical public commands and retire verified old wrappers with backups; preserve customized commands for manual review and prevent compatibility alias regeneration.
+- Document a source-pinned OpenHarness comparison of memory, observation and persistence without integrating or running the external runtime.
+
 - Require an explicit ODD/SDD choice at initial /aikya-init and /aikya-analyze onboarding; retain confirmed choices, normalize legacy standard inputs to odd, and preserve managed profile/answers backups and SDD approvals.
 - Add proportional ODD worklists, acceptance/task dependencies, recorded evidence, versioned continuity and reviewed invalidation of stale outcomes using Milkeles task references.
 - Add six English execution phases, separate statuses, private concurrent session/run snapshots, local CLI/check observations and a shared protocol across all 28 public commands.

@@ -60,7 +60,8 @@ ASSETS = {
             "a55a6687521accf4986394a197df1b851d944533ac57aa2ab81ff258dc078f8a": "",
             "2b4ad860c490bf4b2693263e9ae341079cfb63f9030e7b11774414bdb1d6e9ca": "",
             "ea16ce0ef01f53bedab43aa1681d0cc319b7d8ed6a1cdefd752329844ca76b81": "",
-            "cc76e03a1aaf1f71a52f2998f577c6f823e91d3220838dca0f622a359e6352d4": ""
+            "cc76e03a1aaf1f71a52f2998f577c6f823e91d3220838dca0f622a359e6352d4": "",
+            "d64762f5d09780939822dd40295cf51f145d066991b0bae04c61d127a44e103c": ""
         }
     },
     "aikya/scripts/harness/aikya_cli.py": {
@@ -69,7 +70,8 @@ ASSETS = {
         "variants": {
             "12a508b122ba4ff22f64667a1ec7d9314add6e7b8bb8d02409421b33d3fa6eb5": "",
             "2f99c8d9028c7364fab2e520752c6fb54773974d72af5c73ae938d637cfdf8b7": "",
-            "43419877345fd763a114e4231820afef2b91829b74c09587aa4965ac0bea7498": ""
+            "43419877345fd763a114e4231820afef2b91829b74c09587aa4965ac0bea7498": "",
+            "00981387e7730c3792c3c5622692ad031afc2be67b9719f44e105610ec1e33fe": ""
         }
     },
     "aikya/scripts/harness/aikya_requirements.py": {
@@ -90,7 +92,8 @@ ASSETS = {
             "1a2a908fe6538928fd7aeffcfa691953e08b87e8a30091fb16f32cb954bb0649": "",
             "a8ae9237a035adda69052fe3d8a505fb0351d910838e09c8ffca0056c835660a": "",
             "1fb10e64f3a161a68f3a3c52f7928d343977e098e90f34984fb5a75927cf5573": "",
-            "197294fbf132d7b9785c153ccc6ae4e5d8b576298c13e641f87a90dc836aafa5": ""
+            "197294fbf132d7b9785c153ccc6ae4e5d8b576298c13e641f87a90dc836aafa5": "",
+            "94ec1330a212a344eb5935b8872634f2a1bab4f1c0d04a310e3d11815ae0067f": ""
         }
     },
     "aikya/scripts/harness/docs_guard.py": {
@@ -147,7 +150,8 @@ ASSETS = {
             "b36de9e7bfa15245bf240a14dda95b2ee90d238952b730ce0dffa512b4e5d85b": "",
             "c8e2c533455739d9adfa36fdb9843bbc7ae2f1031b03b985843c6f1cd9723642": "",
             "8b628a3601959e6120cbc54764ea421be4c4f1af94ac2cebeb2d44c6ce38bb21": "",
-            "7ac303182b7e1a2fd120ad57fb0a5b580f25630101fac291b6576aa3ccd13f7d": ""
+            "7ac303182b7e1a2fd120ad57fb0a5b580f25630101fac291b6576aa3ccd13f7d": "",
+            "b7d416967e4cf01f8d5793b9f5510e28be4a15e8430239dbdf9583d217bbe062": ""
         }
     },
     "aikya/scripts/harness/skills_registry.py": {
@@ -176,7 +180,8 @@ ASSETS = {
             "1704b277530b782e61c6f64f6c8c90ea93fb4cc00862859d2983a0ee41ef9608": "",
             "e7981aa3577522cbeb51bd38eda849547de992ae490ee07fce9141284543fb67": "",
             "09009ccecbd1b901f1548a7863bed8ceef61ee4722a825706182b5ddd2e5aebc": "",
-            "9a913947e243c6da0b623a5858c1cca25e5f870900e7bb60ca04e3e530e0262a": ""
+            "9a913947e243c6da0b623a5858c1cca25e5f870900e7bb60ca04e3e530e0262a": "",
+            "875df2356cf3f85409584b00fcd533d9304620f5bdbcb33cf9d5d3ec2f46e65d": ""
         }
     },
     "aikya/scripts/harness/docs_layout.py": {
@@ -209,7 +214,8 @@ ASSETS = {
             "cbbbad0d77e11150fac2b85c55fee9a930092931db335987a55ea67f95a6826e": "",
             "37c7618a4ce7eab17556f435f4581c75e62b8f0f640f110c507795719232bbd9": "",
             "a6b54159f607fcfdc77463fbd7c9416ef7e8ee9506c2c3ad45c3eb39c3251fad": "",
-            "c25911f9e7b7d343935311bcf7dead2efb9c11204a7d40c2e0acabbdb7651ee5": ""
+            "c25911f9e7b7d343935311bcf7dead2efb9c11204a7d40c2e0acabbdb7651ee5": "",
+            "184d1c1d3cc3b6ea337f6f6e07ca53d4d29c690f251a7f523cdc4a651ff7b401": ""
         }
     },
     "aikya/scripts/harness/scaffold.py": {
@@ -227,7 +233,8 @@ ASSETS = {
             "23f2d536c29d751bdeb6e88ec821a2d9be95f46647d6105cfa978a23d2de0404": "",
             "75d96bdd5914048781a26e8bfce06b2100fa7f5dd6d8425fc65ab579752faebe": "",
             "f77bf1ceeaba36435bbcb204d7400760291e51d806e20717fada4862c1cc8b04": "",
-            "4cfdb32642540f1049a01eab805c9104b58c2edebf8f45dee5f1777d0be33bdc": ""
+            "4cfdb32642540f1049a01eab805c9104b58c2edebf8f45dee5f1777d0be33bdc": "",
+            "a67259bea135226a88b1715735e17a57163763d02e21f5843bc48e2a1d97357c": ""
         }
     },
     "aikya/scripts/harness/sdd_engine.py": {
@@ -236,7 +243,8 @@ ASSETS = {
         "variants": {
             "9b883b207148d7e58851062a736f8b8d5ae6f3c492d734dc983bbe0372f97662": "",
             "811bda89adea8fdbec16cf2ba37241d716953b63a5fc71ec46be5d82cf671863": "",
-            "8aa568768be4d7acafd63ac3639ebbf8e1f1dcb3c310ece838ae70a3c2216da1": ""
+            "8aa568768be4d7acafd63ac3639ebbf8e1f1dcb3c310ece838ae70a3c2216da1": "",
+            "ce19693031ac0df9fe9ab9a377a7f2ba31d51512966ed6a7f270e4ae36c99066": ""
         }
     },
     "aikya/scripts/harness/sdd_localization.py": {
@@ -261,7 +269,8 @@ ASSETS = {
         "sha256": "d3814c67b895d1b17a94c59bffd789b7e1da8e8835d1bf19a74b3e53240ff7e9",
         "variants": {
             "d3814c67b895d1b17a94c59bffd789b7e1da8e8835d1bf19a74b3e53240ff7e9": "",
-            "2c9db8c309f3daf319fbaf38ac33de5203389204c8391c4d870beab3bb4cc7ce": ""
+            "2c9db8c309f3daf319fbaf38ac33de5203389204c8391c4d870beab3bb4cc7ce": "",
+            "5824e7cb26bd2abbb085403ab670ea485d5f64be9ba77666a819502cc2dade86": ""
         }
     },
     "aikya/scripts/harness/documentation_templates.py": {
@@ -277,7 +286,8 @@ ASSETS = {
         "sha256": "69c2b574230884d07130151489fcbea67bc679457df99af43a04447a4dc7820e",
         "variants": {
             "69c2b574230884d07130151489fcbea67bc679457df99af43a04447a4dc7820e": "",
-            "d18f2869a377bf2e92485f3ccf8d829ad14c182f0309df499eeceb3919855df7": ""
+            "d18f2869a377bf2e92485f3ccf8d829ad14c182f0309df499eeceb3919855df7": "",
+            "376be065c7fae291c3c483845c0bcedc430ec56164b3b0071c66d3417679976c": ""
         }
     },
     "aikya/scripts/harness/documentation-templates/manifest.json": {
@@ -366,62 +376,86 @@ ASSETS = {
     "aikya/scripts/harness/check_events.py": {
         "source": "check_events.py",
         "sha256": "730ad732180e0e8e34ecd5ff1e11dd60c74bcc100732ba7286f3644e8edfd2aa",
-        "variants": {}
+        "variants": {
+            "531ead7b884f8415ebc56cde24b00adf1fbce77cde244b6a1c30320e8045ab00": ""
+        }
     },
     "aikya/scripts/harness/command_workflows.py": {
         "source": "command_workflows.py",
         "sha256": "15840605fd1713de6eccf66cecf1548978e3938069c90171126f23f27ad00c88",
-        "variants": {}
+        "variants": {
+            "15840605fd1713de6eccf66cecf1548978e3938069c90171126f23f27ad00c88": ""
+        }
     },
     "aikya/scripts/harness/execution_state.py": {
         "source": "execution_state.py",
         "sha256": "5e0d4f7fd21e337d8a7c13ffd1cb380ecbc07a0d9d552e757bf7007c8259408f",
-        "variants": {}
+        "variants": {
+            "1dd9a421cb441e2895d4472920d384d61ddc40d6be7d31e2b4b398148ac8de82": ""
+        }
     },
     "aikya/scripts/harness/execution_observer.py": {
         "source": "execution_observer.py",
         "sha256": "537ba2d45b7e9bea57916a1ddefee60b3af7e264d29afc785886d3f6a854d98f",
-        "variants": {}
+        "variants": {
+            "4eaab227ce257ce9c00f16412ab5aec39b3a9e08f2cb2b6144a56ec4c22fa0d5": ""
+        }
     },
     "aikya/scripts/harness/execution_config.py": {
         "source": "execution_config.py",
         "sha256": "8ade420ee23d635a37ec9eb2515ff8ad2a6736fb7d4e8172ca895f31b6f94150",
-        "variants": {}
+        "variants": {
+            "8ade420ee23d635a37ec9eb2515ff8ad2a6736fb7d4e8172ca895f31b6f94150": ""
+        }
     },
     "aikya/scripts/harness/execution_lifecycle.py": {
         "source": "execution_lifecycle.py",
         "sha256": "de5eb16ff9c627339f1c82da501d865c2990471003df9bd26b2e45420bff63b2",
-        "variants": {}
+        "variants": {
+            "11646bfa5d2315ad205ea1a5e8bb1d343ca3c5e15db596822ca894fd2a851e59": ""
+        }
     },
     "aikya/scripts/harness/runtime_metrics.py": {
         "source": "runtime_metrics.py",
         "sha256": "031bee896b259c446b0ebb97bac6b0a10909cbae89a1ed3a5797dc069ed30c85",
-        "variants": {}
+        "variants": {
+            "031bee896b259c446b0ebb97bac6b0a10909cbae89a1ed3a5797dc069ed30c85": ""
+        }
     },
     "aikya/scripts/harness/aikya_statusline.py": {
         "source": "aikya_statusline.py",
         "sha256": "c69f6fe4eb86fb128d3b761ef62eddcd2886a7e7b7eb818c5759fc07ecd77b88",
-        "variants": {}
+        "variants": {
+            "556b24e3b47455af15486425049eb8dfd811d373a5dbc426fe65dda63fc214ed": ""
+        }
     },
     "aikya/scripts/harness/aikya_subagent_statusline.py": {
         "source": "aikya_subagent_statusline.py",
         "sha256": "8a69741f79105deb04275fb1581df5c0955f2f3b91a557ce2ca3941dada5273a",
-        "variants": {}
+        "variants": {
+            "8a69741f79105deb04275fb1581df5c0955f2f3b91a557ce2ca3941dada5273a": ""
+        }
     },
     "aikya/scripts/harness/odd_engine.py": {
         "source": "odd_engine.py",
         "sha256": "feb57005bcbebde8f72d1bc88a03e3cb8b6c6eda4b80a7403e6ceff8e4547551",
-        "variants": {}
+        "variants": {
+            "aabcc093485838fc85fca151a6861b1e51810c6543667c658a9d08ad6abc350d": ""
+        }
     },
     "aikya/scripts/harness/methodology.py": {
         "source": "methodology.py",
         "sha256": "2c54db34d7c3d43337443681ad4f1c39a797b26196d495aab5ecbe19299f7653",
-        "variants": {}
+        "variants": {
+            "05d69f2cd7d60118b4e89455acb9e45c81ff9117d95c54d1d411fab37471b964": ""
+        }
     },
     ".claude/hooks/execution_status.py": {
         "source": "template/.claude/hooks/execution_status.py",
         "sha256": "4af0bdef46c8d7578e682adffca487a601ee89610031f0cacc3aca4177d5ab69",
-        "variants": {}
+        "variants": {
+            "4af0bdef46c8d7578e682adffca487a601ee89610031f0cacc3aca4177d5ab69": ""
+        }
     },
     ".claude/skills/aikya-init/SKILL.md": {
         "source": "aikya-skills/aikya-init/SKILL.md",
@@ -436,7 +470,8 @@ ASSETS = {
             "e60ccc3e30a8d6a55ef500e603872eb97b6178ef607fe8bb92307b40bd5568b7": "",
             "bbc1e7110fd800794be19a7857b6213f4fac8ba9266493fdb32419b85cd7a9d6": "",
             "40e8a4d853ab781429c957ce3d4c7c44fa51b95960b3fd73d681c7d1f5258b1d": "",
-            "0887a8136ab62e1a213ea963332319fac0b6dc81c85af4099acd39b48d43ad12": ""
+            "0887a8136ab62e1a213ea963332319fac0b6dc81c85af4099acd39b48d43ad12": "",
+            "74b9d463e45d17716a7756d76996c8c6cc682f76c16c6c303c7884a187959a48": ""
         }
     },
     ".claude/skills/aikya-analyze/SKILL.md": {
@@ -452,7 +487,8 @@ ASSETS = {
             "4dd0027e60e63f8de25bb6946704283fed7a411e94226a15de53745c7a314c0e": "",
             "956957ca3a0b9e2eaab6cb3a028cece8f5044ad08874f6508f207052dda5c4f6": "",
             "121a83a0c04daf853498058631e8aadb4b3227298ec66edea27477d0f784591b": "",
-            "14bfd1ff5128ef6a892dc8afd7cb7a0bfa930d85f96c58cb0645dec788a8e19a": ""
+            "14bfd1ff5128ef6a892dc8afd7cb7a0bfa930d85f96c58cb0645dec788a8e19a": "",
+            "414e8c99168a9f62f145d6d47e2eb65ceea2b8b808bedef36df0f8b71b53a67d": ""
         }
     },
     ".claude/skills/aikya-answers/SKILL.md": {
@@ -466,7 +502,8 @@ ASSETS = {
             "436ed987c9548e250ce9e168653dcb665c9c5db75e2bdc327c52a73e24315b1c": "",
             "73d1286e3c5c8d90fe885b729f4d64baaa438814968ebd229bc98ab644249968": "",
             "452762b67b5cf4d22d76a0686af330021b855dd124774f651017d55deb6074d0": "",
-            "730f7b74a6a07606a9af1b536076091a1c735d538558c459bd576b9c2b654833": ""
+            "730f7b74a6a07606a9af1b536076091a1c735d538558c459bd576b9c2b654833": "",
+            "2d9a979e79d902453040a97126d7f455159a50ca9669c7eaf6758af30af4bae7": ""
         }
     },
     ".claude/skills/aikya-doctor/SKILL.md": {
@@ -478,7 +515,8 @@ ASSETS = {
             "501057861690f94d1253f6b34778c871d1320140032c9b8e704982979e144b5f": "",
             "97d730613d0e7bfd78526311c56de59830e3cfbd5349cb6f5d8c2976b7926cae": "",
             "1a4b92d12b5b9910069f7534abe6c448758171cce9dd94bab37bf03a1d292f18": "",
-            "07a34ea1e85c1e81b8caf08257474f0a775077499f5848a4efa3054ae4198820": ""
+            "07a34ea1e85c1e81b8caf08257474f0a775077499f5848a4efa3054ae4198820": "",
+            "cce2a97a09b518911c4c6b9b7663fa738149bee17ec3240bdfe1cf4a5b126146": ""
         }
     },
     ".claude/skills/aikya-project-init/SKILL.md": {
@@ -492,7 +530,8 @@ ASSETS = {
             "e0762daa543c97bd8abea5092e2e63f8ea8bdcdf668242a0fcdc6a605f279805": "",
             "182599d1b54b1b02cded07d1f71d5fdfd13b95297d3d869a201f543e0fc257c5": "",
             "4ead7a6d9ba7e503b0cca202850b43524f68124c255460a135b5f7d5a2dbd4af": "",
-            "7f7185d1cff32cb091ad25636472541810ca5ca067b1df50f88a92243c7c54ed": ""
+            "7f7185d1cff32cb091ad25636472541810ca5ca067b1df50f88a92243c7c54ed": "",
+            "1d13a33da085f04b8243b997edfb3e3c0ae470bb9cff52446d9bba6c2f08dd1a": ""
         }
     },
     ".claude/skills/aikya-infra-project/SKILL.md": {
@@ -506,7 +545,8 @@ ASSETS = {
             "1973b6c577d32da0c434102e1d09f53deb611809641c631d0b8605e4a5a8e051": "",
             "fd8f06291ac877f8e5c7f80c74144e5b1f41034be269d0b3345129b7671b2ac6": "",
             "dbbc9d8715bd8fcfd39e72a7ff1825b09d3eeac2e8b5f5f321364a20c31fb489": "",
-            "ade7fec65d0b5355831857fcf613c64767476e22f2dacfa2ffc3560167199365": ""
+            "ade7fec65d0b5355831857fcf613c64767476e22f2dacfa2ffc3560167199365": "",
+            "e6d547a21f07d9dac4ed3af412132abe7d801f7ab1f9004eb9c94ea4e6d2a9a1": ""
         }
     },
     ".claude/skills/aikya-scaffold/SKILL.md": {
@@ -520,7 +560,8 @@ ASSETS = {
             "13661f4b46bece23afdb641140934caac816a24e252cc1fb18ad9800609f751e": "",
             "63775fcbee5b1b76d2a343015e2e4416df72a521e35067ff8cf1dd7aa7186726": "",
             "4a9845b63049026421d82ce3b6badb8f54fd216e92ed0932378078cd9eeb17dd": "",
-            "bfeda2ae52e752b4a56c2f676f7266b976d53bea5e34afa493d9d9138b2accbe": ""
+            "bfeda2ae52e752b4a56c2f676f7266b976d53bea5e34afa493d9d9138b2accbe": "",
+            "3fe7658be79ee0ae577250644d8be91ead85b79df41ad2b3af1a95a2e7803475": ""
         }
     },
     ".claude/skills/aikya-feature/SKILL.md": {
@@ -535,7 +576,8 @@ ASSETS = {
             "7ae4c7d0ba9849c4f286ba54878c5575031b2e5d32c4b48dac74d7c8a7f2f0af": "",
             "8b8a0b228ef6963246cd4abe2e4f7fcf4bfec620e68228267dcfb41a05879be0": "",
             "1ccc6814d6ef99d94017f4b4e45f8b21769f6f5337ab68424fe42f1fe006758b": "",
-            "cabda38d9db74b631b102a44c9b9230ad094ee602f436578e1f1313a06ddcc64": ""
+            "cabda38d9db74b631b102a44c9b9230ad094ee602f436578e1f1313a06ddcc64": "",
+            "dfbc9748e5f0539ea78eeeed68f9966f6eb1717f25dff25bed223a8165cd6ee3": ""
         }
     },
     ".claude/skills/aikya-bugfix/SKILL.md": {
@@ -552,7 +594,8 @@ ASSETS = {
             "0f3a44b7fafd3bb04e367c3ec70bd13b19237ac8940b791d0edb73b3d959e505": "",
             "2a139e17e1f07cea5be810f3951ee8647b9847a1f9b1859b3a2fcd95f233adca": "",
             "38fadd5d85dcae877286d82f6777f4ae4b7b8424f10ae199c8a823b740b236a6": "",
-            "ea23da6dd526bbce09ddcfd3d336a9feee4f3e9a7351bf6b0670b2a6cf9d87c5": ""
+            "ea23da6dd526bbce09ddcfd3d336a9feee4f3e9a7351bf6b0670b2a6cf9d87c5": "",
+            "fd03601ec8be346af2b11525d2c2db62df9cc9344310c2eec4cbb4f5dad31cf0": ""
         }
     },
     ".claude/skills/aikya-architecture-review/SKILL.md": {
@@ -564,7 +607,8 @@ ASSETS = {
             "a894371fc194f644970964116a5ba483632dbee4088d3527d1c1ac7710295b07": "",
             "1e78bf559d4e51281b5fed3214e190f4a5440695870dde5ec1a0d41d99823685": "",
             "ed30abf63af92eed7150aff3d142a0d8ee4f3fff0b9d62ad1a86061986a16dbb": "",
-            "c11d4be625f6c20e2e99d2483419606834e37faf38a3b6be399011139e9098e7": ""
+            "c11d4be625f6c20e2e99d2483419606834e37faf38a3b6be399011139e9098e7": "",
+            "f53a404aced3aa2fea1aa51ccdaea15b5b4821df4b9f8e839089d50bc3a07172": ""
         }
     },
     ".claude/skills/aikya-mobile-feature/SKILL.md": {
@@ -579,7 +623,8 @@ ASSETS = {
             "a385a6bc329a9fe8d272ef7b0b0975b47c79cda108376a3fb47f76c8f670046d": "",
             "e34686d37ceb5188e5135914a3af73acfd8c17aacbbc51cc3cb371abe1d768a1": "",
             "70613335de34b58835f0a39cff415ded6d0b908dbf94c65ce263da0f9f2e5bd2": "",
-            "c380821f8009aad390b149b0fe9851719380be80826106b591856eeab3863362": ""
+            "c380821f8009aad390b149b0fe9851719380be80826106b591856eeab3863362": "",
+            "89222e18a8a6af689bce4d0ede3e8e371412b4eb71f0bf4fe36f4fd82555b1d8": ""
         }
     },
     ".claude/skills/aikya-skills-status/SKILL.md": {
@@ -589,7 +634,8 @@ ASSETS = {
             "959f4f91ca9f3990fb7390150a64328560d6f76ab48efb4ac2afd4d14b8604f2": "",
             "c55b6629f22a79a815102e35a0dfc06129e67d6c427f7521d99761a19515b092": "",
             "605e08291d668910642219456e6c68fe0d7a8758086043aeefb669a2c46d0e85": "",
-            "6ff3d88986cc5c24243c5aef4caac39deaaed5e419deaa72bb764f4deb0b6a4a": ""
+            "6ff3d88986cc5c24243c5aef4caac39deaaed5e419deaa72bb764f4deb0b6a4a": "",
+            "83b8003bbd57d6254efa7d21f8f0001a3639854031a0fa190f620090a6faf050": ""
         }
     },
     ".claude/skills/aikya-skills-plan/SKILL.md": {
@@ -599,7 +645,8 @@ ASSETS = {
             "6edc7595eb1bc888bdff3dc9c95d74b68be6dc6c333b78cf02b5192e8638b7ea": "",
             "7da61121c3f23e8d6cafa2461e1f974c287e2fee0e3e535d15da6acc36c65dc2": "",
             "8e32e19603aff309987dc32f6feeb2213cc3a101c74935be9e466cda999d6355": "",
-            "6f09bdc64050eded71f5733188ff4668642b6d68bd2954437b045b05ae665fa6": ""
+            "6f09bdc64050eded71f5733188ff4668642b6d68bd2954437b045b05ae665fa6": "",
+            "be53304842607cb7d5a142ad36def6598fdcf916bdb08583bc0dfd50b14799c5": ""
         }
     },
     ".claude/skills/aikya-skills-install/SKILL.md": {
@@ -611,7 +658,8 @@ ASSETS = {
             "929d0b0e8bc60b2313ac3fc572cc44e8e0678458d48f7af81405a940cfe47853": "",
             "7a15dd1080aa43ad667fc49b26c6d080d0a22a52119aa8e8c638080254d65b06": "",
             "cd5431665e4779a3ce07704d3f238d605133b3d6be1885b94aafb6ff738f5fa7": "",
-            "7004355e1a5356baa1011737965ea018204417b6678c859c4f0f48df73caefcf": ""
+            "7004355e1a5356baa1011737965ea018204417b6678c859c4f0f48df73caefcf": "",
+            "6c9a634f15d8ef381016b0ca5eabe0eb66a51562d024afe92711eb035dd5f136": ""
         }
     },
     ".claude/skills/aikya-quality/SKILL.md": {
@@ -625,7 +673,8 @@ ASSETS = {
             "5897b5c7720d2c07f242323dc6ded3170f9e60756226dcf01e2970f50b2e1e5e": "",
             "14f6277f588895906505c61128825967599fe9ae4502839af1b7d9d4c6fe08b3": "",
             "391d683b06de6f5ea1ad33dac6222002f78b441a5f03fc78ae6bb792dab92b23": "",
-            "4066e5a8b4d6dd5d0834511bc3b99a404830551c29decc2b7cacb76de13ad39d": ""
+            "4066e5a8b4d6dd5d0834511bc3b99a404830551c29decc2b7cacb76de13ad39d": "",
+            "9fcdf8e1a07a82b051987b9d4d8426f711970a6ff176da400931f8c85315ae5c": ""
         }
     },
     ".claude/skills/aikya-docs/SKILL.md": {
@@ -640,7 +689,8 @@ ASSETS = {
             "8d2f572c570b561c618a1d50a3e16067293dac141af8feaf19efc3255d216872": "",
             "73682b8623bf0e176f9af84ec4c41401b2526033af347cb17dffd9f4a1f05179": "",
             "eafd85d352203f29ebb92e66dc50681709af069a6ac032c640b028d8f5d1feea": "",
-            "8dcd953c9139d8cbd1326e8046c0bdfc2e66ade3b520621d7251834a5466701b": ""
+            "8dcd953c9139d8cbd1326e8046c0bdfc2e66ade3b520621d7251834a5466701b": "",
+            "654fa86570496b6ea1ad5ba006831494c4fd037131d290c0f1345cff97150bec": ""
         }
     },
     ".claude/skills/aikya-tests/SKILL.md": {
@@ -655,7 +705,8 @@ ASSETS = {
             "271036e699963bf42b9cc44240eaee67d6665ca9df0fc5b052fc12fb6ea06ec0": "",
             "7ef5a11e028af30a0a400a5b6f387e97bf9050636578d19d07d610b43a63fbd8": "",
             "e0092e3976079cc1306ef43ffc994374aa92d7aa62a77a8b86977894eedd5754": "",
-            "150311662489ffad302743c7afa79f4061a8923ae55b57680a89953cdfecd05e": ""
+            "150311662489ffad302743c7afa79f4061a8923ae55b57680a89953cdfecd05e": "",
+            "a1539c55969cb9973b81854980e54295cfee159ea36d7a5331e9f9ba5122832c": ""
         }
     },
     ".claude/skills/aikya-documentation-sync/SKILL.md": {
@@ -669,7 +720,8 @@ ASSETS = {
             "c98fc994acf05f5f8c985fcca6037d235b1acbcc46a67e27d489d0d4d45bc623": "",
             "1e3b7d7d6d17128f39902a0f97845441e1881d9347242b0b02e105a421c5214a": "",
             "a4118521ca976a9c4ed703fe18fba5f0ba5cfdc466202cb76eb32e8b98e8b79a": "",
-            "bd16ae75e8ecfda036da6ad3f3510c7d0ade23e278372e5e20e7366d9a4ccbda": ""
+            "bd16ae75e8ecfda036da6ad3f3510c7d0ade23e278372e5e20e7366d9a4ccbda": "",
+            "8fa5ab117278611aca34d3b80065d17d01d4051524f44a93f973f6854d2e3633": ""
         }
     },
     ".claude/skills/aikya-verify/SKILL.md": {
@@ -683,7 +735,8 @@ ASSETS = {
             "fd3bab08a4779ed35f20a142ff5f179f2f38507e219b73a1e2058babb9327895": "",
             "d7b61df508c2bf0b1073b36319cfad0a984ff8d82ac36d2a220538813eb75b9b": "",
             "a8e53bf8b52810f11f563b21cfe648d5bb6d89c003de8f91e50616bc43020159": "",
-            "55450771d2e7061b6bf9fe11400867fdb7b1d4b006059b1d2f8f4b77a5dfaedb": ""
+            "55450771d2e7061b6bf9fe11400867fdb7b1d4b006059b1d2f8f4b77a5dfaedb": "",
+            "59a24d5b1a699d506168b0b6a50bbcc1779322ba35f97496cfb3693c250f01da": ""
         }
     },
     ".claude/skills/aikya-models/SKILL.md": {
@@ -693,7 +746,8 @@ ASSETS = {
             "fcaafc541f4d04a1efe8dd23be9b1fa1ae3e37b6eb9d548fddc16a508d88bf76": "",
             "4ca8acf7e2740536a4485a1f52a6a2b11a00a02a61aa362548062f4e666830b1": "",
             "4d3fc8388538e1f76e75b3b67ce1e1470aa41adfe4f547acd550e44d5285ff24": "",
-            "cb5cade815d7b6edc564ee29253f865dd46acd78c9a1ebd788506a7c741dbe14": ""
+            "cb5cade815d7b6edc564ee29253f865dd46acd78c9a1ebd788506a7c741dbe14": "",
+            "a64f4c6fc91812778705537d83ce58a983257dc7910d16f2c2e54795f723f239": ""
         }
     },
     ".claude/skills/aikya-tokens/SKILL.md": {
@@ -703,7 +757,8 @@ ASSETS = {
             "1a075e531b78a38e96eefc941727053ba8c480b84fc6d6141ed156ab047703f5": "",
             "54a577efd8f7043e8354f3d19a9ce0bcb1dbfbc016cdc5bed17c6d510cb55441": "",
             "2a47cf6737818757ac10c4b1a0994a8b74dcbbe15a6bd515999b8785c12c2c0a": "",
-            "3d2617d5ba585c0c57dee954cb06f6d916bd0a004e97c87b3d9a3b6731f95da1": ""
+            "3d2617d5ba585c0c57dee954cb06f6d916bd0a004e97c87b3d9a3b6731f95da1": "",
+            "c2f911adae02d38dc9ab90677229b735785ed324b84432e70193f8411c4557f2": ""
         }
     },
     ".claude/skills/aikya-install-skill/SKILL.md": {
@@ -713,7 +768,8 @@ ASSETS = {
             "0ad3a6322deddaac0c75f40aebe4e53e04892eddbd485878cbe58c6f3351dede": "",
             "256d64b58257f7ebddfd897060cde7d27fca60466ee174ba32b64a9bef51ab5e": "",
             "e65a5b76fbe37c322dd6727873f9b038d4f21c5edda52c74728cc70cde3752e6": "",
-            "96b91f85f0e9a866aa301de117d05de7d11d9ee0050df3952d8edcac3d5a3a54": ""
+            "96b91f85f0e9a866aa301de117d05de7d11d9ee0050df3952d8edcac3d5a3a54": "",
+            "7c2721f4a727481559d0ae0bfc90d6d6516ffdd1d7cf3b80d5e333cfd133cbb3": ""
         }
     },
     ".claude/skills/aikya-specify/SKILL.md": {
@@ -724,7 +780,8 @@ ASSETS = {
             "c8e6662cf0652dffd1e107a864a2f44b6357d4f338068b7678cd370126dd00d5": "",
             "8a422264a3093c3dfb2b79e8bbe50839c9ca5506bbac00046788380820e584cd": "",
             "ed3b71adcbd31539538cd2dd21860a405223b362041530c8c00e7ca2517b7e76": "",
-            "0f6c914e002dea0f1ecf67f78d9286439b84ede14bdb6a7dbdd51539b69815f8": ""
+            "0f6c914e002dea0f1ecf67f78d9286439b84ede14bdb6a7dbdd51539b69815f8": "",
+            "3e85581cab98f205009a39d9fd617ba83f3cb1fb1d05f16f78532a206a34409e": ""
         }
     },
     ".claude/skills/aikya-clarify/SKILL.md": {
@@ -734,7 +791,8 @@ ASSETS = {
             "8da8ed0f816ed2ddd53cabaf466ef2362ea271579ef9914962c24ea737ce84d1": "",
             "221306fe5f777a506de19070ca65d2f1a02c37fa0e2a18a702f7427f49e3cdbf": "",
             "b2ea63dd97e4af4dd4957854ca04c33d8d9703ffdcd22c3134706a23bfe10dc7": "",
-            "0bd4b58c0c7e8b11ed537ed7396289720a946ae93dc7c52e226da1ee5b91b36b": ""
+            "0bd4b58c0c7e8b11ed537ed7396289720a946ae93dc7c52e226da1ee5b91b36b": "",
+            "c51eb7346a81be0157366d91a32244cd880af75fd25efe41276fbd167226e589": ""
         }
     },
     ".claude/skills/aikya-plan/SKILL.md": {
@@ -745,7 +803,8 @@ ASSETS = {
             "790345e6548de8579950c503509510153f40d1ec106611a73b721328287f997f": "",
             "e8dc63dd7215275065b3b515245ad4c52a0cbb34de91005c8648cd875f71fc06": "",
             "065ab0c96a963eee0e23567d176ae16f9b13ffc67eebc8692fede52b670651d0": "",
-            "c8547ea4eb107bc2ba3cdbd6ca321e6067f39580c8355d4783006efb20829869": ""
+            "c8547ea4eb107bc2ba3cdbd6ca321e6067f39580c8355d4783006efb20829869": "",
+            "d2c6974f0dc54af9ca973dca235a409fb9c5b496e54f96acdf8f0ae6060f5c23": ""
         }
     },
     ".claude/skills/aikya-tasks/SKILL.md": {
@@ -756,7 +815,8 @@ ASSETS = {
             "789cab15cef864524b293d85c9139ea56e967a0264b2f2671395a34a5c070bee": "",
             "79953326e7cbbdc2a25db4b1032d8bd1206385147cff793c34e2aebbc2934e9f": "",
             "471ce37d72360f530448406f82a018656c9fd844619faff1381e06be4b124c62": "",
-            "fd8c4f33a9521ec903445c0a437548f570dd17c6cdd823363ac05886b3bb355e": ""
+            "fd8c4f33a9521ec903445c0a437548f570dd17c6cdd823363ac05886b3bb355e": "",
+            "281fa4f1cc6d0b5bd3e3e5c82ae5971417c0baee621dcd1089dfb878c3a892fe": ""
         }
     },
     ".claude/skills/aikya-implement/SKILL.md": {
@@ -767,7 +827,8 @@ ASSETS = {
             "49013ecfdb22617e791c2a1b1fe9d07389738b2a919dbb4f465c67d562a76fd9": "",
             "0fec64b4cbd3aa8e2cd71e1f1be93fb3aa2d2944a34b0e955289e48a3286174f": "",
             "5b4deea3fa5e9c36bc251367bfe328b2c79f74a211440eb26b9532d23ecf7edf": "",
-            "c6a8de619b5eb707f59f338a0f607bb16865fcb36e79091350caf13c303f1702": ""
+            "c6a8de619b5eb707f59f338a0f607bb16865fcb36e79091350caf13c303f1702": "",
+            "761587d049c9a715752089115f51fa86d26232a42940dc6537a8b5d27cd648e1": ""
         }
     },
     ".claude/skills/aikya-sdd-status/SKILL.md": {
@@ -778,7 +839,66 @@ ASSETS = {
             "2eb2b891cbc5a4eb4cac9f0551af57ce494d3d4ffc2b121f227fc56230806b8a": "",
             "45c1683bb71edc42173cd4b4aeb471a1e331df3cb9098f4f9cec661b6a5a1d63": "",
             "dee2e226ae508a33f59668825db4c257fcaf7f35d20f1d7aa0c1232bd857fae4": "",
-            "908e5418af13ce8b518232162625feedb8516c135e8be11561f4719d0d6e3644": ""
+            "908e5418af13ce8b518232162625feedb8516c135e8be11561f4719d0d6e3644": "",
+            "e75a6fbf2c196d49fd2ccb144f2cccb189267d1420c068f9f3940b72721a665f": ""
+        }
+    },
+    ".claude/skills/aikya-project/SKILL.md": {
+        "source": "aikya-skills/aikya-project/SKILL.md",
+        "sha256": "19690c3219128d812495ac4e2538ff533f591ec25ded219e0cfcbf21d5c1f766",
+        "variants": {
+            "760e6fdd2bb678208d23271a09467dbec16254ca68ec04471c480cf354b00bb4": "",
+            "7d24f5aa9beed710c6587596988c18552466d6dc26613eb29402af98e24f411e": "",
+            "44c35915e40278a3714184132dfceb1adc25af818b5468346d6b9d7c0f6a6ac9": "",
+            "7495a439ce6031c3017423e50bb39295f901d212b3cb6970ea791c7903ff3562": "",
+            "e0762daa543c97bd8abea5092e2e63f8ea8bdcdf668242a0fcdc6a605f279805": "",
+            "182599d1b54b1b02cded07d1f71d5fdfd13b95297d3d869a201f543e0fc257c5": "",
+            "4ead7a6d9ba7e503b0cca202850b43524f68124c255460a135b5f7d5a2dbd4af": "",
+            "7f7185d1cff32cb091ad25636472541810ca5ca067b1df50f88a92243c7c54ed": "",
+            "1d13a33da085f04b8243b997edfb3e3c0ae470bb9cff52446d9bba6c2f08dd1a": ""
+        }
+    },
+    ".claude/skills/aikya-infra/SKILL.md": {
+        "source": "aikya-skills/aikya-infra/SKILL.md",
+        "sha256": "d13c7c32290f156aa708426425fcf72b88b2daa13d134df8b66e84002323ba8f",
+        "variants": {
+            "c2d65bb6400d751c737806d8c5fccc6dd2c1106598301981d8da3cc10da50055": "",
+            "9b7c41d08bdd4dc92ab5760b31cbb9d5ebb1a2331dcefbfa576cbd044290ee6e": "",
+            "52ffb4613f152eb3895f6be251c6d15b9207706f9fadb86f28758f52cafcf3e8": "",
+            "2f33159bd07f29556c43bc91d3164a31f5355929562db6cf4f2bd97ba43c08ca": "",
+            "1973b6c577d32da0c434102e1d09f53deb611809641c631d0b8605e4a5a8e051": "",
+            "fd8f06291ac877f8e5c7f80c74144e5b1f41034be269d0b3345129b7671b2ac6": "",
+            "dbbc9d8715bd8fcfd39e72a7ff1825b09d3eeac2e8b5f5f321364a20c31fb489": "",
+            "ade7fec65d0b5355831857fcf613c64767476e22f2dacfa2ffc3560167199365": "",
+            "e6d547a21f07d9dac4ed3af412132abe7d801f7ab1f9004eb9c94ea4e6d2a9a1": ""
+        }
+    },
+    ".claude/skills/aikya-arc-review/SKILL.md": {
+        "source": "aikya-skills/aikya-arc-review/SKILL.md",
+        "sha256": "52ca66ebfb80317f40ca5133cc637185506285c7948c3c68508099336b6c3314",
+        "variants": {
+            "cb828a1d9fc867280b2bffcd051bdbf9f950c8d534c05a85934ee533556e6d57": "",
+            "c609bc2f5a350183a7b6de867c68d005e2c5d31363ca997c934b98125a4b820f": "",
+            "a894371fc194f644970964116a5ba483632dbee4088d3527d1c1ac7710295b07": "",
+            "1e78bf559d4e51281b5fed3214e190f4a5440695870dde5ec1a0d41d99823685": "",
+            "ed30abf63af92eed7150aff3d142a0d8ee4f3fff0b9d62ad1a86061986a16dbb": "",
+            "c11d4be625f6c20e2e99d2483419606834e37faf38a3b6be399011139e9098e7": "",
+            "f53a404aced3aa2fea1aa51ccdaea15b5b4821df4b9f8e839089d50bc3a07172": ""
+        }
+    },
+    ".claude/skills/aikya-docs-sync/SKILL.md": {
+        "source": "aikya-skills/aikya-docs-sync/SKILL.md",
+        "sha256": "cfe98727a52dd071ae8f8b6af4a0796b17395c61858643250689b52f4c28bdf2",
+        "variants": {
+            "ec106e1efefa014e9e0387f4eaed4e541b97c2f8ce27e18afcc39865fb37e9bf": "",
+            "a0d2885601dc8c0f53dd54623dde1b677098e8f972fd090fb2d5b4af916b8abc": "",
+            "d2bbed0d6ff5caba19c206e8ad39fc2b86a4bf6cd33e709f846898b445f16629": "",
+            "fb4671dbe94cff1203f59568d0f5e92a8b0076727fc8d1812e5ddc321e08d0c0": "",
+            "c98fc994acf05f5f8c985fcca6037d235b1acbcc46a67e27d489d0d4d45bc623": "",
+            "1e3b7d7d6d17128f39902a0f97845441e1881d9347242b0b02e105a421c5214a": "",
+            "a4118521ca976a9c4ed703fe18fba5f0ba5cfdc466202cb76eb32e8b98e8b79a": "",
+            "bd16ae75e8ecfda036da6ad3f3510c7d0ade23e278372e5e20e7366d9a4ccbda": "",
+            "8fa5ab117278611aca34d3b80065d17d01d4051524f44a93f973f6854d2e3633": ""
         }
     }
 }

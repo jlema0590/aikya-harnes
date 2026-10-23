@@ -37,7 +37,7 @@ class FoundationsCompositionTests(unittest.TestCase):
 
     def test_selector_covers_public_flows_without_enabling_sdd(self):
         module=self.workflows();profile=self.profile()
-        for command in ('aikya-init','aikya-analyze','aikya-architecture-review','aikya-feature','aikya-bugfix','aikya-tests'):
+        for command in ('aikya-init','aikya-analyze','aikya-arc-review','aikya-feature','aikya-bugfix','aikya-tests'):
             result=module.select(profile,command)
             self.assertIn('templates',result);self.assertIn('engine',result)
         with self.assertRaises(ValueError):module.select(profile,'aikya-plan')
@@ -45,7 +45,7 @@ class FoundationsCompositionTests(unittest.TestCase):
         for command in ('aikya-feature','aikya-bugfix','aikya-implement','aikya-plan','aikya-specify','aikya-tasks','aikya-sdd-status'):
             self.assertEqual('sdd',module.select(sdd_profile,command)['engine'])
         self.assertEqual('read_only',module.select(sdd_profile,'aikya-sdd-status')['mode'])
-        self.assertEqual('read_only',module.select(profile,'aikya-architecture-review')['mode'])
+        self.assertEqual('read_only',module.select(profile,'aikya-arc-review')['mode'])
 
     def test_standard_feature_combines_acceptance_and_foundations_only_when_supplied(self):
         self.configure();module=self.workflows()

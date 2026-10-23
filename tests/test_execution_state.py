@@ -57,7 +57,7 @@ class ExecutionStateTests(unittest.TestCase):
   value=m.record_event(c,{'phase':'validate','status':'completed','actor_id':'worker','evidence':evidence})
   self.assertEqual('completed',value['phases']['validate']['status'])
   with self.assertRaises(ValueError):m.record_event(c,{'phase':'explore','status':'running','evidence':None})
- def test_all_28_command_protocols_close_with_scoped_fixture_evidence(self):
+ def test_all_public_command_protocols_close_with_scoped_fixture_evidence(self):
   import hashlib
   from aikya_setup import BOOTSTRAP_COMMANDS
   from execution_observer import observe

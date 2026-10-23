@@ -70,7 +70,7 @@ planifica la generación de la estructura:
 /aikya-scaffold plan
 ```
 
-Para infraestructura o DevOps, empieza con `/aikya-infra-project plan`.
+Para infraestructura o DevOps, empieza con `/aikya-infra plan`.
 Los generadores, las descargas y las operaciones externas requieren las aprobaciones correspondientes.
 
 ### Proyectos existentes → `/aikya-analyze`
@@ -165,7 +165,7 @@ requiere una migración revisada por separado.
 
 | Ruta | Finalidad |
 |---|---|
-| `aikya-skills/` | Fuente de los 28 comandos públicos de Claude Code. |
+| `aikya-skills/` | Fuente de los 27 comandos públicos de Claude Code. |
 | `engineering/agents/` | Definiciones del catálogo de agentes especialistas. |
 | `engineering/skills/` | Catálogo de skills técnicas. |
 | `template/` | Agentes base, skills, reglas y utilidades del harness para los proyectos. |
@@ -198,31 +198,33 @@ Los proyectos existentes no se reorganizan automáticamente.
 | /aikya-analyze | Analizar e incorporar un repositorio existente |
 | /aikya-answers | Aplicar un perfil técnico declarativo validado |
 | /aikya-doctor | Diagnosticar localmente los requisitos de SDK y del entorno de ejecución |
-| /aikya-project-init | Planificar un proyecto o módulo nuevo |
-| /aikya-infra-project | Planificar, generar con aprobación y validar infraestructura |
+| /aikya-project | Planificar un proyecto o módulo nuevo |
+| /aikya-infra | Planificar, generar con aprobación y validar infraestructura |
 | /aikya-scaffold | Planificar y ejecutar generadores de aplicaciones aprobados para proyectos nuevos |
 | /aikya-feature | Implementar una funcionalidad de alcance definido con pruebas |
 | /aikya-bugfix | Investigar errores y aportar evidencias de regresión |
-| /aikya-architecture-review | Revisar la arquitectura y proponer ADR |
+| /aikya-arc-review | Revisar la arquitectura y proponer ADR |
 | /aikya-mobile-feature | Entregar funcionalidades móviles validadas |
 | /aikya-skills-status | Consultar las Agent Skills registradas |
 | /aikya-skills-plan | Evaluar las fuentes de skills externas y el impacto de su instalación |
-| /aikya-install-skill | Instalación explícita de skills externas; alias de /aikya-skills-install |
-| /aikya-skills-install | Instalar skills externas revisadas tras su aprobación |
+| /aikya-install-skill | Instalar skills externas revisadas con aprobación explícita y registrar la comparación real |
 | /aikya-quality | Ejecutar los controles de calidad disponibles |
 | /aikya-docs | Mantener documentación viva respaldada por evidencias |
 | /aikya-tests | Ejecutar pruebas específicas y de regresión |
-| /aikya-documentation-sync | Sincronizar los documentos afectados y la trazabilidad por petición |
+| /aikya-docs-sync | Sincronizar los documentos afectados y la trazabilidad por petición |
 | /aikya-verify | Validar los cambios técnicos y sus resultados |
 | /aikya-models | Revisar la política opcional de selección de modelos |
 | /aikya-tokens | Consultar el consumo de tokens y los costes estimados de API |
-
 | /aikya-specify | Crear una especificación y criterios de aceptación |
 | /aikya-clarify | Resolver dudas y registrar aprobación explícita |
 | /aikya-plan | Preparar el diseño técnico y la estrategia de pruebas |
 | /aikya-tasks | Definir tareas vinculadas a requisitos y dependencias |
 | /aikya-implement | Implementar la especificación y tarea activas con aprobación y alcance definido |
 | /aikya-sdd-status | Consultar el estado SDD, la trazabilidad y las evidencias registradas |
+
+Las actualizaciones respaldan los comandos antiguos verificados y los retiran
+solo cuando sus sustitutos están disponibles. Los comandos personalizados se
+conservan con un aviso para su revisión.
 
 Las skills locales del proyecto también incluyen flujos base de funcionalidades,
 corrección de errores, verificación, documentación y revisión de arquitectura.
@@ -257,7 +259,7 @@ La guía de inicialización y el diagnóstico de herramientas quedan en `overvie
 | `plan/testing.md` | Plan de pruebas seleccionado o evidencia de pruebas observadas |
 | `tools/agents.md` | Agentes realmente disponibles en el proyecto |
 | `tools/token-policy.md` | Política de contexto y tokens |
-| `tools/skill-comparison.md` | Resultados reales de instalación externa; se crea únicamente mediante `/aikya-install-skill` o `/aikya-skills-install` |
+| `tools/skill-comparison.md` | Resultados reales de instalación externa; se crea únicamente mediante `/aikya-install-skill` |
 
 Los documentos gestionados anteriores se migran con copias en `.harness/backup-docs-layout/`.
 Los conflictos con documentos personalizados requieren revisión. Las rutas de ejecución
@@ -286,7 +288,7 @@ Consulta la disponibilidad y el impacto de la instalación desde Claude Code:
 /aikya-skills-plan
 ```
 
-Tras revisar el plan, utiliza `/aikya-skills-install` con aprobación explícita.
+Tras revisar el plan, utiliza `/aikya-install-skill` con aprobación explícita.
 Antes de instalar, revisa la procedencia, licencia, herramientas, acceso a red y
 versión o commit. Los hooks de instalación de terceros no deben ejecutarse de forma silenciosa.
 

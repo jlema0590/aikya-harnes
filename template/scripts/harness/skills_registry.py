@@ -103,7 +103,7 @@ Este inventario describe las **skills registradas en el proyecto** y su disponib
 
 - `/aikya-skills-status`: consultar y sincronizar el inventario.
 - `/aikya-skills-plan`: estudiar fuentes, permisos, versión y repercusiones sobre el stack.
-- `/aikya-skills-install`: instalar únicamente tras aprobación y actualizar esta tabla.
+- `/aikya-install-skill`: instalar únicamente tras aprobación y actualizar esta tabla.
 - Las skills externas son código de terceros: revisar licencia, contenido, procedencia y permisos antes de instalarlas.
 - Registrar el uso **real** sólo si existen evidencias de ejecución; nunca inferirlo por la mera presencia de un archivo.
 ''')
@@ -167,7 +167,7 @@ def _render_english(root: Path) -> str:
             "## Governance\n\n"
             "- /aikya-skills-status: inspect registrations.\n"
             "- /aikya-skills-plan: review provenance and permissions.\n"
-            "- /aikya-skills-install: install only after explicit authorization.\n"
+            "- /aikya-install-skill: install only after explicit authorization.\n"
             "- Verify licenses and source integrity for external skills.\n"
             "- Never infer execution from installation alone.\n")
 

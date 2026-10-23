@@ -85,7 +85,7 @@ class DocumentationLayoutTests(unittest.TestCase):
     def test_explicit_install_alias_is_registered(self):
         import aikya_setup
         self.assertIn('aikya-install-skill',aikya_setup.BOOTSTRAP_COMMANDS)
-        self.assertIn('aikya-skills-install',aikya_setup.BOOTSTRAP_COMMANDS)
+        self.assertIn('aikya-install-skill',aikya_setup.BOOTSTRAP_COMMANDS)
 
 
 class DocumentationMigrationTests(unittest.TestCase):

@@ -226,7 +226,7 @@ the application. Do not invent a previously implemented design system.
 
 Infrastructure files are not proof of running environments. Review Terraform
 modules, Ansible roles, container specs and Kubernetes configuration statically.
-Use /aikya-infra-project plan and obtain permission before generation or deploy.
+Use /aikya-infra plan and obtain permission before generation or deploy.
 Never version Terraform state, secret files or credentials.
 """
         values["aikya/docs/infrastructure/architecture.md"] = f"""# Infrastructure architecture
@@ -248,7 +248,7 @@ Validate remote state, IAM, costs and change plans before any operation.
         values["aikya/docs/plan/roadmap.md"] = """# Infrastructure / DevOps roadmap
 
 - P0: Verify cloud provider, environments, access and security.
-- P1: Review and approve /aikya-infra-project plan.
+- P1: Review and approve /aikya-infra plan.
 - P2: Generate authorized files and validate locally.
 - P3: Deploy only with separate explicit approval.
 """
@@ -259,6 +259,6 @@ Do not invent application features.
 """
         values["aikya/docs/README.md"] += (
             f"\n**{kind.title()} mode:** do not generate application scaffolding. "
-            "Use /aikya-infra-project plan.\n")
+            "Use /aikya-infra plan.\n")
     from docs_layout import template_pages
     return template_pages(profile, modules, values, 'en')

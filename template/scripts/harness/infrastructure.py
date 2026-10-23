@@ -198,7 +198,7 @@ Nunca ejecutar init contra un backend remoto, plan o apply sin revisar su destin
                     lines.extend(['    ports:',f'      - "127.0.0.1:${{APP_PORT:-{port}}}:{port}"'])
                 files['compose.apps.yaml']=MARK+'\n'.join(lines)+'\n'
             else:
-                pending.append('Docker Compose: sin Dockerfile validado; generar apps primero y repetir /aikya-infra-project generate')
+                pending.append('Docker Compose: sin Dockerfile validado; generar apps primero y repetir /aikya-infra generate')
     if infra['orchestration']=='kubernetes':
         method=infra['deployment_method']
         if method=='helm' and infra.get('helm_chart_mode')=='existing':
@@ -286,8 +286,8 @@ def plan(root: Path, profile: dict) -> str:
             '','## Artefactos propuestos','']
     result += ['- `'+key+'`'+(' (ya existe; se conservará)' if (root/key).exists() else '') for key in sorted(files)] or ['- No se solicitaron recursos de infraestructura.']
     result += ['','## Pendientes y límites','']+[ '- '+x for x in pending] if pending else ['','## Pendientes y límites','','- Sin requisitos de infraestructura adicionales detectados.']
-    result+=['','Generación: /aikya-infra-project generate (pide aprobación y no sobrescribe archivos).',
-             'Validación: /aikya-infra-project validate. No ejecutar apply, destroy, push ni cambios en clusters sin aprobación específica.','']
+    result+=['','Generación: /aikya-infra generate (pide aprobación y no sobrescribe archivos).',
+             'Validación: /aikya-infra validate. No ejecutar apply, destroy, push ni cambios en clusters sin aprobación específica.','']
     return stamp('\n'.join(result))
 
 

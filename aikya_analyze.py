@@ -67,7 +67,7 @@ def documents(inventory: dict, projection: dict, focus: str) -> dict[str, str]:
                "- Deployed infrastructure and remote state: NOT VERIFIED.",
                "- Scripts, containers and deployments: NOT EXECUTED.",
                "", "## Continue engineering", "",
-               "Use /aikya-feature, /aikya-bugfix, /aikya-quality, /aikya-docs or /aikya-architecture-review.",
+               "Use /aikya-feature, /aikya-bugfix, /aikya-quality, /aikya-docs or /aikya-arc-review.",
                ""]
     return {
         ".aikya/analysis/inventory.json": json.dumps(inventory, ensure_ascii=False, indent=2) + "\n",
@@ -176,6 +176,12 @@ def installation_preview(target: Path, profile: dict, inventory: dict) -> list[d
         for operation in methodology_plan(target,install.read_json_safe(target/'.harness/project-profile.json'),profile.get('methodology')):
             results.append({k:v for k,v in operation.items() if k not in ('updated','expected_sha256')})
     except ValueError as exc:results.append({'path':'.harness/project-profile.json','action':'BLOCKED','reason':str(exc)})
+    from aikya_setup import command_retirement_plan
+    try:
+        for op in command_retirement_plan(target/'.claude/skills',target/'.harness'):
+            results.append({'path':op['path'].relative_to(target).as_posix(),'action':op['action'],'replacement':op['replacement']})
+            if op.get('backup'):results.append({'path':op['backup'].relative_to(target).as_posix(),'action':'CREATE_MANAGED'})
+    except ValueError as exc:results.append({'path':'.harness/command-backups','action':'BLOCKED','reason':str(exc)})
     runtime_ops=install.documentation_runtime_plan(target)
     updates={op['path']:op for op in runtime_ops}
     results=[updates.pop(op['path'],op) for op in results]
@@ -271,4 +277,4 @@ def execute(target: Path, *, scope: str = ".", focus: str = "general",
             "focus": focus, "actions": actions,
             "analysis_operations": updated["operations"], "unresolved": [],
             "next_commands": ["/aikya-feature", "/aikya-bugfix", "/aikya-quality",
-                              "/aikya-docs", "/aikya-architecture-review", "/aikya-models"]}
+                              "/aikya-docs", "/aikya-arc-review", "/aikya-models"]}

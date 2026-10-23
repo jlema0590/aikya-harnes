@@ -1,7 +1,7 @@
 # Execution visibility
 
 Aikya separates the workflow phase, its status, the executor and the available
-usage data. All 28 public commands share this protocol. Initial onboarding and
+usage data. All 27 public commands share this protocol. Initial onboarding and
 configured quality checks publish local process observations automatically;
 semantic actions in skills publish explicit transitions through the observer.
 A hook seeing a tool or an agent stop never certifies a successful phase.

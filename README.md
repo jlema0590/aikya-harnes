@@ -68,7 +68,7 @@ plan before approving changes. Then check prerequisites and plan scaffolding:
 /aikya-scaffold plan
 ```
 
-For infrastructure or DevOps generation, start with `/aikya-infra-project plan`.
+For infrastructure or DevOps generation, start with `/aikya-infra plan`.
 Generators, downloads and external operations require their applicable approvals.
 
 ### Existing projects → `/aikya-analyze`
@@ -161,7 +161,7 @@ reviewed migration.
 
 | Path | Purpose |
 |---|---|
-| `aikya-skills/` | Source of the 28 public Claude Code slash commands. |
+| `aikya-skills/` | Source of the 27 public Claude Code slash commands. |
 | `engineering/agents/` | Curated specialist agent definitions. |
 | `engineering/skills/` | Curated technical skills. |
 | `template/` | Base project agents, skills, rules and harness utilities. |
@@ -194,31 +194,33 @@ Existing projects are not reorganized automatically.
 | /aikya-analyze | Discover and adopt an existing repository |
 | /aikya-answers | Apply a validated declarative technical profile |
 | /aikya-doctor | Diagnose SDK and runtime prerequisites locally |
-| /aikya-project-init | Plan a new project or module |
-| /aikya-infra-project | Plan, generate with approval and validate infrastructure |
+| /aikya-project | Plan a new project or module |
+| /aikya-infra | Plan, generate with approval and validate infrastructure |
 | /aikya-scaffold | Plan and execute approved application generators for new projects |
 | /aikya-feature | Implement a scoped feature with tests |
 | /aikya-bugfix | Investigate defects and add regression evidence |
-| /aikya-architecture-review | Review architecture and propose ADRs |
+| /aikya-arc-review | Review architecture and propose ADRs |
 | /aikya-mobile-feature | Deliver validated mobile features |
 | /aikya-skills-status | Inspect registered Agent Skills |
 | /aikya-skills-plan | Assess external skill sources and installation impact |
-| /aikya-install-skill | Explicit external skill installation; alias of /aikya-skills-install |
-| /aikya-skills-install | Install reviewed external skills after approval |
+| /aikya-install-skill | Install reviewed external skills after explicit approval and record actual comparisons |
 | /aikya-quality | Run available quality gates |
 | /aikya-docs | Maintain evidence-backed living documentation |
 | /aikya-tests | Run focused and regression tests |
-| /aikya-documentation-sync | Synchronize impacted docs and request traceability |
+| /aikya-docs-sync | Synchronize impacted docs and request traceability |
 | /aikya-verify | Validate technical changes and results |
 | /aikya-models | Review optional model routing policy |
 | /aikya-tokens | Inspect token usage and estimated API costs |
-
 | /aikya-specify | Create a draft specification and acceptance criteria |
 | /aikya-clarify | Resolve specification questions and record explicit approval |
 | /aikya-plan | Draft a technical design and testing plan |
 | /aikya-tasks | Define requirement-linked tasks and dependencies |
 | /aikya-implement | Execute the active approved specification/task with scoped consent |
 | /aikya-sdd-status | Inspect SDD state, traceability and recorded evidence |
+
+Managed upgrades back up verified old commands and retire them only after their
+replacements are available. Customized legacy commands are preserved and reported
+for review.
 
 The project-local skills architecture also includes base feature, bugfix,
 verification, documentation and architecture-review workflows. Do not invoke
@@ -252,7 +254,7 @@ Initialization guidance and toolchain findings belong in `overview.md`.
 | `plan/testing.md` | Selected test plan or observed testing evidence |
 | `tools/agents.md` | Agents actually available in the project |
 | `tools/token-policy.md` | Context and token policy |
-| `tools/skill-comparison.md` | Actual external installation results; created only through `/aikya-install-skill` or `/aikya-skills-install` |
+| `tools/skill-comparison.md` | Actual external installation results; created only through `/aikya-install-skill` |
 
 Existing managed documents migrate with backups under `.harness/backup-docs-layout/`.
 Customized conflicts require review. Runtime `.harness/` and `aikya/scripts/harness/`
@@ -281,7 +283,7 @@ Review availability and installation impact from Claude Code:
 /aikya-skills-plan
 ```
 
-After reviewing the plan, use `/aikya-skills-install` with explicit approval.
+After reviewing the plan, use `/aikya-install-skill` with explicit approval.
 Review source provenance, license, tools, network access and version/commit before
 installation. Third-party installer hooks must not run silently.
 

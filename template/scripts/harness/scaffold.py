@@ -28,7 +28,7 @@ def load_profile(root: Path=ROOT) -> dict:
 
 def command_plans(p:dict) -> tuple[list[dict],list[str]]:
     if p.get('project_type','development')!='development':
-        return [], ['Modo Infrastructure/DevOps: usa /aikya-infra-project plan/generate/validate.']
+        return [], ['Modo Infrastructure/DevOps: usa /aikya-infra plan/generate/validate.']
     commands=[]
     manual=[]
     pm=p.get('package_manager')

@@ -22,7 +22,7 @@ ROLES={'overview':'onboarding-guide','architecture':'architecture-overview',
        'case':'test-case-specification','summary':'test-summary-report'}
 OPTIONS={'aikya-init':('overview','architecture','strategy'),
          'aikya-analyze':('overview','architecture','strategy'),
-         'aikya-architecture-review':('architecture','decision','design'),
+         'aikya-arc-review':('architecture','decision','design'),
          'aikya-feature':('feature','design','decision'),
          'aikya-mobile-feature':('feature','design'),
          'aikya-bugfix':('bug',), 'aikya-tests':('strategy','case','summary')}
@@ -99,7 +99,7 @@ def select(profile,command,*,document=None,kind='feature'):
     platforms=['android','ios'] if profile.get('mobile')=='both' else [profile['mobile']] if profile.get('mobile','none')!='none' else []
     return {'command':command,'engine':'documentation','document':role,'templates':templates,
             'continuity_engine':'odd_engine' if method=='odd' else None,'available_documents':list(choices),'project_type':project_type,'kind':kind,'platforms':platforms,
-            'mode':'read_only' if command=='aikya-architecture-review' else 'reviewed_documentation'}
+            'mode':'read_only' if command=='aikya-arc-review' else 'reviewed_documentation'}
 
 
 def load_profile(root):

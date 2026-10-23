@@ -92,7 +92,7 @@ def build_message(root: Path) -> str:
         f'Aikya project: {DEFAULT_SOURCE}',
         'Commands start: /aikya-init · /aikya-analyze · /aikya-doctor · /aikya-answers',
         'Commands develop: /aikya-scaffold · /aikya-feature · /aikya-bugfix  · /aikya-quality',
-        'Commands arquitecture: //aikya-architecture-review',
+        'Commands arquitecture: //aikya-arc-review',
         'Commands mobile: /aikya-mobile-feature',
         'Commands test: /aikya-test',
         'Project documentation: aikya/docs/README.md',

@@ -311,7 +311,7 @@ No hay garantía de reducción porcentual de tokens. El ahorro se comprobará co
 La infraestructura de aplicación vive bajo infra/ (Terraform, Ansible, Kubernetes)
 y los Dockerfiles junto a cada aplicación. Las decisiones, el plan y las verificaciones
 se documentan aquí. Una plantilla creada NO está desplegada.
-Ejecuta /aikya-infra-project plan y solicita aprobación antes de generate.
+Ejecuta /aikya-infra plan y solicita aprobación antes de generate.
 Nunca versionar secretos, estados Terraform ni inventarios con credenciales.
 '''
         pages['aikya/docs/infrastructure/architecture.md'] = (
@@ -330,7 +330,7 @@ Nunca versionar secretos, estados Terraform ni inventarios con credenciales.
         pages['aikya/docs/plan/roadmap.md']=(
             '# Roadmap Infrastructure & DevOps\n\n'
             '- P0: confirmar proveedor, entornos, acceso y seguridad.\n'
-            '- P1: presentar y aprobar /aikya-infra-project plan.\n'
+            '- P1: presentar y aprobar /aikya-infra plan.\n'
             '- P2: generar sólo artefactos autorizados y validar localmente.\n'
             '- P3: desplegar únicamente tras autorización independiente.\n')
         pages['aikya/docs/features/index.md']=(
@@ -339,7 +339,7 @@ Nunca versionar secretos, estados Terraform ni inventarios con credenciales.
             'no funcionalidades ficticias de aplicaciones.\n')
         pages['aikya/docs/README.md'] += (
             '\n**Modo '+kind+'**: sin apps/, contracts/ ni packages/; '
-            'usar /aikya-infra-project plan antes de generar infraestructura.\n')
+            'usar /aikya-infra plan antes de generar infraestructura.\n')
     from docs_layout import template_pages
     return template_pages(profile, modules, pages, 'es')
 
