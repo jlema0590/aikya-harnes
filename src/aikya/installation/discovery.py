@@ -82,5 +82,3 @@ def detect_project(root: Path) -> dict[str, Any]:
     if not modules:
         findings.append('No se pudo identificar un framework con suficiente confianza.')
     return {'modules': modules, 'findings': findings}
-
-

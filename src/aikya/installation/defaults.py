@@ -40,4 +40,3 @@ OBSERVABILITY = ['undecided', 'opentelemetry', 'structured-logging', 'none']
 TEST_STYLES = ['unit', 'unit+integration', 'unit+integration+e2e']
 
 RENDERING = ['undecided', 'spa', 'ssr', 'ssg', 'hybrid']
-

@@ -60,4 +60,3 @@ class RuntimeTransactionTests(unittest.TestCase):
                 bundle.apply_bundle(runtime, operations, [])
             self.assertEqual(b'# Owner edit after preflight\n', path.read_bytes())
             self.assertEqual(originals['src/aikya/documentation/layout.py'], (runtime / 'src/aikya/documentation/layout.py').read_bytes())
-

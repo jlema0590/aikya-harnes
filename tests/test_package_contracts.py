@@ -72,4 +72,3 @@ class PackageContracts(unittest.TestCase):
             actions = install.install(target, profile, {'modules': [], 'findings': []}, dry_run=True)
             self.assertTrue(actions)
             self.assertFalse(target.exists())
-

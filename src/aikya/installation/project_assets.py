@@ -117,4 +117,3 @@ def activate_engineering(plan:InstallationPlan,actions:list[str])->None:
     from aikya.catalogs.engineering import discover,install_selected
     selected=discover(plan.target,plan.profile,plan.detected['modules'])
     actions.extend(install_selected(plan.target,selected,source=source_path(plan.context.source_root,'engineering')))
-

@@ -342,5 +342,3 @@ Nunca versionar secretos, estados Terraform ni inventarios con credenciales.
             'usar /aikya-infra plan antes de generar infraestructura.\n')
     from aikya.documentation.layout import template_pages
     return template_pages(profile, modules, pages, 'es')
-
-

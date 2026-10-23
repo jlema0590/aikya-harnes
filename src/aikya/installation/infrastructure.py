@@ -44,4 +44,3 @@ def plan_infrastructure(plan:InstallationPlan,actions:list[str])->None:
         safe_write(target/'aikya/docs/infrastructure/plan.md',
            stamp(summary), actions,
            replace_managed=True)
-

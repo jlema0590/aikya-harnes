@@ -66,4 +66,3 @@ def runtime_asset_bytes(relative:Path,raw:bytes)->bytes:
     if relative==Path('examples/documentation/README.md'):
         raw=raw.replace(b'](generated/README.es.md)',(']('+SOURCE_GALLERY+')').encode('utf8'))
     return asset_bytes(relative,raw)
-

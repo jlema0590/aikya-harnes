@@ -167,5 +167,3 @@ def interview(target: Path, detected: dict[str, Any]) -> dict[str, Any]:
             'ci': ci, 'deployment': deployment, 'package_manager': pkg_mgr,
             'infrastructure': infrastructure,
             'quality': quality, 'notes': ask('Additional technical constraints or conventions (optional)', '')}
-
-

@@ -69,4 +69,3 @@ def prepare_installation(target,profile,detected,adopt_existing,docs_lang,contex
     from aikya.workflows.methodology import migration_plan as methodology_plan,apply_migration as apply_methodology
     methodology_operations=methodology_plan(target,previous_profile,profile['methodology'])
     return InstallationPlan(context=context,target=target,profile=profile,detected=detected,adopt_existing=adopt_existing,documentation_language=documentation_language,previous_profile=previous_profile,previous_decisions=previous_decisions,doc_operations=doc_operations,sdd_operations=sdd_operations,methodology_operations=methodology_operations,claude_contract=claude_contract,bundle=bundle)
-

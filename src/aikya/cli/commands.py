@@ -17,4 +17,3 @@ LEGACY_RENAMES={
     'aikya-documentation-sync':'aikya-docs-sync',
     'aikya-skills-install':'aikya-install-skill',
 }
-

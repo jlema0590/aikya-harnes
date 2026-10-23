@@ -63,4 +63,3 @@ class DocumentPathPolicy(unittest.TestCase):
             ok, messages = module.validate_ci(['docs/api.md', 'aikya/docs/features/value/spec.md'])
             self.assertTrue(ok, messages)
             self.assertEqual('# Owner API\n\nKeep this file.\n', owned.read_text())
-

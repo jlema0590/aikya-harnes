@@ -130,4 +130,3 @@ def summarize(paths, *, event_filter=None):
         "stop_blocks_explicitly_recorded": stop_blocks,
         "note": "Local usage estimates only. No content is printed; model/provider prices and actual invoice are not inferred."
     }
-

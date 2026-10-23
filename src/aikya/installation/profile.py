@@ -71,5 +71,3 @@ def validated(data: dict[str, Any], target: Path) -> dict[str, Any]:
     if kind=='devops' and not (info['containers']['enabled'] or info['orchestration']!='none'):
         raise ValueError('DevOps requiere contenedores o un destino de despliegue.')
     return result
-
-

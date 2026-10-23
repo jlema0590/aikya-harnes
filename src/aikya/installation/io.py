@@ -98,5 +98,3 @@ def merge_settings(target: Path, actions: list[str], *, context: InstallerContex
         actions.append('FUSIONADO (sin eliminar reglas previas) ' + str(path))
     else:
         actions.append('UNCHANGED ' + str(path))
-
-

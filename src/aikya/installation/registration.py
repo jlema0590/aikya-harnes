@@ -321,7 +321,7 @@ def setup(source:Path,target:Path,scope:str,home:Path|None=None,dry_run:bool=Fal
     bar='python3 -B '+shlex.quote(str(runtime/'aikya_statusline.py'))
     register_visibility((home if scope=='global' else target)/'.claude/settings.json',observer,bar,logs,(home/'.claude' if scope=='global' else target/'.aikya')/'visibility-proposed.json',subagent_command=('python3 -B '+__import__('shlex').quote(str(runtime/'aikya_subagent_statusline.py'))) if subagent_statusline else None)
     if scope=='project':
-        marker=target/'.aikya/bootstrap.json' 
+        marker=target/'.aikya/bootstrap.json'
         marker.parent.mkdir(parents=True,exist_ok=True)
         if not marker.exists() or settings_created or settings_owned:
             if marker.is_symlink():raise ValueError('Symlinked bootstrap marker')

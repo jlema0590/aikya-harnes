@@ -94,5 +94,3 @@ def make_checks(root: Path, profile: dict[str, Any], modules: list[dict[str, Any
     if not checks:
         add('project:test', None, required=True)
     return checks
-
-

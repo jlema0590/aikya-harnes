@@ -44,5 +44,3 @@ def settings_approved(root,config):
         value=json.loads(path.read_text())
         if not isinstance(value,dict):raise ValueError('Invalid SDK settings source')
         if value.get('hooks') and not config['hooks_approved']:raise ValueError('Configured hooks require explicit review with hooks_approved=true')
-
-

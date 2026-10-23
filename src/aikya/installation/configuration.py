@@ -120,4 +120,3 @@ def configure_project(plan:InstallationPlan,actions:list[str])->None:
             current['checks'].append(gate)
             manifest.write_text(json.dumps(current, indent=2, ensure_ascii=False)+'\n', encoding='utf8')
             actions.append('ADDED SDD traceability check; original quality manifest backed up')
-

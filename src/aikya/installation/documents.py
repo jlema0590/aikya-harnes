@@ -227,4 +227,3 @@ def write_living_documents(plan:InstallationPlan,actions:list[str])->None:
         else:
             write_document(target,rel,body,index=False)
             actions.append('CREATED '+rel)
-

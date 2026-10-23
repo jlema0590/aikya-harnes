@@ -25,4 +25,3 @@ def install(target,profile,detected,dry_run=False,*,adopt_existing=False,docs_la
     from aikya.documentation.layout import update_index
     update_index(target,plan.documentation_language)
     return actions
-

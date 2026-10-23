@@ -142,5 +142,3 @@ def migrate_v55_project_config(target: Path, actions: list[str], *, context: Ins
     if changed:
         config.write_text(json.dumps(obj,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
         actions.append('MIGRADOS quality gates anteriores sin alterar checks personalizados.')
-
-
