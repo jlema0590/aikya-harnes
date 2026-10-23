@@ -1,0 +1,27 @@
+"""Installed command routing stays opt-in and portable across registration scopes."""
+import json,os,subprocess,sys,tempfile,unittest
+from pathlib import Path
+from agent_loop_support import ROOT,project,config,runtime
+class LoopInstallationTests(unittest.TestCase):
+ def test_init_never_accepts_the_loop_switch_or_writes_a_dossier(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp)/'new'
+   p=subprocess.run([sys.executable,str(ROOT/'aikya_cli.py'),'init','--target',str(root),'--agent-loop'],capture_output=True,text=True)
+   self.assertEqual(2,p.returncode);self.assertFalse(root.exists())
+ def test_loop_modules_ship_in_global_project_and_initialized_runtime_without_sdk_dependency(self):
+  import aikya_setup,install
+  with tempfile.TemporaryDirectory() as tmp:
+   base=Path(tmp)
+   for scope in ('global','project'):
+    root=base/scope;home=base/(scope+'home');aikya_setup.setup(ROOT,root,scope,home=home)
+    folder=home/'.claude/aikya-harnes' if scope=='global' else root/'.aikya/runtime'
+    for name in ('agent_loop.py','agent_runtime.py','agent_loop_state.py','agent_memory.py','requirements-agent-loop.txt','docs/AGENT_LOOP.md'):self.assertTrue((folder/name).is_file(),name)
+   root=base/'installed';profile=install.validated(json.loads((ROOT/'examples/next-react/answers.json').read_text()),root);install.install(root,profile,{'modules':[],'findings':[]},docs_lang='en')
+   for name in ('agent_loop.py','agent_runtime.py','agent_loop_state.py','agent_memory.py','requirements-agent-loop.txt','docs/AGENT_LOOP.md'):self.assertTrue((root/'aikya/scripts/harness'/name).is_file())
+ def test_cli_routes_feature_loop_only_when_explicit_and_reports_optional_sdk_unavailable(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=project(tmp);settings=root/'loop.json';settings.write_text(json.dumps(config()))
+   p=subprocess.run([sys.executable,str(ROOT/'aikya_cli.py'),'feature','--target',str(root),'--agent-loop','--loop-input',str(settings),'--approved'],capture_output=True,text=True)
+   self.assertEqual(4,p.returncode,p.stderr);self.assertEqual('optional_sdk_missing',json.loads(p.stdout)['reason']);self.assertFalse((root/'aikya/docs/loops').exists())
+
+if __name__=='__main__':unittest.main()

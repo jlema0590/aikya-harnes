@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add an explicit optional agent loop for feature, bugfix and implement, using a separately installed Claude Agent SDK with scoped tools, ODD/SDD gates, real local checks and independent read-only runtime review.
+- Persist loop limits, usage, effect intents and recoverable checkpoints; stop on uncertain effects, stale candidates, changed approvals or unknown cost data instead of silently retrying.
+- Add reviewed typed project memories with source fingerprints, TTL and globally budgeted lexical recall, plus adversarial process, recovery and installation tests.
+
 - Rename /aikya-project-init to /aikya-project, /aikya-infra-project to /aikya-infra, /aikya-architecture-review to /aikya-arc-review and /aikya-documentation-sync to /aikya-docs-sync; consolidate external installation in /aikya-install-skill.
 - Register 27 canonical public commands and retire verified old wrappers with backups; preserve customized commands for manual review and prevent compatibility alias regeneration.
 - Document a source-pinned OpenHarness comparison of memory, observation and persistence without integrating or running the external runtime.

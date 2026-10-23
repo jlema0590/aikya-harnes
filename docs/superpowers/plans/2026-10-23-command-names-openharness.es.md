@@ -1,6 +1,6 @@
 # Plan: nombres de comandos, OpenHarness y agent loop
 
-Los apartados 1–4 corresponden al cambio implementado y verificado. El apartado 5, añadido a petición del usuario, es una propuesta pendiente: documentarlo no activa ni implementa un agent loop.
+Los apartados 1–4 corresponden al cambio implementado y verificado. El apartado 5 se implementa de forma opcional y se valida localmente. La prueba real con Claude se realizará en el otro entorno elegido por el usuario; no se afirma haberla superado aquí.
 
 ## Objetivo y alcance
 
@@ -47,7 +47,7 @@ Entrega: docs/research/OPENHARNESS_COMPARISON.es.md, con revisión fijada a un c
 - [x] Revisar independientemente migraciones y conclusiones técnicas; corregir hallazgos reproducibles.
 - [x] Guardar commit local y entregar comparación en español con fuentes enlazadas.
 
-## 5. Agent loop dentro de Aikya — siguiente implementación propuesta
+## 5. Agent loop dentro de Aikya — implementación opcional
 
 ### Viabilidad y decisión recomendada
 
@@ -91,20 +91,20 @@ revisión solo autoriza otra iteración dentro del alcance ya permitido.
 
 ### Trabajo pendiente y pruebas de aceptación
 
-- [ ] **AL-1 — Contrato y prueba de compatibilidad.** Evaluar el SDK como dependencia
+- [x] **AL-1 — Contrato y prueba de compatibilidad.** Evaluar el SDK como dependencia
   opcional sin añadirlo a la instalación básica. Proponer agent_runtime.py como
   adaptador, con ejecución y cancelación, eventos normalizados y una referencia
   de sesión. Probar carga explícita de configuración/skills Aikya, denegación de
   herramientas, respuesta estructurada y ausencia del SDK. No iniciar un proceso
   recursivo desde un hook ni abrir otra sesión por cada evento de observación.
-- [ ] **AL-2 — Controlador secuencial.** Crear agent_loop.py sobre command_workflows.py,
+- [x] **AL-2 — Controlador secuencial.** Crear agent_loop.py sobre command_workflows.py,
   odd_engine.py, sdd_engine.py y execution_state.py. Propuesta inicial: una tarea
   activa y un máximo de tres iteraciones por tarea, incluida la primera; detener
   tras dos intentos consecutivos sin evidencia de avance. Exigir max_turns y un
   tiempo máximo por ejecución en la configuración revisada. Probar éxito real,
   corrección de un fallo, agotamiento de límites, error del runtime y cancelación.
   El máximo del SDK y el límite de Aikya se aplican juntos.
-- [ ] **AL-3 — Gates y permisos.** Empezar con /aikya-feature, /aikya-bugfix y
+- [x] **AL-3 — Gates y permisos.** Empezar con /aikya-feature, /aikya-bugfix y
   /aikya-implement mediante una opción explícita por diseñar, sin añadir otro
   comando público. En SDD, comprobar la especificación, el plan, las tareas
   aprobadas y sus dependencias antes de cada ejecución. En ODD, respetar alcance,
@@ -112,7 +112,7 @@ revisión solo autoriza otra iteración dentro del alcance ya permitido.
   no utiliza permisos amplios para saltar reglas y se detiene en waiting cuando
   hace falta una decisión o autorización. Instalaciones externas y despliegues
   conservan sus autorizaciones específicas.
-- [ ] **AL-4 — Persistencia y recuperación.** Crear agent_loop_state.py y una
+- [x] **AL-4 — Persistencia y recuperación.** Crear agent_loop_state.py y una
   propuesta de expediente aikya/docs/loops/<run-id>/ con state.json y summary.md.
   Guardar identidad de proyecto/worktree, tarea, iteración, versión de esquema,
   revisión, candidate_generation, referencias de evidencia y motivo de parada.
@@ -121,14 +121,14 @@ revisión solo autoriza otra iteración dentro del alcance ya permitido.
   Probar escrituras atómicas, bloqueo, efectos duplicados, cambio de archivos y
   recuperación en un checkout distinto. La recuperación no depende de la caché
   de presentación ni implica poder repetir cualquier efecto exactamente una vez.
-- [ ] **AL-5 — Memoria y observación.** Añadir como extensión los recuerdos tipados y
+- [x] **AL-5 — Memoria y observación.** Añadir como extensión los recuerdos tipados y
   recuperación selectiva propuestos en la comparación; mientras no existan, usar
   únicamente expedientes y archivos actuales como contexto. No hacer de esa
   memoria un requisito para el primer prototipo ni una fuente de aprobaciones.
   Publicar fases, actor, modelo observado y consumo disponible por ejecución.
   Probar aislamiento entre proyectos, recuerdos obsoletos, modelos desconocidos y
   eventos tardíos. Mantener prompts, secretos y salidas crudas fuera de esta caché.
-- [ ] **AL-6 — Presupuestos y cierre verificable.** Registrar consumos por ID y
+- [x] **AL-6 — Presupuestos y cierre verificable.** Registrar consumos por ID y
   ámbito para no sumar dos veces mensajes ni totales acumulados de una sesión
   reanudada. Mantener el presupuesto del loop entre reintentos y reanudaciones.
   Presentar costes del SDK como estimaciones, no facturación ni cuota semanal.
@@ -159,7 +159,8 @@ Esta etapa sería opt-in. /aikya-init y /aikya-analyze seguirían solicitando la
 opciones del proyecto; no arrancarían automáticamente un loop. Tampoco se añade
 paralelismo, ejecución en segundo plano, otro compactador ni un proveedor nuevo.
 El esfuerzo es cualitativo: la estimación de tiempo y gasto requiere completar
-AL-1 y acordar modelos, presupuesto y entorno. Todo este apartado queda pendiente;
-esta actualización solo amplía el plan y su análisis de viabilidad.
+AL-1 y acordar modelos, presupuesto y entorno. Los seis bloques tienen implementación
+y pruebas locales; el smoke real del SDK permanece pendiente en el entorno del usuario.
+La guía vigente está en docs/AGENT_LOOP.md y la evidencia en docs/validation/AGENT_LOOP.md.
 
 GENERATED BY AIKYA HARNESS

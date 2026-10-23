@@ -39,10 +39,10 @@ ASSETS = {
         "sha256": "f014264239ad0ae8e4ae01ac4110e75c833792cb2994aba6e0f377daf392d37c",
         "source": "template/CLAUDE.md",
         "variants": {
-            "22176e2ac0280e71fe994aa7469b11b211f9185d54fe7c31db646edc451bb1df": "\n## Perfil t\u00e9cnico\nLee `.claude/rules/00-project-profile.md` antes de dise\u00f1ar o modificar la aplicaci\u00f3n.\n",
+            "22176e2ac0280e71fe994aa7469b11b211f9185d54fe7c31db646edc451bb1df": "\n## Perfil técnico\nLee `.claude/rules/00-project-profile.md` antes de diseñar o modificar la aplicación.\n",
             "ee8ee3c03c48999c53556ef84a37c54e007231adad5faa1d2dbd6b805042451e": "",
-            "f7f8dc2c0a5f2047251f5cc3b0d455e5c0c93ae1a8d5376c45d3ddfc030261a0": "\n## Perfil t\u00e9cnico\nLee `.claude/rules/00-project-profile.md` antes de dise\u00f1ar o modificar la aplicaci\u00f3n.\n",
-            "b82b0ca7e8663b077d944c1015d3cb31caf918497574029ec6b9f33f3343c330": "\n## Perfil t\u00e9cnico\nLee `.claude/rules/00-project-profile.md` antes de dise\u00f1ar o modificar la aplicaci\u00f3n.\n",
+            "f7f8dc2c0a5f2047251f5cc3b0d455e5c0c93ae1a8d5376c45d3ddfc030261a0": "\n## Perfil técnico\nLee `.claude/rules/00-project-profile.md` antes de diseñar o modificar la aplicación.\n",
+            "b82b0ca7e8663b077d944c1015d3cb31caf918497574029ec6b9f33f3343c330": "\n## Perfil técnico\nLee `.claude/rules/00-project-profile.md` antes de diseñar o modificar la aplicación.\n",
             "f014264239ad0ae8e4ae01ac4110e75c833792cb2994aba6e0f377daf392d37c": "",
             "531e302a0dd75793fa7d41decc2b5064ad36c9eb5c2d9045ccb6eee3f015ca91": "",
             "3773b24d1098618936761da423ecdfdd2651c22fbb041de1d46c1983a9fe3a23": "",
@@ -61,7 +61,8 @@ ASSETS = {
             "2b4ad860c490bf4b2693263e9ae341079cfb63f9030e7b11774414bdb1d6e9ca": "",
             "ea16ce0ef01f53bedab43aa1681d0cc319b7d8ed6a1cdefd752329844ca76b81": "",
             "cc76e03a1aaf1f71a52f2998f577c6f823e91d3220838dca0f622a359e6352d4": "",
-            "d64762f5d09780939822dd40295cf51f145d066991b0bae04c61d127a44e103c": ""
+            "d64762f5d09780939822dd40295cf51f145d066991b0bae04c61d127a44e103c": "",
+            "3b9e178a4b819360218605483c23d2f14899b07b2fbb046022a15112187a5092": ""
         }
     },
     "aikya/scripts/harness/aikya_cli.py": {
@@ -93,7 +94,8 @@ ASSETS = {
             "a8ae9237a035adda69052fe3d8a505fb0351d910838e09c8ffca0056c835660a": "",
             "1fb10e64f3a161a68f3a3c52f7928d343977e098e90f34984fb5a75927cf5573": "",
             "197294fbf132d7b9785c153ccc6ae4e5d8b576298c13e641f87a90dc836aafa5": "",
-            "94ec1330a212a344eb5935b8872634f2a1bab4f1c0d04a310e3d11815ae0067f": ""
+            "94ec1330a212a344eb5935b8872634f2a1bab4f1c0d04a310e3d11815ae0067f": "",
+            "1139b645ffb5fc0d28d350bd93db00a6d19386302716b242cf8ba3d9afa42be7": ""
         }
     },
     "aikya/scripts/harness/docs_guard.py": {
@@ -111,7 +113,8 @@ ASSETS = {
         "source": "docs_templates_en.py",
         "variants": {
             "9e6e36e2c7355a47e2c8da3b8c1d841d93dca17adef42b3e053ffa9d5974bb81": "",
-            "41af8b8bd470057b7384413f87a5388b57012b48eb7413d86438dc61d5be0ac6": ""
+            "41af8b8bd470057b7384413f87a5388b57012b48eb7413d86438dc61d5be0ac6": "",
+            "2c0f2ee3b0d1354b90c1eb9b36a998d3f24f50b6a0ba5e35c3226015c375f88d": ""
         }
     },
     "aikya/scripts/harness/docs_templates_es.py": {
@@ -119,7 +122,8 @@ ASSETS = {
         "source": "docs_templates_es.py",
         "variants": {
             "073208a58e8909ff4b183b940609cf538d695959966f46be64e59b8292bef25e": "",
-            "bcf51c8e9387c89165f3b34efc34cc47b00655245dbca4421470ce2d5759d661": ""
+            "bcf51c8e9387c89165f3b34efc34cc47b00655245dbca4421470ce2d5759d661": "",
+            "20787c7849e16716f3f2faf9debe9baced2fca6211f9cc8e61a78022cd63039e": ""
         }
     },
     "aikya/scripts/harness/engineering_catalog.py": {
@@ -151,7 +155,8 @@ ASSETS = {
             "c8e2c533455739d9adfa36fdb9843bbc7ae2f1031b03b985843c6f1cd9723642": "",
             "8b628a3601959e6120cbc54764ea421be4c4f1af94ac2cebeb2d44c6ce38bb21": "",
             "7ac303182b7e1a2fd120ad57fb0a5b580f25630101fac291b6576aa3ccd13f7d": "",
-            "b7d416967e4cf01f8d5793b9f5510e28be4a15e8430239dbdf9583d217bbe062": ""
+            "b7d416967e4cf01f8d5793b9f5510e28be4a15e8430239dbdf9583d217bbe062": "",
+            "52359e8c3cd13259fd54d6db90a5d3bfe8e0db6058e6673b87995abf2e06e174": ""
         }
     },
     "aikya/scripts/harness/skills_registry.py": {
@@ -161,7 +166,8 @@ ASSETS = {
             "410543148a2b22acda9a3c8e61cd20a59c9f5dcae476a32e4188bc272475ec0a": "",
             "8fe7df058538d6d666df2455448bd213417361cf43f25875a871cb31d79ad4e5": "",
             "f61dc0fc6c39da3bf2d455f45dbb4782a0b08ccb79be423b4e973a07fbbcfdbb": "",
-            "f291ae0513d50ea461c9f894f754d629e74274165cffd6a12daa0515e43787c5": ""
+            "f291ae0513d50ea461c9f894f754d629e74274165cffd6a12daa0515e43787c5": "",
+            "c26787de1f2d06a817b7d6869b7f50db70d3647569e22072d39bb614f2148e81": ""
         }
     },
     "aikya/scripts/harness/analysis_manifest.py": {
@@ -202,7 +208,8 @@ ASSETS = {
             "c26d50ec3369dec6a8589c518c44eae5c246a586b0147d4d12a501d9c2623007": "",
             "f13a5c99a10c1ed48819c9ad22e427828ae0137368f2a65e94fa0d11f2e750a9": "",
             "d992701fb2d3cdeaae14aba323dbc8c005f9db384eaf3ac360bf6e9d9ea32d72": "",
-            "17c7b9b8ccbcffb95c67b9ccd88b962108aae9d7e602f6558378bf68b6cdc17d": ""
+            "17c7b9b8ccbcffb95c67b9ccd88b962108aae9d7e602f6558378bf68b6cdc17d": "",
+            "fcac99b31652f622a5b3b24af536cb8525b481da35d99cf268133f829641afdd": ""
         }
     },
     "aikya/scripts/harness/docs_migration_hashes.py": {
@@ -215,7 +222,8 @@ ASSETS = {
             "37c7618a4ce7eab17556f435f4581c75e62b8f0f640f110c507795719232bbd9": "",
             "a6b54159f607fcfdc77463fbd7c9416ef7e8ee9506c2c3ad45c3eb39c3251fad": "",
             "c25911f9e7b7d343935311bcf7dead2efb9c11204a7d40c2e0acabbdb7651ee5": "",
-            "184d1c1d3cc3b6ea337f6f6e07ca53d4d29c690f251a7f523cdc4a651ff7b401": ""
+            "184d1c1d3cc3b6ea337f6f6e07ca53d4d29c690f251a7f523cdc4a651ff7b401": "",
+            "be0043a0b1599c969cb23b274e7d2a9294f63a2be12ebc8abb83d3fd5fab789c": ""
         }
     },
     "aikya/scripts/harness/scaffold.py": {
@@ -223,7 +231,8 @@ ASSETS = {
         "sha256": "47181c3ad2cb22dbec5567953ae51378e115fcba21c9b590405491ffb990f752",
         "variants": {
             "d21ac5a9cf21249e6642bebf56ca2e185f906c84421fe7a226c6533b603fee6f": "",
-            "47181c3ad2cb22dbec5567953ae51378e115fcba21c9b590405491ffb990f752": ""
+            "47181c3ad2cb22dbec5567953ae51378e115fcba21c9b590405491ffb990f752": "",
+            "4aa370bba5c9d47e66488d3071eaf29b7f068092d3549b135b3a1694bdd3872a": ""
         }
     },
     "aikya/scripts/harness/sdd_assets.py": {
@@ -287,7 +296,8 @@ ASSETS = {
         "variants": {
             "69c2b574230884d07130151489fcbea67bc679457df99af43a04447a4dc7820e": "",
             "d18f2869a377bf2e92485f3ccf8d829ad14c182f0309df499eeceb3919855df7": "",
-            "376be065c7fae291c3c483845c0bcedc430ec56164b3b0071c66d3417679976c": ""
+            "376be065c7fae291c3c483845c0bcedc430ec56164b3b0071c66d3417679976c": "",
+            "4aee52807bc1f49c694ac8848849a7fad16a619a632b00f71135d16f3042e019": ""
         }
     },
     "aikya/scripts/harness/documentation-templates/manifest.json": {
@@ -384,7 +394,8 @@ ASSETS = {
         "source": "command_workflows.py",
         "sha256": "15840605fd1713de6eccf66cecf1548978e3938069c90171126f23f27ad00c88",
         "variants": {
-            "15840605fd1713de6eccf66cecf1548978e3938069c90171126f23f27ad00c88": ""
+            "15840605fd1713de6eccf66cecf1548978e3938069c90171126f23f27ad00c88": "",
+            "0960568cd99aaf5441932862c510afcece8f03f644c2265de25da8ec43994fef": ""
         }
     },
     "aikya/scripts/harness/execution_state.py": {
@@ -769,7 +780,8 @@ ASSETS = {
             "256d64b58257f7ebddfd897060cde7d27fca60466ee174ba32b64a9bef51ab5e": "",
             "e65a5b76fbe37c322dd6727873f9b038d4f21c5edda52c74728cc70cde3752e6": "",
             "96b91f85f0e9a866aa301de117d05de7d11d9ee0050df3952d8edcac3d5a3a54": "",
-            "7c2721f4a727481559d0ae0bfc90d6d6516ffdd1d7cf3b80d5e333cfd133cbb3": ""
+            "7c2721f4a727481559d0ae0bfc90d6d6516ffdd1d7cf3b80d5e333cfd133cbb3": "",
+            "3ceacedd6d9eca3fd02ae9424e87bdb7e477c6f9dd23017d4aca9acde248ed81": ""
         }
     },
     ".claude/skills/aikya-specify/SKILL.md": {
@@ -855,7 +867,8 @@ ASSETS = {
             "182599d1b54b1b02cded07d1f71d5fdfd13b95297d3d869a201f543e0fc257c5": "",
             "4ead7a6d9ba7e503b0cca202850b43524f68124c255460a135b5f7d5a2dbd4af": "",
             "7f7185d1cff32cb091ad25636472541810ca5ca067b1df50f88a92243c7c54ed": "",
-            "1d13a33da085f04b8243b997edfb3e3c0ae470bb9cff52446d9bba6c2f08dd1a": ""
+            "1d13a33da085f04b8243b997edfb3e3c0ae470bb9cff52446d9bba6c2f08dd1a": "",
+            "fc3bcb22e5bbae8ff609396c1c1b32d8ca267193fa6c892ee26cc23ed8c35542": ""
         }
     },
     ".claude/skills/aikya-infra/SKILL.md": {
@@ -870,7 +883,8 @@ ASSETS = {
             "fd8f06291ac877f8e5c7f80c74144e5b1f41034be269d0b3345129b7671b2ac6": "",
             "dbbc9d8715bd8fcfd39e72a7ff1825b09d3eeac2e8b5f5f321364a20c31fb489": "",
             "ade7fec65d0b5355831857fcf613c64767476e22f2dacfa2ffc3560167199365": "",
-            "e6d547a21f07d9dac4ed3af412132abe7d801f7ab1f9004eb9c94ea4e6d2a9a1": ""
+            "e6d547a21f07d9dac4ed3af412132abe7d801f7ab1f9004eb9c94ea4e6d2a9a1": "",
+            "67f7cc1fc3114f60e1f6bc53b84bb1312f3ae502241844a02510c1e90ee9af3f": ""
         }
     },
     ".claude/skills/aikya-arc-review/SKILL.md": {
@@ -883,7 +897,8 @@ ASSETS = {
             "1e78bf559d4e51281b5fed3214e190f4a5440695870dde5ec1a0d41d99823685": "",
             "ed30abf63af92eed7150aff3d142a0d8ee4f3fff0b9d62ad1a86061986a16dbb": "",
             "c11d4be625f6c20e2e99d2483419606834e37faf38a3b6be399011139e9098e7": "",
-            "f53a404aced3aa2fea1aa51ccdaea15b5b4821df4b9f8e839089d50bc3a07172": ""
+            "f53a404aced3aa2fea1aa51ccdaea15b5b4821df4b9f8e839089d50bc3a07172": "",
+            "4d36884dc0dc38b094fa313ab10b58dd2fd9686c4722c03d51847829a1893750": ""
         }
     },
     ".claude/skills/aikya-docs-sync/SKILL.md": {
@@ -898,7 +913,50 @@ ASSETS = {
             "1e3b7d7d6d17128f39902a0f97845441e1881d9347242b0b02e105a421c5214a": "",
             "a4118521ca976a9c4ed703fe18fba5f0ba5cfdc466202cb76eb32e8b98e8b79a": "",
             "bd16ae75e8ecfda036da6ad3f3510c7d0ade23e278372e5e20e7366d9a4ccbda": "",
-            "8fa5ab117278611aca34d3b80065d17d01d4051524f44a93f973f6854d2e3633": ""
+            "8fa5ab117278611aca34d3b80065d17d01d4051524f44a93f973f6854d2e3633": "",
+            "b48ccbb88e1c5dd0fe4637d97b8fc52746ca84db083527779ffc8a621b434dbf": ""
+        }
+    },
+    "aikya/scripts/harness/agent_loop.py": {
+        "source": "agent_loop.py",
+        "sha256": "20cefb9b904593c16cc333658288bcce985fd7011c9177bf7aac8c6d02397680",
+        "variants": {
+            "20cefb9b904593c16cc333658288bcce985fd7011c9177bf7aac8c6d02397680": ""
+        }
+    },
+    "aikya/scripts/harness/agent_loop_state.py": {
+        "source": "agent_loop_state.py",
+        "sha256": "f0d8ba2fb65a24fdbb58d23f4f9bfb058df3133eabb839278f44fda1e230762b",
+        "variants": {
+            "f0d8ba2fb65a24fdbb58d23f4f9bfb058df3133eabb839278f44fda1e230762b": ""
+        }
+    },
+    "aikya/scripts/harness/agent_runtime.py": {
+        "source": "agent_runtime.py",
+        "sha256": "b36d1c07884054ec677091b2189fdbc115190ff703292d95f595a04865fe68b8",
+        "variants": {
+            "b36d1c07884054ec677091b2189fdbc115190ff703292d95f595a04865fe68b8": ""
+        }
+    },
+    "aikya/scripts/harness/agent_memory.py": {
+        "source": "agent_memory.py",
+        "sha256": "cf82c0f2d1b7797baa49bffe645948ae88ca4dd34d9f2c627337f189a423e264",
+        "variants": {
+            "cf82c0f2d1b7797baa49bffe645948ae88ca4dd34d9f2c627337f189a423e264": ""
+        }
+    },
+    "aikya/scripts/harness/requirements-agent-loop.txt": {
+        "source": "requirements-agent-loop.txt",
+        "sha256": "356fb77da8147eb6f059ef4c7d5e71a32e09cf083f460eab78082c8003a9d30e",
+        "variants": {
+            "356fb77da8147eb6f059ef4c7d5e71a32e09cf083f460eab78082c8003a9d30e": ""
+        }
+    },
+    "aikya/scripts/harness/docs/AGENT_LOOP.md": {
+        "source": "docs/AGENT_LOOP.md",
+        "sha256": "494e93a752178f97669d006f7338f73fc9dacb333eb9a4e78359a8d062b9dccf",
+        "variants": {
+            "494e93a752178f97669d006f7338f73fc9dacb333eb9a4e78359a8d062b9dccf": ""
         }
     }
 }
