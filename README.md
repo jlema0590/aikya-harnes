@@ -360,7 +360,7 @@ shows the active action, observed model/executor, context and optional account
 transcripts; account quotas are never inferred from them. Read-only queries write
 no project documents. Custom bars/hooks are preserved with a reviewable proposal.
 See [visibility, evidence and configuration](docs/EXECUTION_VISIBILITY.md) and the
-[complete Spanish implementation plan](docs/superpowers/plans/2026-10-23-odd-observabilidad.es.md).
+[complete Spanish implementation plan](aikya/docs/plan/archive/harness-development/2026-10-23-odd-observabilidad.es.md).
 
 ## Optional agent loop
 

@@ -193,7 +193,7 @@ contexto, pero no autorizan tareas ni sustituyen revisiones. La salida final del
 modelo tampoco demuestra por sí sola que las pruebas hayan pasado.
 
 La propuesta y sus pruebas de aceptación están en el
-[apartado 5 del plan](../superpowers/plans/2026-10-23-command-names-openharness.es.md#5-agent-loop-dentro-de-aikya--implementación-opcional).
+[apartado 5 del plan](../../aikya/docs/plan/archive/harness-development/2026-10-23-command-names-openharness.es.md#5-agent-loop-dentro-de-aikya--implementación-opcional).
 Construir además un runtime propio, con conversación y compactación, sería un
 proyecto distinto de mayor esfuerzo. El loop sobre Claude tiene implementación
 y pruebas locales; la prueba real con el proveedor se hará en otro entorno.

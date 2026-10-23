@@ -5,7 +5,7 @@ esta comparación y plan; no se implementan estas ampliaciones en el cambio actu
 
 **Objetivo:** mejorar revisión, visibilidad y continuidad de Aikya aprovechando
 patrones verificados de Gentle Shell, conservando Claude Code y los motores ODD/SDD.
-**Base:** [comparación y fuentes fijadas a 05065e7](../../research/GENTLE_SHELL_COMPARISON.es.md).
+**Base:** [comparación y fuentes fijadas a 05065e7](../../../../../docs/research/GENTLE_SHELL_COMPARISON.es.md).
 **Arquitectura:** módulos Python locales y adaptadores opcionales. Ninguna extensión
 de Pi se copia ni pasa a ser una skill de Claude por cambiar su nombre.
 

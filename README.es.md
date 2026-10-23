@@ -367,7 +367,7 @@ rutas de sesión autorizadas; no permiten calcular cuotas de cuenta. Las consult
 no crean documentos del proyecto. Se conservan las barras y hooks personalizados,
 con una propuesta revisable cuando hay conflicto. Consulta la
 [visibilidad de ejecución](docs/EXECUTION_VISIBILITY.md) y el
-[plan completo en español](docs/superpowers/plans/2026-10-23-odd-observabilidad.es.md).
+[plan completo en español](aikya/docs/plan/archive/harness-development/2026-10-23-odd-observabilidad.es.md).
 
 ## Agent loop opcional
 

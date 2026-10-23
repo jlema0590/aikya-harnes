@@ -106,7 +106,7 @@ casos reales. Mantener memoria Markdown y el loop secuencial como base mientras
 se valida su funcionamiento real. Posponer una TUI completa, historial de prompts,
 voz, modos YOLO y paralelismo de escritura.
 
-El [plan de adopción](../superpowers/plans/2026-10-23-gentle-shell-adoption.es.md)
+El [plan de adopción](../../aikya/docs/plan/archive/harness-development/2026-10-23-gentle-shell-adoption.es.md)
 convierte esas oportunidades en entregas y pruebas. Son propuestas pendientes:
 esta comparación no instala ni integra Gentle Shell.
 
