@@ -1,0 +1,10 @@
+{
+  "design": "Clean Architecture with Order domain, use cases and REST/persistence adapters.",
+  "decisions": [
+    "Keep operation approval separate from specification approval."
+  ],
+  "risks": [
+    "Validate actual toolchain availability and project-specific constraints."
+  ],
+  "testing": "Run focused local checks and retain their real outputs; no deployment is implied."
+}

@@ -1,0 +1,20 @@
+{
+  "id": "SPEC-001",
+  "title": "AWS network with Terraform",
+  "objective": "Plan a VPC with reviewed private and public subnets in two zones.",
+  "requirements": [
+    {
+      "id": "INF-001",
+      "description": "Use explicitly approved CIDR ranges and subnet isolation.",
+      "acceptance": [
+        "The reviewed local plan contains the intended subnets without unexpected public exposure."
+      ]
+    }
+  ],
+  "nonfunctional": [
+    "Keep secrets out of source control and require separate approval for remote changes."
+  ],
+  "questions": [
+    "Which CIDR ranges and region are approved?"
+  ]
+}

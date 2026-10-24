@@ -4,21 +4,23 @@ on:
   push:
     branches: [develop, main, 'feat/**', 'fix/**', 'release/**']
     paths:
-      - 'engineering/**'
-      - 'aikya-skills/**'
+      - 'src/aikya/catalogs/**'
+      - 'src/aikya/installation/**'
+      - 'src/aikya/cli/**'
       - 'aikya_setup.py'
       - 'engineering_catalog.py'
-      - 'template/.claude/**'
+      - 'src/aikya/resources/**'
       - 'scripts/ci/check_assets.py'
       - '.github/workflows/check-asset-sync.yml'
   pull_request:
     branches: [develop, main]
     paths:
-      - 'engineering/**'
-      - 'aikya-skills/**'
+      - 'src/aikya/catalogs/**'
+      - 'src/aikya/installation/**'
+      - 'src/aikya/cli/**'
       - 'aikya_setup.py'
       - 'engineering_catalog.py'
-      - 'template/.claude/**'
+      - 'src/aikya/resources/**'
       - 'scripts/ci/check_assets.py'
       - '.github/workflows/check-asset-sync.yml'
   workflow_dispatch:

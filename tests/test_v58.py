@@ -19,11 +19,11 @@ import doc_bootstrap
 def module(path,name):
     spec=importlib.util.spec_from_file_location(name,path)
     obj=importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(obj)
-    return obj
+    spec.loader.exec_module(obj);obj=getattr(obj,'_module',obj)
+    return getattr(obj, '_module', obj)
 
-GEN=module(ROOT/'template/scripts/harness/infrastructure.py','infrastructure_v58')
-SCAFFOLD=module(ROOT/'template/scripts/harness/scaffold.py','scaffold_v58')
+GEN=module(ROOT/'src/aikya/resources/project_template/scripts/harness/infrastructure.py','infrastructure_v58')
+SCAFFOLD=module(ROOT/'src/aikya/resources/project_template/scripts/harness/scaffold.py','scaffold_v58')
 
 class AutonomousModeTests(unittest.TestCase):
     def infra(self,**kw):

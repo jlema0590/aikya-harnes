@@ -68,7 +68,7 @@ plan before approving changes. Then check prerequisites and plan scaffolding:
 /aikya-scaffold plan
 ```
 
-For infrastructure or DevOps generation, start with `/aikya-infra-project plan`.
+For infrastructure or DevOps generation, start with `/aikya-infra plan`.
 Generators, downloads and external operations require their applicable approvals.
 
 ### Existing projects → `/aikya-analyze`
@@ -76,7 +76,7 @@ Generators, downloads and external operations require their applicable approvals
 Start with a read-only preview:
 
 ```text
-/aikya-analyze --dry-run --docs-lang en
+/aikya-analyze --dry-run --methodology odd --docs-lang en
 ```
 
 Aikya detects the existing stack and architecture without a technical interview.
@@ -93,6 +93,7 @@ It previews Aikya-owned changes before adoption. Ambiguous repositories return
 | `--focus infrastructure` | Focus on infrastructure evidence. |
 | `--focus operations` | Focus on operational evidence. |
 | `--scope <relative-path>` | Limit discovery to a component, such as a monorepo workspace. |
+| `--methodology odd` or `--methodology sdd` | Choose Organic Driven Development or Spec-Driven Development before initial adoption. |
 | `--refresh` | Refresh only verifiably managed analysis assets. |
 | `--docs-lang en` or `--docs-lang es` | Choose the living documentation language. |
 
@@ -106,6 +107,43 @@ Examples—run each separately as needed:
 
 Discovery does not build applications, execute application scripts or deploy
 infrastructure. Adoption preserves application code and customized configurations.
+
+### Choose ODD or SDD
+
+**Both `/aikya-init` and `/aikya-analyze` offer ODD and SDD.** ODD is recommended;
+the initial choice is required before writing project files. ODD keeps contained
+changes in the existing request audit and adds a reviewed, resumable worklist for
+substantial work. SDD uses separate specification, plan and task approvals.
+For an existing repository, preview the selected methodology first:
+
+```text
+/aikya-analyze --dry-run --methodology sdd --docs-lang en
+```
+
+Review the file plan, generator upgrades and quality-gate backup before approving
+adoption. Without an initial choice the CLI returns `NEEDS_METHODOLOGY` and writes
+nothing. Confirmed profiles retain their methodology on refresh; legacy `standard`
+inputs normalize to `odd` with conservative managed-file backups. Disabling SDD
+requires a separately reviewed migration. See [ODD continuity](docs/ODD.md).
+
+The SDD workflow is:
+
+```text
+/aikya-specify
+/aikya-clarify
+/aikya-plan
+/aikya-tasks
+/aikya-implement
+/aikya-sdd-status
+```
+
+Specification, plan and tasks each need their own approval. Implementation and
+generation require an active **SPEC-NNN + TASK-NNN**, plus consent for the actual
+changes. An old approved specification does not authorize a different task.
+SDD works with development, infrastructure and DevOps; it is a methodology, not
+a fourth project type or a replacement application architecture.
+
+See [the SDD workflow](docs/SDD.md) for input schemas, migration and evidence limits.
 
 ### Documentation language
 
@@ -123,10 +161,14 @@ reviewed migration.
 
 | Path | Purpose |
 |---|---|
-| `aikya-skills/` | Source of the 21 public Claude Code slash commands. |
-| `engineering/agents/` | Curated specialist agent definitions. |
-| `engineering/skills/` | Curated technical skills. |
-| `template/` | Base project agents, skills, rules and harness utilities. |
+| `src/aikya/resources/commands/` | Source of the 27 public Claude Code slash commands. |
+| `src/aikya/resources/engineering/agents/` | Curated specialist agent definitions. |
+| `src/aikya/resources/engineering/skills/` | Curated technical skills. |
+| `src/aikya/resources/project_template/` | Base project agents, skills, rules and harness utilities. |
+
+Python code lives in `src/aikya/`, grouped into core, tools, middleware, memory, installation, discovery, workflows, documentation, catalogs, routing and quality. `pyproject.toml` defines the package; existing script entry points remain compatible.
+
+All Aikya-generated plans, bugs and features stay inside `aikya/docs/`: `plan/`, `bugs/` and `features/`. SDD plans remain in their authoritative specification dossier under `aikya/docs/specs/`.
 
 ### Project artifacts
 
@@ -156,23 +198,33 @@ Existing projects are not reorganized automatically.
 | /aikya-analyze | Discover and adopt an existing repository |
 | /aikya-answers | Apply a validated declarative technical profile |
 | /aikya-doctor | Diagnose SDK and runtime prerequisites locally |
-| /aikya-project-init | Plan a new project or module |
-| /aikya-infra-project | Plan, generate with approval and validate infrastructure |
+| /aikya-project | Plan a new project or module |
+| /aikya-infra | Plan, generate with approval and validate infrastructure |
 | /aikya-scaffold | Plan and execute approved application generators for new projects |
 | /aikya-feature | Implement a scoped feature with tests |
 | /aikya-bugfix | Investigate defects and add regression evidence |
-| /aikya-architecture-review | Review architecture and propose ADRs |
+| /aikya-arc-review | Review architecture and propose ADRs |
 | /aikya-mobile-feature | Deliver validated mobile features |
 | /aikya-skills-status | Inspect registered Agent Skills |
 | /aikya-skills-plan | Assess external skill sources and installation impact |
-| /aikya-skills-install | Install reviewed external skills after approval |
+| /aikya-install-skill | Install reviewed external skills after explicit approval and record actual comparisons |
 | /aikya-quality | Run available quality gates |
 | /aikya-docs | Maintain evidence-backed living documentation |
 | /aikya-tests | Run focused and regression tests |
-| /aikya-documentation-sync | Synchronize impacted docs and request traceability |
+| /aikya-docs-sync | Synchronize impacted docs and request traceability |
 | /aikya-verify | Validate technical changes and results |
 | /aikya-models | Review optional model routing policy |
 | /aikya-tokens | Inspect token usage and estimated API costs |
+| /aikya-specify | Create a draft specification and acceptance criteria |
+| /aikya-clarify | Resolve specification questions and record explicit approval |
+| /aikya-plan | Draft a technical design and testing plan |
+| /aikya-tasks | Define requirement-linked tasks and dependencies |
+| /aikya-implement | Execute the active approved specification/task with scoped consent |
+| /aikya-sdd-status | Inspect SDD state, traceability and recorded evidence |
+
+Managed upgrades back up verified old commands and retire them only after their
+replacements are available. Customized legacy commands are preserved and reported
+for review.
 
 The project-local skills architecture also includes base feature, bugfix,
 verification, documentation and architecture-review workflows. Do not invoke
@@ -182,12 +234,35 @@ optional external tools automatically.
 
 ![Documentation traceability in Aikya](docs/images/documentation-traceability-en.png)
 
+SDD adds versioned specifications under `aikya/docs/specs/<project_type>/SPEC-NNN/`,
+including Markdown documents and a machine-readable `state.json`. The latter stores
+workflow state; documentation does not consist exclusively of Markdown.
+
 Material technical changes update the affected `.md` pages under `aikya/docs/`
 and create a `changes/REQ-*.md` record with **Changes**, **Evidence** and
 **Updated documents**. `docs_guard` checks documentation requirements.
 When committed with the project, these files provide reviewable history and diffs
 for audits and version tracking. Read-only consultations do not require artificial
 records; full prompts, secrets and private data must not be recorded.
+
+Every Markdown document generated by Aikya ends with the exact line
+`GENERATED BY AIKYA HARNESS`, wherever it is saved. This includes analysis reports,
+infrastructure README files, `CLAUDE.md`, agents and skills. `indice.md` lists the
+Markdown files that actually exist; reports without supporting data are omitted.
+Initialization guidance and toolchain findings belong in `overview.md`.
+
+| Path under `aikya/docs/` | Content |
+|---|---|
+| `features/<lowercase-feature>/` | Actual feature scope and implementation records |
+| `architecture/architecture-overview.md` | Main architecture for both init and analyze |
+| `plan/testing.md` | Selected test plan or observed testing evidence |
+| `tools/agents.md` | Agents actually available in the project |
+| `tools/token-policy.md` | Context and token policy |
+| `tools/skill-comparison.md` | Actual external installation results; created only through `/aikya-install-skill` |
+
+Existing managed documents migrate with backups under `.harness/backup-docs-layout/`.
+Customized conflicts require review. Runtime `.harness/` and `aikya/scripts/harness/`
+retain their existing names.
 
 ## 6. Engineering agents and Agent Skills
 
@@ -212,7 +287,7 @@ Review availability and installation impact from Claude Code:
 /aikya-skills-plan
 ```
 
-After reviewing the plan, use `/aikya-skills-install` with explicit approval.
+After reviewing the plan, use `/aikya-install-skill` with explicit approval.
 Review source provenance, license, tools, network access and version/commit before
 installation. Third-party installer hooks must not run silently.
 
@@ -263,3 +338,46 @@ secure or replace project-specific security review.
 - [Security policy](SECURITY.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)
 - [GitHub workflow contracts](.github/workflows.md)
+
+
+### Aikya templates for SDD
+
+SDD composes nine roles from the pinned [Aikya template library](src/aikya/resources/aikya-template/docs/README.md): feature, API, database, specification, design, tasks, evidence, review and engineering rules. Aikya retains its acceptance criteria, traceability and separate approvals. Only supplied reviewed content creates documents. See [SDD template usage](docs/SDD_TEMPLATES.md) and the [complete generated-example gallery](examples/documentation/generated/README.es.md).
+
+## Project-specific CLAUDE.md
+
+Aikya selects English instructions for development, infrastructure or DevOps, then adds only the recorded stack, layout and methodology guidance. Existing CLAUDE.md files are preserved. See [template selection and examples](docs/CLAUDE_TEMPLATES.md).
+
+## Documentation template library
+
+120 pinned Aikya templates are available offline; Upstream attribution is retained in THIRD_PARTY_LICENSES.md. Architecture uses `aikya/docs/architecture/architecture-overview.md`; actual bugs append to `aikya/docs/bugs/bugs.md`. Documents require reviewed facts and authorization. See [selection, examples, license and compatibility](docs/DOCUMENTATION_TEMPLATES.md).
+
+Aikya now combines its generated documents with selected Aikya reference templates foundations by command, methodology and project profile. ODD features include observable acceptance criteria; optional design/test sections use actual supplied facts. See [contextual template composition](docs/CONTEXTUAL_TEMPLATE_COMPOSITION.md).
+
+
+## Execution phases and usage
+
+All public commands share **Explore → Plan → Implement → Validate → Security → Review**,
+with proportional applicability and separate English status labels. The local bar
+shows the active action, observed model/executor, context and optional account
+5h/7d limits. Missing data stays N/D. Recorded session tokens use explicitly selected
+transcripts; account quotas are never inferred from them. Read-only queries write
+no project documents. Custom bars/hooks are preserved with a reviewable proposal.
+See [visibility, evidence and configuration](docs/EXECUTION_VISIBILITY.md) and the
+[complete Spanish implementation plan](aikya/docs/plan/archive/harness-development/2026-10-23-odd-observabilidad.es.md).
+
+## Optional agent loop
+
+Explicitly enable bounded execution for /aikya-feature, /aikya-bugfix or
+/aikya-implement. The optional Claude Agent SDK runs the task; Aikya enforces the
+reviewed file scope, ODD/SDD gates, local checks, read-only review and durable limits.
+It never starts during onboarding or installs the SDK automatically. See
+[setup, permissions, recovery and controlled live testing](docs/AGENT_LOOP.md).
+
+Optional project/private memory supports explicit review, checkout migration and
+bounded model proposals that remain pending until approved. The source-quality
+gate requires modularization above 1,000 lines per changed source file; Python
+long functions and repeated bodies receive review warnings. See the
+[security and quality controls](docs/SECURITY_CONTROLS.md) for what is enforced.
+
+GENERATED BY AIKYA HARNESS

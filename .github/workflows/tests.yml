@@ -28,6 +28,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -36,16 +37,33 @@ jobs:
 
       - name: Python syntax checks
         run: |
-          python -m compileall -q \
-            aikya_cli.py aikya_layout.py aikya_requirements.py \
-            aikya_session.py aikya_setup.py doc_bootstrap.py \
-            engineering_catalog.py external_skills.py \
-            infrastructure_profile.py install.py skills_registry.py \
-            docs_language.py docs_templates_en.py docs_templates_es.py \
-            template/scripts/harness scripts/ci
+          python -m compileall -q src scripts/ci
 
       - name: Validate bundled Claude Code agents and Agent Skills
         run: python scripts/ci/validate_agent_assets.py
 
+      - name: Validate pinned documentation templates
+        run: python documentation_templates.py check
+
+      - name: Check changed source size and report Python duplication
+        env:
+          AIKYA_QUALITY_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          python - <<'PY'
+          import os, subprocess, sys
+          base = os.environ.get('AIKYA_QUALITY_BASE') or 'HEAD'
+          if subprocess.run(['git', 'cat-file', '-e', base + '^{commit}'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
+              base = 'HEAD'
+          sys.exit(subprocess.call([sys.executable, 'code_quality.py', '--changed', '--base', base]))
+          PY
+
       - name: Run Aikya regression tests
         run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Build isolated Python distributions
+        run: |
+          python -m pip install build 'setuptools>=77' wheel
+          python -m build --no-isolation
+
+      - name: Verify installed wheel without checkout imports or optional SDK
+        run: python scripts/ci/package_smoke.py --wheel dist/aikya_harness-$(cat VERSION)-py3-none-any.whl

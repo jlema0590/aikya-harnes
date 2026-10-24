@@ -1,0 +1,20 @@
+{
+  "id": "SPEC-001",
+  "title": "Java order API",
+  "objective": "Create, retrieve and cancel orders with domain safeguards.",
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "description": "Shipped orders cannot be cancelled.",
+      "acceptance": [
+        "Cancelling a shipped order fails without changing its status."
+      ]
+    }
+  ],
+  "nonfunctional": [
+    "Keep secrets out of source control and require separate approval for remote changes."
+  ],
+  "questions": [
+    "What cancellation policy applies to paid orders?"
+  ]
+}

@@ -31,8 +31,8 @@ def name_from_frontmatter(path: Path) -> str:
 
 def check_catalog() -> list[str]:
     errors: list[str] = []
-    agents = ROOT / "engineering/agents"
-    skills = ROOT / "engineering/skills"
+    agents = ROOT / 'src/aikya/resources/engineering/agents'
+    skills = ROOT / 'src/aikya/resources/engineering/skills'
     if not agents.is_dir() or not skills.is_dir():
         return ["engineering/agents or engineering/skills missing"]
     agent_files = {path.stem: path for path in agents.glob("*.md")}
@@ -76,7 +76,7 @@ def check_catalog() -> list[str]:
 def check_bootstrap() -> list[str]:
     errors = []
     for name in aikya_setup.BOOTSTRAP_COMMANDS:
-        path = ROOT / "aikya-skills" / name / "SKILL.md"
+        path = ROOT / 'src/aikya/resources/commands' / name / "SKILL.md"
         if not path.is_file() or path.is_symlink():
             errors.append(f"Missing or symlinked Aikya command: {path.relative_to(ROOT)}")
             continue
@@ -90,7 +90,7 @@ def check_bootstrap() -> list[str]:
         if not (ROOT / item).is_file():
             errors.append(f"Core runtime file missing: {item}")
     # Avoid silently shipping an unregistered command.
-    files = {p.parent.name for p in (ROOT / "aikya-skills").glob("*/SKILL.md")}
+    files = {p.parent.name for p in (ROOT / 'src/aikya/resources/commands').glob("*/SKILL.md")}
     extra = files - set(aikya_setup.BOOTSTRAP_COMMANDS)
     if extra:
         errors.append(f"Unregistered Aikya commands: {sorted(extra)}")

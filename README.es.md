@@ -70,7 +70,7 @@ planifica la generación de la estructura:
 /aikya-scaffold plan
 ```
 
-Para infraestructura o DevOps, empieza con `/aikya-infra-project plan`.
+Para infraestructura o DevOps, empieza con `/aikya-infra plan`.
 Los generadores, las descargas y las operaciones externas requieren las aprobaciones correspondientes.
 
 ### Proyectos existentes → `/aikya-analyze`
@@ -78,7 +78,7 @@ Los generadores, las descargas y las operaciones externas requieren las aprobaci
 Empieza con una vista previa de solo lectura:
 
 ```text
-/aikya-analyze --dry-run --docs-lang en
+/aikya-analyze --dry-run --methodology odd --docs-lang en
 ```
 
 Aikya detecta las tecnologías y la arquitectura existentes sin una entrevista técnica.
@@ -95,6 +95,7 @@ ambiguos devuelven `PARTIAL` o `NEEDS_REVIEW` y requieren revisión antes de con
 | `--focus infrastructure` | Centrarse en evidencias de infraestructura. |
 | `--focus operations` | Centrarse en evidencias operativas. |
 | `--scope <relative-path>` | Limitar la detección a un componente, como un espacio de trabajo de un monorepo. |
+| `--methodology odd` o `--methodology sdd` | Elegir ODD o SDD antes de la incorporación inicial. |
 | `--refresh` | Actualizar únicamente los recursos de análisis cuya gestión por Aikya pueda verificarse. |
 | `--docs-lang en` o `--docs-lang es` | Elegir el idioma de la documentación viva. |
 
@@ -108,6 +109,44 @@ Ejemplos: ejecuta cada uno por separado según lo necesites.
 
 La detección no compila aplicaciones, ejecuta scripts de la aplicación ni despliega
 infraestructura. La incorporación conserva el código de la aplicación y las configuraciones personalizadas.
+
+### Elegir ODD o SDD
+
+**Tanto `/aikya-init` como `/aikya-analyze` ofrecen ODD y SDD.** ODD es la
+recomendación; hay que confirmar la elección inicial antes de escribir. ODD
+mantiene los cambios acotados en la auditoría de petición existente y añade tareas
+y continuidad para trabajos sustanciales. SDD conserva sus aprobaciones separadas
+de especificación, plan y tareas. En repositorios existentes, empieza por una vista previa:
+
+```text
+/aikya-analyze --dry-run --methodology sdd --docs-lang en
+```
+
+Revisa el plan de archivos, la actualización de generadores y la copia de seguridad
+de los controles de calidad antes de aprobar la incorporación. Sin elección inicial,
+la CLI devuelve `NEEDS_METHODOLOGY` sin escribir. Los perfiles confirmados conservan
+su metodología; `standard` se acepta como alias antiguo de `odd`, con respaldos de
+los archivos gestionados. Desactivar SDD requiere una migración revisada por separado.
+Consulta la [guía de ODD](docs/ODD.md).
+
+El flujo SDD es:
+
+```text
+/aikya-specify
+/aikya-clarify
+/aikya-plan
+/aikya-tasks
+/aikya-implement
+/aikya-sdd-status
+```
+
+La especificación, el plan y las tareas requieren aprobaciones independientes.
+La implementación y generación exigen **SPEC-NNN + TASK-NNN** activos, además del
+consentimiento para los cambios concretos. Una especificación antigua aprobada no
+autoriza otra tarea. SDD funciona en desarrollo, infraestructura y DevOps: es una
+metodología, no un cuarto tipo de proyecto ni una arquitectura de aplicación sustitutiva.
+
+Consulta [el flujo SDD, en inglés](docs/SDD.md) para esquemas, migraciones y límites de las evidencias.
 
 ### Idioma de la documentación
 
@@ -126,10 +165,14 @@ requiere una migración revisada por separado.
 
 | Ruta | Finalidad |
 |---|---|
-| `aikya-skills/` | Fuente de los 21 comandos públicos de Claude Code. |
-| `engineering/agents/` | Definiciones del catálogo de agentes especialistas. |
-| `engineering/skills/` | Catálogo de skills técnicas. |
-| `template/` | Agentes base, skills, reglas y utilidades del harness para los proyectos. |
+| `src/aikya/resources/commands/` | Fuente de los 27 comandos públicos de Claude Code. |
+| `src/aikya/resources/engineering/agents/` | Definiciones del catálogo de agentes especialistas. |
+| `src/aikya/resources/engineering/skills/` | Catálogo de skills técnicas. |
+| `src/aikya/resources/project_template/` | Agentes base, skills, reglas y utilidades del harness para los proyectos. |
+
+El código Python está organizado en `src/aikya/`: núcleo, herramientas, middleware, memoria, instalación, análisis, workflows, documentación, catálogos, routing y calidad. `pyproject.toml` define el paquete; los lanzadores anteriores siguen siendo compatibles.
+
+Todos los planes, bugs y features generados por Aikya se guardan dentro de `aikya/docs/`: `plan/`, `bugs/` y `features/`. Los planes SDD permanecen en el dossier de su especificación dentro de `aikya/docs/specs/`.
 
 ### Archivos y directorios del proyecto
 
@@ -159,23 +202,33 @@ Los proyectos existentes no se reorganizan automáticamente.
 | /aikya-analyze | Analizar e incorporar un repositorio existente |
 | /aikya-answers | Aplicar un perfil técnico declarativo validado |
 | /aikya-doctor | Diagnosticar localmente los requisitos de SDK y del entorno de ejecución |
-| /aikya-project-init | Planificar un proyecto o módulo nuevo |
-| /aikya-infra-project | Planificar, generar con aprobación y validar infraestructura |
+| /aikya-project | Planificar un proyecto o módulo nuevo |
+| /aikya-infra | Planificar, generar con aprobación y validar infraestructura |
 | /aikya-scaffold | Planificar y ejecutar generadores de aplicaciones aprobados para proyectos nuevos |
 | /aikya-feature | Implementar una funcionalidad de alcance definido con pruebas |
 | /aikya-bugfix | Investigar errores y aportar evidencias de regresión |
-| /aikya-architecture-review | Revisar la arquitectura y proponer ADR |
+| /aikya-arc-review | Revisar la arquitectura y proponer ADR |
 | /aikya-mobile-feature | Entregar funcionalidades móviles validadas |
 | /aikya-skills-status | Consultar las Agent Skills registradas |
 | /aikya-skills-plan | Evaluar las fuentes de skills externas y el impacto de su instalación |
-| /aikya-skills-install | Instalar skills externas revisadas tras su aprobación |
+| /aikya-install-skill | Instalar skills externas revisadas con aprobación explícita y registrar la comparación real |
 | /aikya-quality | Ejecutar los controles de calidad disponibles |
 | /aikya-docs | Mantener documentación viva respaldada por evidencias |
 | /aikya-tests | Ejecutar pruebas específicas y de regresión |
-| /aikya-documentation-sync | Sincronizar los documentos afectados y la trazabilidad por petición |
+| /aikya-docs-sync | Sincronizar los documentos afectados y la trazabilidad por petición |
 | /aikya-verify | Validar los cambios técnicos y sus resultados |
 | /aikya-models | Revisar la política opcional de selección de modelos |
 | /aikya-tokens | Consultar el consumo de tokens y los costes estimados de API |
+| /aikya-specify | Crear una especificación y criterios de aceptación |
+| /aikya-clarify | Resolver dudas y registrar aprobación explícita |
+| /aikya-plan | Preparar el diseño técnico y la estrategia de pruebas |
+| /aikya-tasks | Definir tareas vinculadas a requisitos y dependencias |
+| /aikya-implement | Implementar la especificación y tarea activas con aprobación y alcance definido |
+| /aikya-sdd-status | Consultar el estado SDD, la trazabilidad y las evidencias registradas |
+
+Las actualizaciones respaldan los comandos antiguos verificados y los retiran
+solo cuando sus sustitutos están disponibles. Los comandos personalizados se
+conservan con un aviso para su revisión.
 
 Las skills locales del proyecto también incluyen flujos base de funcionalidades,
 corrección de errores, verificación, documentación y revisión de arquitectura.
@@ -185,6 +238,10 @@ Las herramientas externas opcionales no deben invocarse automáticamente.
 
 ![Trazabilidad documental en Aikya](docs/images/documentation-traceability-en.png)
 
+SDD añade especificaciones versionadas en `aikya/docs/specs/<project_type>/SPEC-NNN/`,
+con documentos Markdown y un `state.json` legible por máquinas. Este último almacena
+el estado del flujo: la documentación no se limita exclusivamente a Markdown.
+
 Los cambios técnicos relevantes actualizan las páginas `.md` afectadas de `aikya/docs/`
 y crean un registro `changes/REQ-*.md` con **Cambios**, **Evidencias** y
 **Documentos actualizados**. `docs_guard` comprueba los requisitos documentales.
@@ -192,6 +249,25 @@ Al incluirlos en los commits del proyecto, estos archivos aportan un historial y
 diferencias revisables para auditorías y seguimiento de versiones.
 Las consultas de solo lectura no requieren registros artificiales; no deben
 registrarse prompts completos, secretos ni datos privados.
+
+Todos los documentos Markdown generados por Aikya terminan con la línea exacta
+`GENERATED BY AIKYA HARNESS`, independientemente de su ubicación. Esto incluye
+informes de análisis, README de infraestructura, `CLAUDE.md`, agentes y skills. `indice.md`
+enumera los Markdown que existen; se omiten informes sin datos que los respalden.
+La guía de inicialización y el diagnóstico de herramientas quedan en `overview.md`.
+
+| Ruta dentro de `aikya/docs/` | Contenido |
+|---|---|
+| `features/<funcionalidad-en-minusculas>/` | Alcance e implementación reales |
+| `architecture/architecture-overview.md` | Arquitectura principal tanto para init como para analyze |
+| `plan/testing.md` | Plan de pruebas seleccionado o evidencia de pruebas observadas |
+| `tools/agents.md` | Agentes realmente disponibles en el proyecto |
+| `tools/token-policy.md` | Política de contexto y tokens |
+| `tools/skill-comparison.md` | Resultados reales de instalación externa; se crea únicamente mediante `/aikya-install-skill` |
+
+Los documentos gestionados anteriores se migran con copias en `.harness/backup-docs-layout/`.
+Los conflictos con documentos personalizados requieren revisión. Las rutas de ejecución
+`.harness/` y `aikya/scripts/harness/` conservan sus nombres.
 
 ## 6. Agentes de ingeniería y Agent Skills
 
@@ -216,7 +292,7 @@ Consulta la disponibilidad y el impacto de la instalación desde Claude Code:
 /aikya-skills-plan
 ```
 
-Tras revisar el plan, utiliza `/aikya-skills-install` con aprobación explícita.
+Tras revisar el plan, utiliza `/aikya-install-skill` con aprobación explícita.
 Antes de instalar, revisa la procedencia, licencia, herramientas, acceso a red y
 versión o commit. Los hooks de instalación de terceros no deben ejecutarse de forma silenciosa.
 
@@ -268,3 +344,48 @@ de una aplicación ni sustituyen la revisión de seguridad específica de cada p
 - [Política de seguridad](SECURITY.md)
 - [Código de conducta](CODE_OF_CONDUCT.md)
 - [Contratos de los workflows de GitHub](.github/workflows.md)
+
+
+### Plantillas de Aikya para SDD
+
+SDD compone nueve roles a partir de la [biblioteca de Aikya](src/aikya/resources/aikya-template/docs/README.md): funcionalidad, API, base de datos, especificación, diseño, tareas, evidencias, revisión y reglas de ingeniería. Aikya conserva sus criterios de aceptación, trazabilidad y aprobaciones independientes. Los documentos se crean con contenido revisado. Consulta la [guía de plantillas SDD](docs/SDD_TEMPLATES.md) y la [galería completa de ejemplos generados](examples/documentation/generated/README.es.md).
+
+## CLAUDE.md según el proyecto
+
+Aikya selecciona instrucciones en inglés para desarrollo, infraestructura o DevOps y añade únicamente las guías del stack, estructura y metodología registrados. Los CLAUDE.md existentes se conservan. Consulta la [selección de plantillas y ejemplos](docs/CLAUDE_TEMPLATES.md).
+
+## Biblioteca de plantillas de documentación
+
+Hay 120 plantillas de Aikya fijadas a un commit disponibles sin conexión; la atribución original se conserva en THIRD_PARTY_LICENSES.md. La arquitectura utiliza `aikya/docs/architecture/architecture-overview.md`; los errores reales se añaden a `aikya/docs/bugs/bugs.md`. Los documentos requieren datos revisados y autorización. Consulta la [selección, ejemplos, licencia y compatibilidad](docs/DOCUMENTATION_TEMPLATES.md).
+
+Aikya combina sus documentos generados con las plantillas de Aikya adecuadas según el comando, la metodología y el perfil del proyecto. Las features estándar incluyen criterios de aceptación observables; las secciones opcionales de diseño y pruebas utilizan datos reales aportados. Consulta la [composición contextual de plantillas](docs/CONTEXTUAL_TEMPLATE_COMPOSITION.md).
+
+
+## Fases de ejecución y consumo
+
+Todos los comandos comparten **Explore → Plan → Implement → Validate → Security → Review**,
+con aplicabilidad proporcional y estados separados en inglés. La barra local muestra
+la acción, modelo o ejecutor observado, contexto y cuotas opcionales de cuenta de
+5 horas y 7 días. Los datos ausentes aparecen como N/D. Los tokens registrados usan
+rutas de sesión autorizadas; no permiten calcular cuotas de cuenta. Las consultas
+no crean documentos del proyecto. Se conservan las barras y hooks personalizados,
+con una propuesta revisable cuando hay conflicto. Consulta la
+[visibilidad de ejecución](docs/EXECUTION_VISIBILITY.md) y el
+[plan completo en español](aikya/docs/plan/archive/harness-development/2026-10-23-odd-observabilidad.es.md).
+
+## Agent loop opcional
+
+Puedes activar explícitamente la ejecución acotada en /aikya-feature,
+/aikya-bugfix o /aikya-implement. El SDK opcional de Claude ejecuta la tarea y Aikya
+controla archivos autorizados, gates ODD/SDD, pruebas locales, revisión de solo
+lectura y límites persistentes. No se inicia durante el onboarding ni instala el
+SDK automáticamente. Consulta la [guía del agent loop](docs/AGENT_LOOP.md).
+
+La memoria opcional project/private incorpora revisión explícita, migración de
+checkout y extracción acotada de propuestas pendientes de aprobación. El control
+de calidad exige modularizar los archivos de código modificados de más de 1.000
+líneas; las funciones Python largas y los cuerpos repetidos generan avisos de
+revisión. Consulta los [controles de seguridad y calidad](docs/SECURITY_CONTROLS.md)
+para conocer qué se aplica automáticamente.
+
+GENERATED BY AIKYA HARNESS

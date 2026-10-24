@@ -2,8 +2,70 @@
 
 ## Unreleased
 
-- English-only engineering core with configurable English/Spanish living documentation under aikya/docs/.
-- Claude Code Agent Skills and subagent quality, permissions and routing standardization.
+## v7.0.0 — 2026-10-24
+
+### Upgrade notes
+
+- This major release renames public commands, relocates the offline template library and restructures Python source/resources. Use the canonical command names and documentation paths below. Existing root Python adapters remain compatible; known managed assets upgrade with backups, while customized coupled runtimes require review before migration.
+
+### Methodologies and commands
+
+- Integrate Spec-Driven Development for development, infrastructure and DevOps, with a portable lifecycle engine, localized living documents and versioned requirement/task/evidence records. The initial SDD integration was recorded on 2026-10-21; this entry includes the subsequent changes delivered on this branch.
+- Require an explicit ODD/SDD choice during `/aikya-init` and `/aikya-analyze`. Preserve confirmed choices, normalize legacy `standard` inputs to `odd`, and retain managed profile/answers backups and existing SDD approvals.
+- Add proportional ODD worklists, acceptance criteria, task dependencies, recorded evidence, versioned continuity and reviewed invalidation of stale outcomes.
+- Keep `/aikya-init` for new projects and `/aikya-analyze` for approved existing-project adoption, with deterministic discovery, scoped previews and preservation of custom project files, infrastructure, CI/CD and ignore rules.
+- Add six SDD commands: `/aikya-specify`, `/aikya-clarify`, `/aikya-plan`, `/aikya-tasks`, `/aikya-implement` and `/aikya-sdd-status`. Bind implementation/generation to the active approved specification and task; distinguish structural lint from recorded completion readiness.
+- Rename `/aikya-project-init` to `/aikya-project`, `/aikya-infra-project` to `/aikya-infra`, `/aikya-architecture-review` to `/aikya-arc-review` and `/aikya-documentation-sync` to `/aikya-docs-sync`. Consolidate external skill installation in `/aikya-install-skill`.
+- Register 27 canonical public commands. Retire verified old wrappers with backups, preserve customized commands for manual review and prevent compatibility aliases from being regenerated.
+
+### Execution, memory and safety
+
+- Add an explicit optional agent loop for feature, bugfix and implement, using a separately installed Claude Agent SDK, scoped tools, ODD/SDD gates, local process checks and an independent read-only runtime review contract.
+- Persist execution limits, usage, effect intents and recoverable checkpoints. Stop on uncertain effects, stale candidates, changed approvals or unknown cost data rather than silently retrying.
+- Add reviewed typed project memories with source fingerprints, expiry and globally budgeted lexical recall; share permission controls with the existing runtime.
+- Add six English execution phases: Explore, Plan, Implement, Validate, Security and Review. Keep status separate and correlate private concurrent session/run snapshots, local CLI/check observations and the protocol used by all public commands.
+- Register execution hooks and status views without replacing custom commands. Display observed models, context, optional provider 5-hour/7-day windows and explicitly cached session aggregates; show unavailable data as N/D.
+- Preserve explicit approvals, source-size diagnostics, evidence-path validation and dependency checks as separate controls. Recorded evidence, a phase transition or a planning document does not independently certify security, passing tests or deployment readiness.
+
+### Python structure, packaging and upgrades
+
+- Package implementations under `src/aikya/`, grouped into core, tools, middleware, memory, installation, discovery, workflows, documentation, catalogs, routing and quality. Keep existing root scripts/imports as compatibility adapters.
+- Add `pyproject.toml`, Python 3.10+ metadata, console entry points, wheel/source-distribution packaging and an optional agent-loop SDK extra; the ordinary runtime has no new mandatory dependencies.
+- Split the oversized installer into focused contextual preflight, asset, configuration, migration and documentation stages while preserving its public callable contracts.
+- Use one runtime asset inventory for global/project registration and initialized ODD/SDD projects. Preserve predecessor hashes and custom files; reject coupled customizations, detect stale previews, retain backups and restore previous bytes after tested copy failures.
+- Move canonical source assets under package resources and load migration hashes from a checksummed JSON resource. Retain immutable predecessor signatures and retired-command records needed for safe upgrades.
+- Split the 658-line SDD engine into a 282-line transition facade plus contracts, validation, state, rendering and CLI modules. Preserve its 34 exported function/class names and 78 pre-refactor lifecycle/document fingerprints; the largest implementation module is now 404 lines.
+- Close the bounded Terraform discovery file read to eliminate its ResourceWarning. Correct the inherited symbolic-link regression test and normalize migrated Python whitespace without changing function semantics.
+
+### Documentation, templates and cleanup
+
+- Keep new plans, bugs, features, research and validation records under `aikya/docs/`. Normalize plan inputs to `plan/`, lowercase feature folders under `features/`, architecture to `architecture/architecture-overview.md`, test plans to `plan/testing.md` and agent/token policies to `tools/`.
+- Consolidate initialization and toolchain guidance in `overview.md`. Generate an exact `indice.md` inventory, append actual bugs to `bugs/bugs.md` and omit unsupported or empty documents, including unused SDD clarification/verification reports.
+- Apply the terminal `GENERATED BY AIKYA HARNESS` footer to generated Markdown, including analysis reports and first-party instruction assets. Retain English engineering instructions, configurable English/Spanish living documentation and the bilingual README.
+- Validate generated-record locations even for documentation-only changes. Preserve root project contracts, project-owned custom documents and verified functional/runtime reference assets in their required installation paths.
+- Bundle 120 offline reference templates and supporting guides, with nine SDD role adaptations and contextual composition by command, methodology and project type. Retain Aikya acceptance IDs, approvals and traceability; create documents only from reviewed supplied facts.
+- Rename the reference-library directory to `aikya-template/docs` and update active template references. Preserve original copyright, MIT license, upstream provenance and historical evidence; back up and retire verified old catalogs, block customized catalogs and restore retired files after a tested write failure.
+- Create `tools/skill-comparison.md` only for explicitly requested external skill installation attempts; do not fabricate it after a rejected installation.
+- Preserve the checksummed historical generated-example gallery in source while excluding it from registered runtimes and distributions. Archive reviewed historical plans, validation records and media under `aikya/docs/`; remove the duplicate root image and update navigation.
+- Update the English/Spanish README, contributor instructions, CI source/resource paths and isolated package acceptance checks.
+
+### Validation and research
+
+- Record 496 passing regression tests on each Python version 3.10, 3.11, 3.12 and 3.13 after the SDD split, including adversarial loop/memory cases, approval scope, malformed state, recovery, migration, runtime isolation, locale and document-path checks.
+- Exercise executable support for all 27 public commands through 49 local process checks and inventory generated Markdown paths. Cover missing approvals, unsafe paths, duplicate bug IDs, failing/unconfigured checks and incomplete SDD workflows.
+- Validate 48 onboarding combinations across two scopes, three project types, two methodologies, two locales and init/analyze; validate all 14 versioned example profiles and bundled agent/skill/command metadata.
+- Verify the offline template hashes, eight isolated wheel onboarding cases, 96 importable modules in two independent orders, and upgrades from the published predecessor in both registration scopes and initialized ODD/SDD projects.
+- Record detailed results and the corrected historical/current size measurements in `aikya/docs/validation/COMMAND_ACCEPTANCE.md` and `aikya/docs/validation/SDD_MODULARIZATION.md`. Live authenticated-model execution remains assigned to the other environment; local results do not claim a live external-skill installation or infrastructure deployment.
+- Document source-pinned OpenHarness and Gentle Shell comparisons. The Gentle Shell adoption plan for risk-based review, candidate receipts, state views and optional integrations remains pending; comparisons do not install or execute those external runtimes.
+
+## v6.1.1 — 2026-10-21
+
+- Integrated opt-in Spec-Driven Development for development, infrastructure and DevOps while retaining the standard workflow and new/existing onboarding separation.
+- Added six SDD commands, a portable specification lifecycle engine and localized living documentation with versioned state and requirement/task/evidence records.
+- Bound generation to the active approved specification and task, revalidated persisted references and dependencies, and separated structural lint from recorded completion readiness.
+- Added reviewed adoption through --methodology sdd, conservative known-asset upgrades with backups, custom-asset blocking, and global/project runtime support.
+- Preserved current analysis, model and token commands; updated the bilingual README, workflow documentation and catalog inventory for 27 public commands.
+- Added regression coverage for approval scope, malformed state, migration, runtime isolation, documentation languages and quality-manifest safety; corrected the inherited symbolic-link test.
 
 ## v6.0.1 — 2026-10-21
 
@@ -132,3 +194,5 @@
 
 - Engineering bootstrap, technical interview, assisted scaffolding, infrastructure and
   living documentation with traceability hooks.
+
+GENERATED BY AIKYA HARNESS
