@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-## v6.1.1 — 2026-10-24
+## v7.0.0 — 2026-10-24
+
+### Upgrade notes
+
+- This major release renames public commands, relocates the offline template library and restructures Python source/resources. Use the canonical command names and documentation paths below. Existing root Python adapters remain compatible; known managed assets upgrade with backups, while customized coupled runtimes require review before migration.
 
 ### Methodologies and commands
 
@@ -53,6 +57,15 @@
 - Verify the offline template hashes, eight isolated wheel onboarding cases, 96 importable modules in two independent orders, and upgrades from the published predecessor in both registration scopes and initialized ODD/SDD projects.
 - Record detailed results and the corrected historical/current size measurements in `aikya/docs/validation/COMMAND_ACCEPTANCE.md` and `aikya/docs/validation/SDD_MODULARIZATION.md`. Live authenticated-model execution remains assigned to the other environment; local results do not claim a live external-skill installation or infrastructure deployment.
 - Document source-pinned OpenHarness and Gentle Shell comparisons. The Gentle Shell adoption plan for risk-based review, candidate receipts, state views and optional integrations remains pending; comparisons do not install or execute those external runtimes.
+
+## v6.1.1 — 2026-10-21
+
+- Integrated opt-in Spec-Driven Development for development, infrastructure and DevOps while retaining the standard workflow and new/existing onboarding separation.
+- Added six SDD commands, a portable specification lifecycle engine and localized living documentation with versioned state and requirement/task/evidence records.
+- Bound generation to the active approved specification and task, revalidated persisted references and dependencies, and separated structural lint from recorded completion readiness.
+- Added reviewed adoption through --methodology sdd, conservative known-asset upgrades with backups, custom-asset blocking, and global/project runtime support.
+- Preserved current analysis, model and token commands; updated the bilingual README, workflow documentation and catalog inventory for 27 public commands.
+- Added regression coverage for approval scope, malformed state, migration, runtime isolation, documentation languages and quality-manifest safety; corrected the inherited symbolic-link test.
 
 ## v6.0.1 — 2026-10-21
 
